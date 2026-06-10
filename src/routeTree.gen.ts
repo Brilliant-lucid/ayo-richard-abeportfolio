@@ -14,6 +14,7 @@ import { Route as PublicIndexRouteImport } from './routes/_public.index'
 import { Route as PublicAboutRouteImport } from './routes/_public.about'
 import { Route as PublicProjectsIndexRouteImport } from './routes/_public.projects.index'
 import { Route as PublicCaseStudiesIndexRouteImport } from './routes/_public.case-studies.index'
+import { Route as PublicBlogIndexRouteImport } from './routes/_public.blog.index'
 import { Route as PublicProjectsSlugRouteImport } from './routes/_public.projects.$slug'
 import { Route as PublicCaseStudiesSlugRouteImport } from './routes/_public.case-studies.$slug'
 
@@ -41,6 +42,11 @@ const PublicCaseStudiesIndexRoute = PublicCaseStudiesIndexRouteImport.update({
   path: '/case-studies/',
   getParentRoute: () => PublicRoute,
 } as any)
+const PublicBlogIndexRoute = PublicBlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => PublicRoute,
+} as any)
 const PublicProjectsSlugRoute = PublicProjectsSlugRouteImport.update({
   id: '/projects/$slug',
   path: '/projects/$slug',
@@ -57,6 +63,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof PublicAboutRoute
   '/case-studies/$slug': typeof PublicCaseStudiesSlugRoute
   '/projects/$slug': typeof PublicProjectsSlugRoute
+  '/blog/': typeof PublicBlogIndexRoute
   '/case-studies/': typeof PublicCaseStudiesIndexRoute
   '/projects/': typeof PublicProjectsIndexRoute
 }
@@ -65,6 +72,7 @@ export interface FileRoutesByTo {
   '/': typeof PublicIndexRoute
   '/case-studies/$slug': typeof PublicCaseStudiesSlugRoute
   '/projects/$slug': typeof PublicProjectsSlugRoute
+  '/blog': typeof PublicBlogIndexRoute
   '/case-studies': typeof PublicCaseStudiesIndexRoute
   '/projects': typeof PublicProjectsIndexRoute
 }
@@ -75,6 +83,7 @@ export interface FileRoutesById {
   '/_public/': typeof PublicIndexRoute
   '/_public/case-studies/$slug': typeof PublicCaseStudiesSlugRoute
   '/_public/projects/$slug': typeof PublicProjectsSlugRoute
+  '/_public/blog/': typeof PublicBlogIndexRoute
   '/_public/case-studies/': typeof PublicCaseStudiesIndexRoute
   '/_public/projects/': typeof PublicProjectsIndexRoute
 }
@@ -85,6 +94,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/case-studies/$slug'
     | '/projects/$slug'
+    | '/blog/'
     | '/case-studies/'
     | '/projects/'
   fileRoutesByTo: FileRoutesByTo
@@ -93,6 +103,7 @@ export interface FileRouteTypes {
     | '/'
     | '/case-studies/$slug'
     | '/projects/$slug'
+    | '/blog'
     | '/case-studies'
     | '/projects'
   id:
@@ -102,6 +113,7 @@ export interface FileRouteTypes {
     | '/_public/'
     | '/_public/case-studies/$slug'
     | '/_public/projects/$slug'
+    | '/_public/blog/'
     | '/_public/case-studies/'
     | '/_public/projects/'
   fileRoutesById: FileRoutesById
@@ -147,6 +159,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicCaseStudiesIndexRouteImport
       parentRoute: typeof PublicRoute
     }
+    '/_public/blog/': {
+      id: '/_public/blog/'
+      path: '/blog'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof PublicBlogIndexRouteImport
+      parentRoute: typeof PublicRoute
+    }
     '/_public/projects/$slug': {
       id: '/_public/projects/$slug'
       path: '/projects/$slug'
@@ -169,6 +188,7 @@ interface PublicRouteChildren {
   PublicIndexRoute: typeof PublicIndexRoute
   PublicCaseStudiesSlugRoute: typeof PublicCaseStudiesSlugRoute
   PublicProjectsSlugRoute: typeof PublicProjectsSlugRoute
+  PublicBlogIndexRoute: typeof PublicBlogIndexRoute
   PublicCaseStudiesIndexRoute: typeof PublicCaseStudiesIndexRoute
   PublicProjectsIndexRoute: typeof PublicProjectsIndexRoute
 }
@@ -178,6 +198,7 @@ const PublicRouteChildren: PublicRouteChildren = {
   PublicIndexRoute: PublicIndexRoute,
   PublicCaseStudiesSlugRoute: PublicCaseStudiesSlugRoute,
   PublicProjectsSlugRoute: PublicProjectsSlugRoute,
+  PublicBlogIndexRoute: PublicBlogIndexRoute,
   PublicCaseStudiesIndexRoute: PublicCaseStudiesIndexRoute,
   PublicProjectsIndexRoute: PublicProjectsIndexRoute,
 }
