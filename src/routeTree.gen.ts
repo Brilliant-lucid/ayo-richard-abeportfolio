@@ -23,6 +23,7 @@ import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authentic
 import { Route as PublicProjectsSlugRouteImport } from './routes/_public.projects.$slug'
 import { Route as PublicCaseStudiesSlugRouteImport } from './routes/_public.case-studies.$slug'
 import { Route as PublicBlogSlugRouteImport } from './routes/_public.blog.$slug'
+import { Route as AuthenticatedAdminSiteSettingsRouteImport } from './routes/_authenticated/admin.site-settings'
 import { Route as AuthenticatedAdminMessagesRouteImport } from './routes/_authenticated/admin.messages'
 import { Route as AuthenticatedAdminHeroRouteImport } from './routes/_authenticated/admin.hero'
 import { Route as AuthenticatedAdminProjectsIndexRouteImport } from './routes/_authenticated/admin.projects.index'
@@ -96,6 +97,12 @@ const PublicBlogSlugRoute = PublicBlogSlugRouteImport.update({
   path: '/blog/$slug',
   getParentRoute: () => PublicRoute,
 } as any)
+const AuthenticatedAdminSiteSettingsRoute =
+  AuthenticatedAdminSiteSettingsRouteImport.update({
+    id: '/site-settings',
+    path: '/site-settings',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminMessagesRoute =
   AuthenticatedAdminMessagesRouteImport.update({
     id: '/messages',
@@ -128,6 +135,7 @@ export interface FileRoutesByFullPath {
   '/contact': typeof PublicContactRoute
   '/admin/hero': typeof AuthenticatedAdminHeroRoute
   '/admin/messages': typeof AuthenticatedAdminMessagesRoute
+  '/admin/site-settings': typeof AuthenticatedAdminSiteSettingsRoute
   '/blog/$slug': typeof PublicBlogSlugRoute
   '/case-studies/$slug': typeof PublicCaseStudiesSlugRoute
   '/projects/$slug': typeof PublicProjectsSlugRoute
@@ -145,6 +153,7 @@ export interface FileRoutesByTo {
   '/contact': typeof PublicContactRoute
   '/admin/hero': typeof AuthenticatedAdminHeroRoute
   '/admin/messages': typeof AuthenticatedAdminMessagesRoute
+  '/admin/site-settings': typeof AuthenticatedAdminSiteSettingsRoute
   '/blog/$slug': typeof PublicBlogSlugRoute
   '/case-studies/$slug': typeof PublicCaseStudiesSlugRoute
   '/projects/$slug': typeof PublicProjectsSlugRoute
@@ -166,6 +175,7 @@ export interface FileRoutesById {
   '/_public/': typeof PublicIndexRoute
   '/_authenticated/admin/hero': typeof AuthenticatedAdminHeroRoute
   '/_authenticated/admin/messages': typeof AuthenticatedAdminMessagesRoute
+  '/_authenticated/admin/site-settings': typeof AuthenticatedAdminSiteSettingsRoute
   '/_public/blog/$slug': typeof PublicBlogSlugRoute
   '/_public/case-studies/$slug': typeof PublicCaseStudiesSlugRoute
   '/_public/projects/$slug': typeof PublicProjectsSlugRoute
@@ -186,6 +196,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/admin/hero'
     | '/admin/messages'
+    | '/admin/site-settings'
     | '/blog/$slug'
     | '/case-studies/$slug'
     | '/projects/$slug'
@@ -203,6 +214,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/admin/hero'
     | '/admin/messages'
+    | '/admin/site-settings'
     | '/blog/$slug'
     | '/case-studies/$slug'
     | '/projects/$slug'
@@ -223,6 +235,7 @@ export interface FileRouteTypes {
     | '/_public/'
     | '/_authenticated/admin/hero'
     | '/_authenticated/admin/messages'
+    | '/_authenticated/admin/site-settings'
     | '/_public/blog/$slug'
     | '/_public/case-studies/$slug'
     | '/_public/projects/$slug'
@@ -340,6 +353,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicBlogSlugRouteImport
       parentRoute: typeof PublicRoute
     }
+    '/_authenticated/admin/site-settings': {
+      id: '/_authenticated/admin/site-settings'
+      path: '/site-settings'
+      fullPath: '/admin/site-settings'
+      preLoaderRoute: typeof AuthenticatedAdminSiteSettingsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/messages': {
       id: '/_authenticated/admin/messages'
       path: '/messages'
@@ -374,6 +394,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminHeroRoute: typeof AuthenticatedAdminHeroRoute
   AuthenticatedAdminMessagesRoute: typeof AuthenticatedAdminMessagesRoute
+  AuthenticatedAdminSiteSettingsRoute: typeof AuthenticatedAdminSiteSettingsRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminProjectsIdRoute: typeof AuthenticatedAdminProjectsIdRoute
   AuthenticatedAdminProjectsIndexRoute: typeof AuthenticatedAdminProjectsIndexRoute
@@ -382,6 +403,7 @@ interface AuthenticatedAdminRouteChildren {
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminHeroRoute: AuthenticatedAdminHeroRoute,
   AuthenticatedAdminMessagesRoute: AuthenticatedAdminMessagesRoute,
+  AuthenticatedAdminSiteSettingsRoute: AuthenticatedAdminSiteSettingsRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedAdminProjectsIdRoute: AuthenticatedAdminProjectsIdRoute,
   AuthenticatedAdminProjectsIndexRoute: AuthenticatedAdminProjectsIndexRoute,
