@@ -84,11 +84,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: "Personal portfolio of Ayo Richard Abe — building products that define market categories." },
       { name: "author", content: "Ayo Richard Abe" },
       { property: "og:type", content: "website" },
-      { property: "og:title", content: "Ayo Richard Abe — Portfolio" },
+      { property: "og:title", content: "Ayo Richard Abe — Product Manager, Developer, Growth Marketer" },
       { property: "og:description", content: "Personal portfolio of Ayo Richard Abe — building products that define market categories." },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Ayo Richard Abe — Portfolio" },
+      { name: "twitter:title", content: "Ayo Richard Abe — Product Manager, Developer, Growth Marketer" },
       { name: "twitter:description", content: "Personal portfolio of Ayo Richard Abe — building products that define market categories." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/hmK84GWhmReBzUA14FYDjPx3FKe2/social-images/social-1781080582030-Gemini_Generated_Image_2hcsh62hcsh62hcs.webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/hmK84GWhmReBzUA14FYDjPx3FKe2/social-images/social-1781080582030-Gemini_Generated_Image_2hcsh62hcsh62hcs.webp" },
     ],
     links: [
       {
