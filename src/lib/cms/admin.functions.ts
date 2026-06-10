@@ -60,7 +60,7 @@ const projectSchema = z.object({
   featured: z.boolean().default(false),
   display_order: z.number().int().default(0),
   bento_size: z.enum(["small", "medium", "large", "wide", "tall"]).default("small"),
-  status: z.enum(["draft", "published", "archived"]).default("draft"),
+  status: z.enum(["draft", "published"]).default("draft"),
 });
 
 export const listAllProjects = createServerFn({ method: "GET" })
