@@ -1,116 +1,66 @@
-## Goal
+# v1 Build Plan — UI, Routing, Admin
 
-Ship a premium, CMS-driven portfolio for Ayo Richard Abe — core public pages live, single-admin dashboard editing the highest-leverage content. Everything else stubbed against the same schema so we can expand without redesign.
+Backend, schema, seed data, and design tokens are already in place. This plan covers the remaining UI, routing, data layer, and admin work.
 
-## v1 scope
+## 1. Data layer (`src/lib/cms/`)
 
-### Public pages (live, fully styled)
-- **Home** — sidebar nav, hero (photo beside name + role line + intro + 2 CTAs), stats strip, What I Do, featured projects bento (5 tiles), featured case studies, recent blog posts, testimonial, contact CTA
-- **About**
-- **Projects** (index + dynamic `/projects/$slug`)
-- **Case Studies** (index + dynamic `/case-studies/$slug`)
-- **Blog** (index + dynamic `/blog/$slug`)
-- **Contact** (info + validated form → stored in DB)
+Server functions, one file per collection:
 
-### Editable via CMS in v1
-Hero content, Site Settings (name, social, contact), Projects, Case Studies, Blog Posts, Testimonials, Stats, Navigation visibility.
+- `settings.functions.ts` — `getSiteSettings`, `getHero`, `listNavLinks`, `listStats`
+- `projects.functions.ts` — `listProjects`, `getProjectBySlug`, admin: `upsertProject`, `deleteProject`
+- `caseStudies.functions.ts` — same shape
+- `blog.functions.ts` — same shape
+- `testimonials.functions.ts` — `listTestimonials`, admin upsert/delete
+- `contact.functions.ts` — public `submitContactMessage`, admin `listMessages`, `markRead`
+- `media.functions.ts` — admin `uploadMedia` (signed upload to `media` bucket)
 
-### Stubbed pages (route exists, hardcoded content, schema ready for v2)
-Experience, Skills, Marketing Work, Certifications.
+Public reads use `supabaseAdmin` (imported inside handler) with `.eq('status','published')` filter so SSR/prerender works without a session. Admin writes use `requireSupabaseAuth` + `is_admin()` check.
 
-## Design
+## 2. Public routes & shell
 
-Build the **Editorial SaaS Aesthetic** prototype faithfully:
-- Tokens verbatim into `src/styles.css`: bg `#fafbfc`, surface `#e8ecf1`, muted `#94a3b8`, accent `#3b82f6`, foreground `#0f172a` (zinc-900)
-- Fonts: Instrument Serif (display) + Work Sans (body), loaded via `<link>` in `__root.tsx`
-- Composition locked: fixed 256px left sidebar, max-w-5xl main content, 12-col bento for featured projects, dark navy contact CTA card
-- Light + dark mode toggle (footer of sidebar); dark mode is an inversion of these tokens, not a separate direction
+- `__root.tsx` — load fonts (Instrument Serif, Work Sans), QueryClient provider, root `<Outlet />`, root `head()` with site defaults, `onAuthStateChange` listener, theme provider (light/dark).
+- Public layout component `PublicShell` with fixed 256px left sidebar (logo, nav links from CMS, theme toggle, social icons) + main content area (`max-w-5xl`).
+- Routes:
+  - `index.tsx` — Home: hero (portrait + stats), bento grid of featured projects (MeetMind, BuMarS, etc.), testimonials strip, contact CTA card.
+  - `about.tsx` — Long-form bio, experience/skills placeholders.
+  - `projects.index.tsx` — Project grid.
+  - `projects.$slug.tsx` — Project detail (loader-fed og:image).
+  - `case-studies.index.tsx` + `case-studies.$slug.tsx`.
+  - `blog.index.tsx` + `blog.$slug.tsx`.
+  - `contact.tsx` — Contact form → `submitContactMessage`.
+  - `auth.tsx` — Email/password sign-in (signup disabled).
 
-## Architecture (technical)
+Each route defines route-specific `head()` (title, description, og). Loaders use `ensureQueryData` + `useSuspenseQuery`. Every route has `errorComponent` + `notFoundComponent`.
 
-### Backend — Lovable Cloud
-**Tables** (all RLS-enabled):
+## 3. Admin (`_authenticated/admin/`)
 
-| Table | Public read | Auth required for write |
-|---|---|---|
-| `site_settings` (single row) | ✅ | admin only |
-| `hero` (single row) | ✅ | admin only |
-| `stats` | ✅ published | admin only |
-| `projects` | ✅ published | admin only |
-| `case_studies` | ✅ published | admin only |
-| `blog_posts` | ✅ published | admin only |
-| `testimonials` | ✅ | admin only |
-| `nav_links` | ✅ visible | admin only |
-| `contact_messages` | ❌ | insert open / read admin only |
-| `experience`, `skills`, `certifications`, `marketing_work` | ✅ published | admin only (schema only in v1) |
-| `user_roles` (enum: admin) | self-read | service-role only |
+Integration-managed `_authenticated/route.tsx` already gates. Admin sublayout checks `is_admin()` via server fn; non-admins see "Not authorized".
 
-All public read goes through public server fns using `supabaseAdmin` with explicit column/WHERE filters (status='published'), not broad `anon` policies. Writes go through `requireSupabaseAuth` server fns that check `has_role(auth.uid(),'admin')`.
+- `admin/index.tsx` — Dashboard (counts, recent messages).
+- `admin/site-settings.tsx`, `admin/hero.tsx` — singleton edit forms.
+- `admin/projects.index.tsx` + `admin/projects.$id.tsx` (id=`new` or uuid) — list + edit.
+- Same pattern for `case-studies`, `blog`, `testimonials`, `stats`, `nav-links`.
+- `admin/messages.tsx` — inbox.
+- Forms: shadcn `form` + zod + react-hook-form. Rich text via Tiptap for body fields. Image upload widget calls `uploadMedia`, stores public URL.
+- Status toggle (draft/published) on every editable collection.
 
-**Auth**: email/password only. Signup disabled (admin seeded via a one-time migration + manual `user_roles` insert). Single `/auth` route → on success, redirect to `/admin`.
+## 4. Auth flow
 
-**Storage**: one public bucket `media` for uploaded images (profile photo, project covers, blog featured images). Admin-only writes, public reads.
+- `/auth` — email/password sign-in only (signup disabled at provider level later by user).
+- After sign-in, redirect to `/admin`.
+- Sign-out via header button → cancel queries, clear cache, `signOut()`, navigate `/auth`.
 
-### Routes (TanStack Start)
+## 5. Out of scope (placeholders only)
 
-```
-src/routes/
-  __root.tsx                         (fonts, providers, sidebar+main shell)
-  index.tsx                          home
-  about.tsx
-  projects.index.tsx                 + projects.tsx (layout w/ Outlet)
-  projects.$slug.tsx
-  case-studies.index.tsx             + case-studies.tsx
-  case-studies.$slug.tsx
-  blog.index.tsx                     + blog.tsx
-  blog.$slug.tsx
-  contact.tsx
-  experience.tsx  skills.tsx  marketing.tsx  certifications.tsx   (stub pages)
-  auth.tsx
-  _authenticated/route.tsx           (integration-managed)
-  _authenticated/admin.tsx           admin layout (sidebar)
-  _authenticated/admin.index.tsx     dashboard overview
-  _authenticated/admin.hero.tsx
-  _authenticated/admin.site.tsx
-  _authenticated/admin.projects.tsx + admin.projects.$id.tsx (edit)
-  _authenticated/admin.case-studies.tsx + .$id.tsx
-  _authenticated/admin.blog.tsx + .$id.tsx
-  _authenticated/admin.testimonials.tsx
-  _authenticated/admin.stats.tsx
-  _authenticated/admin.messages.tsx
-```
+Experience, Skills, Marketing Work, Certifications pages — schema seeded but rendered as static stubs in About. Drag-to-reorder, media library browser, newsletter — not built.
 
-Every leaf gets its own `head()` with route-specific title, description, og:title, og:description. Dynamic routes derive og:image from loader data (project cover, blog featured image). Canonical on leaves only.
+## Validation checklist
 
-### Data layer
-- Server fns in `src/lib/cms/*.functions.ts`: public `list*` / `get*BySlug` (admin client, filtered to published) + protected `upsert*` / `delete*` / `uploadMedia` (auth middleware + role check).
-- Loaders use `ensureQueryData` + `useSuspenseQuery`; mutations use `useMutation` + invalidate keys.
-- Public route loaders call only public server fns (never `requireSupabaseAuth`) so SSR/prerender works.
+- Home matches Editorial SaaS Aesthetic prototype (sidebar + bento grid + dark contact CTA).
+- Light + dark mode token inversion works.
+- Public routes prerender without auth.
+- Admin can create/edit/publish a project and see it on `/projects`.
+- Contact form writes to `contact_messages`; admin sees it at `/admin/messages`.
+- All routes have unique `head()` metadata; detail pages derive og:image from loader.
 
-### Admin UX
-- Sidebar with sections, each list view: table + "New" button + row click → edit form
-- Forms built with shadcn `form` + zod validation, image upload via storage helper
-- Status: draft/published toggle on every editable item
-- Rich text: Tiptap for blog post body and case-study sections
-- Save = upsert + toast + invalidate queries
-
-### Reusable components
-`HeroBlock`, `StatsStrip`, `ProjectBentoCard`, `ProjectCard`, `CaseStudyCard`, `BlogCard`, `TestimonialCard`, `ContactCTA`, `Sidebar`, `AdminShell`, `ImageUploader`, `RichTextEditor`, `StatusBadge`, `RelatedContent`.
-
-### Seed data
-Five projects (MeetMind, BuMarS, Credan, Lucid Tech Internship Tracker, ISLO Markets) preloaded as published rows, plus hero text, default site settings, 4 stats, 2 sample case studies + 2 sample blog posts so the site looks complete on first visit.
-
-## Out of scope for v1 (next iteration)
-- CMS editing for Experience, Skills, Marketing Work, Certifications (schema exists, public pages will be hardcoded placeholders linking to the data once admin UIs ship)
-- Image library / media browser (uploads work, but no gallery view)
-- Drag-to-reorder
-- Newsletter, Speaking, Resources expansion pages
-
-## Validation checklist before "done"
-- Home matches the prototype composition (sidebar width, bento layout, dark contact card)
-- Profile photo in hero (never sidebar), above hero text on mobile
-- Light + dark mode toggle works and persists
-- Public routes prerender without auth
-- Admin can sign in, edit hero/project/blog, upload an image, publish, and see it live
-- Contact form writes a row admins can read in `/admin/messages`
-- Lighthouse mobile passes, og tags present per route
+Reply "approve" to switch to build mode.
