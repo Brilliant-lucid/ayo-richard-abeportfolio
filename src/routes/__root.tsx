@@ -84,7 +84,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: "Personal portfolio of Ayo Richard Abe — building products that define market categories." },
       { name: "author", content: "Ayo Richard Abe" },
       { property: "og:type", content: "website" },
+      { property: "og:title", content: "Ayo Richard Abe — Portfolio" },
+      { property: "og:description", content: "Personal portfolio of Ayo Richard Abe — building products that define market categories." },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Ayo Richard Abe — Portfolio" },
+      { name: "twitter:description", content: "Personal portfolio of Ayo Richard Abe — building products that define market categories." },
     ],
     links: [
       {
