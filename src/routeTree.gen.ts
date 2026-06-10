@@ -11,9 +11,11 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as PublicRouteImport } from './routes/_public'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as PublicIndexRouteImport } from './routes/_public.index'
 import { Route as PublicContactRouteImport } from './routes/_public.contact'
 import { Route as PublicAboutRouteImport } from './routes/_public.about'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as PublicProjectsIndexRouteImport } from './routes/_public.projects.index'
 import { Route as PublicCaseStudiesIndexRouteImport } from './routes/_public.case-studies.index'
 import { Route as PublicBlogIndexRouteImport } from './routes/_public.blog.index'
@@ -30,6 +32,10 @@ const PublicRoute = PublicRouteImport.update({
   id: '/_public',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PublicIndexRoute = PublicIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -44,6 +50,11 @@ const PublicAboutRoute = PublicAboutRouteImport.update({
   id: '/about',
   path: '/about',
   getParentRoute: () => PublicRoute,
+} as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const PublicProjectsIndexRoute = PublicProjectsIndexRouteImport.update({
   id: '/projects/',
@@ -79,6 +90,7 @@ const PublicBlogSlugRoute = PublicBlogSlugRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
   '/auth': typeof AuthRoute
+  '/admin': typeof AuthenticatedAdminRoute
   '/about': typeof PublicAboutRoute
   '/contact': typeof PublicContactRoute
   '/blog/$slug': typeof PublicBlogSlugRoute
@@ -89,10 +101,11 @@ export interface FileRoutesByFullPath {
   '/projects/': typeof PublicProjectsIndexRoute
 }
 export interface FileRoutesByTo {
+  '/': typeof PublicIndexRoute
   '/auth': typeof AuthRoute
+  '/admin': typeof AuthenticatedAdminRoute
   '/about': typeof PublicAboutRoute
   '/contact': typeof PublicContactRoute
-  '/': typeof PublicIndexRoute
   '/blog/$slug': typeof PublicBlogSlugRoute
   '/case-studies/$slug': typeof PublicCaseStudiesSlugRoute
   '/projects/$slug': typeof PublicProjectsSlugRoute
@@ -102,8 +115,10 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/_public': typeof PublicRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_public/about': typeof PublicAboutRoute
   '/_public/contact': typeof PublicContactRoute
   '/_public/': typeof PublicIndexRoute
@@ -119,6 +134,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/admin'
     | '/about'
     | '/contact'
     | '/blog/$slug'
@@ -129,10 +145,11 @@ export interface FileRouteTypes {
     | '/projects/'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/'
     | '/auth'
+    | '/admin'
     | '/about'
     | '/contact'
-    | '/'
     | '/blog/$slug'
     | '/case-studies/$slug'
     | '/projects/$slug'
@@ -141,8 +158,10 @@ export interface FileRouteTypes {
     | '/projects'
   id:
     | '__root__'
+    | '/_authenticated'
     | '/_public'
     | '/auth'
+    | '/_authenticated/admin'
     | '/_public/about'
     | '/_public/contact'
     | '/_public/'
@@ -155,6 +174,7 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   PublicRoute: typeof PublicRouteWithChildren
   AuthRoute: typeof AuthRoute
 }
@@ -173,6 +193,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof PublicRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_public/': {
@@ -195,6 +222,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/about'
       preLoaderRoute: typeof PublicAboutRouteImport
       parentRoute: typeof PublicRoute
+    }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_public/projects/': {
       id: '/_public/projects/'
@@ -241,6 +275,17 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 interface PublicRouteChildren {
   PublicAboutRoute: typeof PublicAboutRoute
   PublicContactRoute: typeof PublicContactRoute
@@ -269,9 +314,20 @@ const PublicRouteWithChildren =
   PublicRoute._addFileChildren(PublicRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   PublicRoute: PublicRouteWithChildren,
   AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
