@@ -9,50 +9,494 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as PublicRouteImport } from './routes/_public'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as PublicIndexRouteImport } from './routes/_public.index'
+import { Route as PublicContactRouteImport } from './routes/_public.contact'
+import { Route as PublicAboutRouteImport } from './routes/_public.about'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as PublicProjectsIndexRouteImport } from './routes/_public.projects.index'
+import { Route as PublicCaseStudiesIndexRouteImport } from './routes/_public.case-studies.index'
+import { Route as PublicBlogIndexRouteImport } from './routes/_public.blog.index'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
+import { Route as PublicProjectsSlugRouteImport } from './routes/_public.projects.$slug'
+import { Route as PublicCaseStudiesSlugRouteImport } from './routes/_public.case-studies.$slug'
+import { Route as PublicBlogSlugRouteImport } from './routes/_public.blog.$slug'
+import { Route as AuthenticatedAdminSiteSettingsRouteImport } from './routes/_authenticated/admin.site-settings'
+import { Route as AuthenticatedAdminMessagesRouteImport } from './routes/_authenticated/admin.messages'
+import { Route as AuthenticatedAdminHeroRouteImport } from './routes/_authenticated/admin.hero'
+import { Route as AuthenticatedAdminCaseStudiesRouteImport } from './routes/_authenticated/admin.case-studies'
+import { Route as AuthenticatedAdminBlogRouteImport } from './routes/_authenticated/admin.blog'
+import { Route as AuthenticatedAdminProjectsIndexRouteImport } from './routes/_authenticated/admin.projects.index'
+import { Route as AuthenticatedAdminProjectsIdRouteImport } from './routes/_authenticated/admin.projects.$id'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PublicRoute = PublicRouteImport.update({
+  id: '/_public',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PublicIndexRoute = PublicIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicContactRoute = PublicContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicAboutRoute = PublicAboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => PublicRoute,
+} as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const PublicProjectsIndexRoute = PublicProjectsIndexRouteImport.update({
+  id: '/projects/',
+  path: '/projects/',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicCaseStudiesIndexRoute = PublicCaseStudiesIndexRouteImport.update({
+  id: '/case-studies/',
+  path: '/case-studies/',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicBlogIndexRoute = PublicBlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => PublicRoute,
+} as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
+const PublicProjectsSlugRoute = PublicProjectsSlugRouteImport.update({
+  id: '/projects/$slug',
+  path: '/projects/$slug',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicCaseStudiesSlugRoute = PublicCaseStudiesSlugRouteImport.update({
+  id: '/case-studies/$slug',
+  path: '/case-studies/$slug',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicBlogSlugRoute = PublicBlogSlugRouteImport.update({
+  id: '/blog/$slug',
+  path: '/blog/$slug',
+  getParentRoute: () => PublicRoute,
+} as any)
+const AuthenticatedAdminSiteSettingsRoute =
+  AuthenticatedAdminSiteSettingsRouteImport.update({
+    id: '/site-settings',
+    path: '/site-settings',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminMessagesRoute =
+  AuthenticatedAdminMessagesRouteImport.update({
+    id: '/messages',
+    path: '/messages',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminHeroRoute = AuthenticatedAdminHeroRouteImport.update({
+  id: '/hero',
+  path: '/hero',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
+const AuthenticatedAdminCaseStudiesRoute =
+  AuthenticatedAdminCaseStudiesRouteImport.update({
+    id: '/case-studies',
+    path: '/case-studies',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminBlogRoute = AuthenticatedAdminBlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
+const AuthenticatedAdminProjectsIndexRoute =
+  AuthenticatedAdminProjectsIndexRouteImport.update({
+    id: '/projects/',
+    path: '/projects/',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminProjectsIdRoute =
+  AuthenticatedAdminProjectsIdRouteImport.update({
+    id: '/projects/$id',
+    path: '/projects/$id',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof PublicIndexRoute
+  '/auth': typeof AuthRoute
+  '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/about': typeof PublicAboutRoute
+  '/contact': typeof PublicContactRoute
+  '/admin/blog': typeof AuthenticatedAdminBlogRoute
+  '/admin/case-studies': typeof AuthenticatedAdminCaseStudiesRoute
+  '/admin/hero': typeof AuthenticatedAdminHeroRoute
+  '/admin/messages': typeof AuthenticatedAdminMessagesRoute
+  '/admin/site-settings': typeof AuthenticatedAdminSiteSettingsRoute
+  '/blog/$slug': typeof PublicBlogSlugRoute
+  '/case-studies/$slug': typeof PublicCaseStudiesSlugRoute
+  '/projects/$slug': typeof PublicProjectsSlugRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/blog/': typeof PublicBlogIndexRoute
+  '/case-studies/': typeof PublicCaseStudiesIndexRoute
+  '/projects/': typeof PublicProjectsIndexRoute
+  '/admin/projects/$id': typeof AuthenticatedAdminProjectsIdRoute
+  '/admin/projects/': typeof AuthenticatedAdminProjectsIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
+  '/': typeof PublicIndexRoute
+  '/auth': typeof AuthRoute
+  '/about': typeof PublicAboutRoute
+  '/contact': typeof PublicContactRoute
+  '/admin/blog': typeof AuthenticatedAdminBlogRoute
+  '/admin/case-studies': typeof AuthenticatedAdminCaseStudiesRoute
+  '/admin/hero': typeof AuthenticatedAdminHeroRoute
+  '/admin/messages': typeof AuthenticatedAdminMessagesRoute
+  '/admin/site-settings': typeof AuthenticatedAdminSiteSettingsRoute
+  '/blog/$slug': typeof PublicBlogSlugRoute
+  '/case-studies/$slug': typeof PublicCaseStudiesSlugRoute
+  '/projects/$slug': typeof PublicProjectsSlugRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
+  '/blog': typeof PublicBlogIndexRoute
+  '/case-studies': typeof PublicCaseStudiesIndexRoute
+  '/projects': typeof PublicProjectsIndexRoute
+  '/admin/projects/$id': typeof AuthenticatedAdminProjectsIdRoute
+  '/admin/projects': typeof AuthenticatedAdminProjectsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/_public': typeof PublicRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/_public/about': typeof PublicAboutRoute
+  '/_public/contact': typeof PublicContactRoute
+  '/_public/': typeof PublicIndexRoute
+  '/_authenticated/admin/blog': typeof AuthenticatedAdminBlogRoute
+  '/_authenticated/admin/case-studies': typeof AuthenticatedAdminCaseStudiesRoute
+  '/_authenticated/admin/hero': typeof AuthenticatedAdminHeroRoute
+  '/_authenticated/admin/messages': typeof AuthenticatedAdminMessagesRoute
+  '/_authenticated/admin/site-settings': typeof AuthenticatedAdminSiteSettingsRoute
+  '/_public/blog/$slug': typeof PublicBlogSlugRoute
+  '/_public/case-studies/$slug': typeof PublicCaseStudiesSlugRoute
+  '/_public/projects/$slug': typeof PublicProjectsSlugRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_public/blog/': typeof PublicBlogIndexRoute
+  '/_public/case-studies/': typeof PublicCaseStudiesIndexRoute
+  '/_public/projects/': typeof PublicProjectsIndexRoute
+  '/_authenticated/admin/projects/$id': typeof AuthenticatedAdminProjectsIdRoute
+  '/_authenticated/admin/projects/': typeof AuthenticatedAdminProjectsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/admin'
+    | '/about'
+    | '/contact'
+    | '/admin/blog'
+    | '/admin/case-studies'
+    | '/admin/hero'
+    | '/admin/messages'
+    | '/admin/site-settings'
+    | '/blog/$slug'
+    | '/case-studies/$slug'
+    | '/projects/$slug'
+    | '/admin/'
+    | '/blog/'
+    | '/case-studies/'
+    | '/projects/'
+    | '/admin/projects/$id'
+    | '/admin/projects/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/about'
+    | '/contact'
+    | '/admin/blog'
+    | '/admin/case-studies'
+    | '/admin/hero'
+    | '/admin/messages'
+    | '/admin/site-settings'
+    | '/blog/$slug'
+    | '/case-studies/$slug'
+    | '/projects/$slug'
+    | '/admin'
+    | '/blog'
+    | '/case-studies'
+    | '/projects'
+    | '/admin/projects/$id'
+    | '/admin/projects'
+  id:
+    | '__root__'
+    | '/_authenticated'
+    | '/_public'
+    | '/auth'
+    | '/_authenticated/admin'
+    | '/_public/about'
+    | '/_public/contact'
+    | '/_public/'
+    | '/_authenticated/admin/blog'
+    | '/_authenticated/admin/case-studies'
+    | '/_authenticated/admin/hero'
+    | '/_authenticated/admin/messages'
+    | '/_authenticated/admin/site-settings'
+    | '/_public/blog/$slug'
+    | '/_public/case-studies/$slug'
+    | '/_public/projects/$slug'
+    | '/_authenticated/admin/'
+    | '/_public/blog/'
+    | '/_public/case-studies/'
+    | '/_public/projects/'
+    | '/_authenticated/admin/projects/$id'
+    | '/_authenticated/admin/projects/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  PublicRoute: typeof PublicRouteWithChildren
+  AuthRoute: typeof AuthRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_public': {
+      id: '/_public'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof PublicRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_public/': {
+      id: '/_public/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof PublicIndexRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/contact': {
+      id: '/_public/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof PublicContactRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/about': {
+      id: '/_public/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof PublicAboutRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_public/projects/': {
+      id: '/_public/projects/'
+      path: '/projects'
+      fullPath: '/projects/'
+      preLoaderRoute: typeof PublicProjectsIndexRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/case-studies/': {
+      id: '/_public/case-studies/'
+      path: '/case-studies'
+      fullPath: '/case-studies/'
+      preLoaderRoute: typeof PublicCaseStudiesIndexRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/blog/': {
+      id: '/_public/blog/'
+      path: '/blog'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof PublicBlogIndexRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_public/projects/$slug': {
+      id: '/_public/projects/$slug'
+      path: '/projects/$slug'
+      fullPath: '/projects/$slug'
+      preLoaderRoute: typeof PublicProjectsSlugRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/case-studies/$slug': {
+      id: '/_public/case-studies/$slug'
+      path: '/case-studies/$slug'
+      fullPath: '/case-studies/$slug'
+      preLoaderRoute: typeof PublicCaseStudiesSlugRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/blog/$slug': {
+      id: '/_public/blog/$slug'
+      path: '/blog/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof PublicBlogSlugRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_authenticated/admin/site-settings': {
+      id: '/_authenticated/admin/site-settings'
+      path: '/site-settings'
+      fullPath: '/admin/site-settings'
+      preLoaderRoute: typeof AuthenticatedAdminSiteSettingsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/messages': {
+      id: '/_authenticated/admin/messages'
+      path: '/messages'
+      fullPath: '/admin/messages'
+      preLoaderRoute: typeof AuthenticatedAdminMessagesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/hero': {
+      id: '/_authenticated/admin/hero'
+      path: '/hero'
+      fullPath: '/admin/hero'
+      preLoaderRoute: typeof AuthenticatedAdminHeroRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/case-studies': {
+      id: '/_authenticated/admin/case-studies'
+      path: '/case-studies'
+      fullPath: '/admin/case-studies'
+      preLoaderRoute: typeof AuthenticatedAdminCaseStudiesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/blog': {
+      id: '/_authenticated/admin/blog'
+      path: '/blog'
+      fullPath: '/admin/blog'
+      preLoaderRoute: typeof AuthenticatedAdminBlogRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/projects/': {
+      id: '/_authenticated/admin/projects/'
+      path: '/projects'
+      fullPath: '/admin/projects/'
+      preLoaderRoute: typeof AuthenticatedAdminProjectsIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/projects/$id': {
+      id: '/_authenticated/admin/projects/$id'
+      path: '/projects/$id'
+      fullPath: '/admin/projects/$id'
+      preLoaderRoute: typeof AuthenticatedAdminProjectsIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
     }
   }
 }
 
+interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminBlogRoute: typeof AuthenticatedAdminBlogRoute
+  AuthenticatedAdminCaseStudiesRoute: typeof AuthenticatedAdminCaseStudiesRoute
+  AuthenticatedAdminHeroRoute: typeof AuthenticatedAdminHeroRoute
+  AuthenticatedAdminMessagesRoute: typeof AuthenticatedAdminMessagesRoute
+  AuthenticatedAdminSiteSettingsRoute: typeof AuthenticatedAdminSiteSettingsRoute
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminProjectsIdRoute: typeof AuthenticatedAdminProjectsIdRoute
+  AuthenticatedAdminProjectsIndexRoute: typeof AuthenticatedAdminProjectsIndexRoute
+}
+
+const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminBlogRoute: AuthenticatedAdminBlogRoute,
+  AuthenticatedAdminCaseStudiesRoute: AuthenticatedAdminCaseStudiesRoute,
+  AuthenticatedAdminHeroRoute: AuthenticatedAdminHeroRoute,
+  AuthenticatedAdminMessagesRoute: AuthenticatedAdminMessagesRoute,
+  AuthenticatedAdminSiteSettingsRoute: AuthenticatedAdminSiteSettingsRoute,
+  AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  AuthenticatedAdminProjectsIdRoute: AuthenticatedAdminProjectsIdRoute,
+  AuthenticatedAdminProjectsIndexRoute: AuthenticatedAdminProjectsIndexRoute,
+}
+
+const AuthenticatedAdminRouteWithChildren =
+  AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
+
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
+interface PublicRouteChildren {
+  PublicAboutRoute: typeof PublicAboutRoute
+  PublicContactRoute: typeof PublicContactRoute
+  PublicIndexRoute: typeof PublicIndexRoute
+  PublicBlogSlugRoute: typeof PublicBlogSlugRoute
+  PublicCaseStudiesSlugRoute: typeof PublicCaseStudiesSlugRoute
+  PublicProjectsSlugRoute: typeof PublicProjectsSlugRoute
+  PublicBlogIndexRoute: typeof PublicBlogIndexRoute
+  PublicCaseStudiesIndexRoute: typeof PublicCaseStudiesIndexRoute
+  PublicProjectsIndexRoute: typeof PublicProjectsIndexRoute
+}
+
+const PublicRouteChildren: PublicRouteChildren = {
+  PublicAboutRoute: PublicAboutRoute,
+  PublicContactRoute: PublicContactRoute,
+  PublicIndexRoute: PublicIndexRoute,
+  PublicBlogSlugRoute: PublicBlogSlugRoute,
+  PublicCaseStudiesSlugRoute: PublicCaseStudiesSlugRoute,
+  PublicProjectsSlugRoute: PublicProjectsSlugRoute,
+  PublicBlogIndexRoute: PublicBlogIndexRoute,
+  PublicCaseStudiesIndexRoute: PublicCaseStudiesIndexRoute,
+  PublicProjectsIndexRoute: PublicProjectsIndexRoute,
+}
+
+const PublicRouteWithChildren =
+  PublicRoute._addFileChildren(PublicRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  PublicRoute: PublicRouteWithChildren,
+  AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
