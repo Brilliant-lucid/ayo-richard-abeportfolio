@@ -77,7 +77,7 @@ function Home() {
           </div>
         </div>
         {hero?.profile_image_url && (
-          <img src={hero.profile_image_url} alt="Portrait" className="h-40 w-40 rounded-2xl object-cover ring-1 ring-line md:h-56 md:w-56" />
+          <img src={hero.profile_image_url} alt="Portrait" className="order-first h-40 w-40 rounded-2xl object-cover ring-1 ring-line md:order-none md:h-56 md:w-56" />
         )}
       </section>
 
