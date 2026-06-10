@@ -15,6 +15,7 @@ import { Route as PublicAboutRouteImport } from './routes/_public.about'
 import { Route as PublicProjectsIndexRouteImport } from './routes/_public.projects.index'
 import { Route as PublicCaseStudiesIndexRouteImport } from './routes/_public.case-studies.index'
 import { Route as PublicProjectsSlugRouteImport } from './routes/_public.projects.$slug'
+import { Route as PublicCaseStudiesSlugRouteImport } from './routes/_public.case-studies.$slug'
 
 const PublicRoute = PublicRouteImport.update({
   id: '/_public',
@@ -45,10 +46,16 @@ const PublicProjectsSlugRoute = PublicProjectsSlugRouteImport.update({
   path: '/projects/$slug',
   getParentRoute: () => PublicRoute,
 } as any)
+const PublicCaseStudiesSlugRoute = PublicCaseStudiesSlugRouteImport.update({
+  id: '/case-studies/$slug',
+  path: '/case-studies/$slug',
+  getParentRoute: () => PublicRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
   '/about': typeof PublicAboutRoute
+  '/case-studies/$slug': typeof PublicCaseStudiesSlugRoute
   '/projects/$slug': typeof PublicProjectsSlugRoute
   '/case-studies/': typeof PublicCaseStudiesIndexRoute
   '/projects/': typeof PublicProjectsIndexRoute
@@ -56,6 +63,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/about': typeof PublicAboutRoute
   '/': typeof PublicIndexRoute
+  '/case-studies/$slug': typeof PublicCaseStudiesSlugRoute
   '/projects/$slug': typeof PublicProjectsSlugRoute
   '/case-studies': typeof PublicCaseStudiesIndexRoute
   '/projects': typeof PublicProjectsIndexRoute
@@ -65,6 +73,7 @@ export interface FileRoutesById {
   '/_public': typeof PublicRouteWithChildren
   '/_public/about': typeof PublicAboutRoute
   '/_public/': typeof PublicIndexRoute
+  '/_public/case-studies/$slug': typeof PublicCaseStudiesSlugRoute
   '/_public/projects/$slug': typeof PublicProjectsSlugRoute
   '/_public/case-studies/': typeof PublicCaseStudiesIndexRoute
   '/_public/projects/': typeof PublicProjectsIndexRoute
@@ -74,16 +83,24 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/case-studies/$slug'
     | '/projects/$slug'
     | '/case-studies/'
     | '/projects/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/about' | '/' | '/projects/$slug' | '/case-studies' | '/projects'
+  to:
+    | '/about'
+    | '/'
+    | '/case-studies/$slug'
+    | '/projects/$slug'
+    | '/case-studies'
+    | '/projects'
   id:
     | '__root__'
     | '/_public'
     | '/_public/about'
     | '/_public/'
+    | '/_public/case-studies/$slug'
     | '/_public/projects/$slug'
     | '/_public/case-studies/'
     | '/_public/projects/'
@@ -137,12 +154,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicProjectsSlugRouteImport
       parentRoute: typeof PublicRoute
     }
+    '/_public/case-studies/$slug': {
+      id: '/_public/case-studies/$slug'
+      path: '/case-studies/$slug'
+      fullPath: '/case-studies/$slug'
+      preLoaderRoute: typeof PublicCaseStudiesSlugRouteImport
+      parentRoute: typeof PublicRoute
+    }
   }
 }
 
 interface PublicRouteChildren {
   PublicAboutRoute: typeof PublicAboutRoute
   PublicIndexRoute: typeof PublicIndexRoute
+  PublicCaseStudiesSlugRoute: typeof PublicCaseStudiesSlugRoute
   PublicProjectsSlugRoute: typeof PublicProjectsSlugRoute
   PublicCaseStudiesIndexRoute: typeof PublicCaseStudiesIndexRoute
   PublicProjectsIndexRoute: typeof PublicProjectsIndexRoute
@@ -151,6 +176,7 @@ interface PublicRouteChildren {
 const PublicRouteChildren: PublicRouteChildren = {
   PublicAboutRoute: PublicAboutRoute,
   PublicIndexRoute: PublicIndexRoute,
+  PublicCaseStudiesSlugRoute: PublicCaseStudiesSlugRoute,
   PublicProjectsSlugRoute: PublicProjectsSlugRoute,
   PublicCaseStudiesIndexRoute: PublicCaseStudiesIndexRoute,
   PublicProjectsIndexRoute: PublicProjectsIndexRoute,
