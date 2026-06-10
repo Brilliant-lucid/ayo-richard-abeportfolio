@@ -151,11 +151,11 @@ function EditProject() {
   );
 }
 
-function Input({ label, value, onChange, required, ...rest }: { label: string; value: string; onChange: (v: string) => void; required?: boolean } & React.InputHTMLAttributes<HTMLInputElement>) {
+function Input({ label, value, onChange, required }: { label: string; value: string; onChange: (v: string) => void; required?: boolean }) {
   return (
     <div>
       <label className="text-xs uppercase tracking-wider text-muted-ink">{label}</label>
-      <input value={value} onChange={(e) => onChange(e.target.value)} required={required} {...rest} className="mt-1 w-full rounded-md border border-line bg-cloud px-3 py-2 text-sm focus:border-electric focus:outline-none" />
+      <input value={value} onChange={(e) => onChange(e.target.value)} required={required} className="mt-1 w-full rounded-md border border-line bg-cloud px-3 py-2 text-sm focus:border-electric focus:outline-none" />
     </div>
   );
 }
