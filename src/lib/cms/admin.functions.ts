@@ -205,3 +205,70 @@ export const uploadMedia = createServerFn({ method: "POST" })
     const { data: pub } = sb.storage.from("media").getPublicUrl(path);
     return { url: pub.publicUrl, path };
   });
+
+// ===== Blog =====
+const blogSchema = z.object({
+  id: z.string().uuid().optional(),
+  title: z.string().min(1),
+  slug: z.string().min(1).regex(/^[a-z0-9-]+$/),
+  excerpt: z.string().nullable().optional(),
+  content: z.string().nullable().optional(),
+  category: z.string().nullable().optional(),
+  tags: z.array(z.string()).nullable().optional(),
+  featured_image_url: z.string().nullable().optional(),
+  seo_title: z.string().nullable().optional(),
+  seo_description: z.string().nullable().optional(),
+  status: z.enum(["draft", "published"]).default("draft"),
+  published_at: z.string().nullable().optional(),
+});
+
+export const listAllBlogPosts = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context.userId);
+    const sb = await adminClient();
+    const { data } = await sb.from("blog_posts").select("*").order("created_at", { ascending: false });
+    return data ?? [];
+  });
+
+export const getBlogPostById = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId);
+    const sb = await adminClient();
+    const { data: row } = await sb.from("blog_posts").select("*").eq("id", data.id).maybeSingle();
+    return row;
+  });
+
+export const upsertBlogPost = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => blogSchema.parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId);
+    const sb = await adminClient();
+    const { id, ...rest } = data;
+    const payload: any = { ...rest };
+    if (payload.status === "published" && !payload.published_at) {
+      payload.published_at = new Date().toISOString();
+    }
+    if (id) {
+      const { error } = await sb.from("blog_posts").update(payload).eq("id", id);
+      if (error) throw new Error(error.message);
+      return { id };
+    }
+    const { data: inserted, error } = await sb.from("blog_posts").insert(payload).select("id").single();
+    if (error) throw new Error(error.message);
+    return { id: inserted.id };
+  });
+
+export const deleteBlogPost = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId);
+    const sb = await adminClient();
+    const { error } = await sb.from("blog_posts").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
