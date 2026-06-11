@@ -152,7 +152,7 @@ function Home() {
                 className="group flex flex-col rounded-2xl border border-line bg-cloud p-6 transition-colors hover:border-electric/40"
               >
                 <div className="text-xs uppercase tracking-wider text-muted-ink">
-                  {p.published_at ? new Date(p.published_at).toLocaleDateString() : "Draft"}
+                  {p.published_at ? new Date(p.published_at).toISOString().slice(0, 10) : "Draft"}
                 </div>
                 <div className="mt-3 font-display text-xl text-ink group-hover:text-electric">{p.title}</div>
                 {p.excerpt && <p className="mt-2 text-sm text-ink-soft line-clamp-3">{p.excerpt}</p>}
