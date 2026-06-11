@@ -30,6 +30,7 @@ import { Route as AuthenticatedAdminCaseStudiesRouteImport } from './routes/_aut
 import { Route as AuthenticatedAdminProjectsIndexRouteImport } from './routes/_authenticated/admin.projects.index'
 import { Route as AuthenticatedAdminBlogIndexRouteImport } from './routes/_authenticated/admin.blog.index'
 import { Route as AuthenticatedAdminProjectsIdRouteImport } from './routes/_authenticated/admin.projects.$id'
+import { Route as AuthenticatedAdminBlogIdRouteImport } from './routes/_authenticated/admin.blog.$id'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -140,6 +141,12 @@ const AuthenticatedAdminProjectsIdRoute =
     path: '/projects/$id',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminBlogIdRoute =
+  AuthenticatedAdminBlogIdRouteImport.update({
+    id: '/blog/$id',
+    path: '/blog/$id',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
@@ -158,6 +165,7 @@ export interface FileRoutesByFullPath {
   '/blog/': typeof PublicBlogIndexRoute
   '/case-studies/': typeof PublicCaseStudiesIndexRoute
   '/projects/': typeof PublicProjectsIndexRoute
+  '/admin/blog/$id': typeof AuthenticatedAdminBlogIdRoute
   '/admin/projects/$id': typeof AuthenticatedAdminProjectsIdRoute
   '/admin/blog/': typeof AuthenticatedAdminBlogIndexRoute
   '/admin/projects/': typeof AuthenticatedAdminProjectsIndexRoute
@@ -178,6 +186,7 @@ export interface FileRoutesByTo {
   '/blog': typeof PublicBlogIndexRoute
   '/case-studies': typeof PublicCaseStudiesIndexRoute
   '/projects': typeof PublicProjectsIndexRoute
+  '/admin/blog/$id': typeof AuthenticatedAdminBlogIdRoute
   '/admin/projects/$id': typeof AuthenticatedAdminProjectsIdRoute
   '/admin/blog': typeof AuthenticatedAdminBlogIndexRoute
   '/admin/projects': typeof AuthenticatedAdminProjectsIndexRoute
@@ -202,6 +211,7 @@ export interface FileRoutesById {
   '/_public/blog/': typeof PublicBlogIndexRoute
   '/_public/case-studies/': typeof PublicCaseStudiesIndexRoute
   '/_public/projects/': typeof PublicProjectsIndexRoute
+  '/_authenticated/admin/blog/$id': typeof AuthenticatedAdminBlogIdRoute
   '/_authenticated/admin/projects/$id': typeof AuthenticatedAdminProjectsIdRoute
   '/_authenticated/admin/blog/': typeof AuthenticatedAdminBlogIndexRoute
   '/_authenticated/admin/projects/': typeof AuthenticatedAdminProjectsIndexRoute
@@ -225,6 +235,7 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/case-studies/'
     | '/projects/'
+    | '/admin/blog/$id'
     | '/admin/projects/$id'
     | '/admin/blog/'
     | '/admin/projects/'
@@ -245,6 +256,7 @@ export interface FileRouteTypes {
     | '/blog'
     | '/case-studies'
     | '/projects'
+    | '/admin/blog/$id'
     | '/admin/projects/$id'
     | '/admin/blog'
     | '/admin/projects'
@@ -268,6 +280,7 @@ export interface FileRouteTypes {
     | '/_public/blog/'
     | '/_public/case-studies/'
     | '/_public/projects/'
+    | '/_authenticated/admin/blog/$id'
     | '/_authenticated/admin/projects/$id'
     | '/_authenticated/admin/blog/'
     | '/_authenticated/admin/projects/'
@@ -428,6 +441,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminProjectsIdRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/blog/$id': {
+      id: '/_authenticated/admin/blog/$id'
+      path: '/blog/$id'
+      fullPath: '/admin/blog/$id'
+      preLoaderRoute: typeof AuthenticatedAdminBlogIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
   }
 }
 
@@ -437,6 +457,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminMessagesRoute: typeof AuthenticatedAdminMessagesRoute
   AuthenticatedAdminSiteSettingsRoute: typeof AuthenticatedAdminSiteSettingsRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminBlogIdRoute: typeof AuthenticatedAdminBlogIdRoute
   AuthenticatedAdminProjectsIdRoute: typeof AuthenticatedAdminProjectsIdRoute
   AuthenticatedAdminBlogIndexRoute: typeof AuthenticatedAdminBlogIndexRoute
   AuthenticatedAdminProjectsIndexRoute: typeof AuthenticatedAdminProjectsIndexRoute
@@ -448,6 +469,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminMessagesRoute: AuthenticatedAdminMessagesRoute,
   AuthenticatedAdminSiteSettingsRoute: AuthenticatedAdminSiteSettingsRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  AuthenticatedAdminBlogIdRoute: AuthenticatedAdminBlogIdRoute,
   AuthenticatedAdminProjectsIdRoute: AuthenticatedAdminProjectsIdRoute,
   AuthenticatedAdminBlogIndexRoute: AuthenticatedAdminBlogIndexRoute,
   AuthenticatedAdminProjectsIndexRoute: AuthenticatedAdminProjectsIndexRoute,
