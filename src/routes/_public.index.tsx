@@ -137,6 +137,34 @@ function Home() {
       </section>
 
       {/* Testimonials */}
+      {featuredPosts.length > 0 && (
+        <section>
+          <div className="mb-6 flex items-end justify-between">
+            <h2 className="font-display text-3xl text-ink">From the blog</h2>
+            <Link to="/blog" className="text-sm text-electric hover:underline">All posts →</Link>
+          </div>
+          <div className="grid gap-6 md:grid-cols-3">
+            {featuredPosts.map((p) => (
+              <Link
+                key={p.id}
+                to="/blog/$slug"
+                params={{ slug: p.slug }}
+                className="group flex flex-col rounded-2xl border border-line bg-cloud p-6 transition-colors hover:border-electric/40"
+              >
+                <div className="text-xs uppercase tracking-wider text-muted-ink">
+                  {p.published_at ? new Date(p.published_at).toLocaleDateString() : "Draft"}
+                </div>
+                <div className="mt-3 font-display text-xl text-ink group-hover:text-electric">{p.title}</div>
+                {p.excerpt && <p className="mt-2 text-sm text-ink-soft line-clamp-3">{p.excerpt}</p>}
+                <div className="mt-4 inline-flex items-center gap-1 text-xs text-electric">
+                  Read more <ArrowUpRight size={12} />
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
       {testimonials.length > 0 && (
         <section>
           <h2 className="mb-6 font-display text-3xl">Praise</h2>
