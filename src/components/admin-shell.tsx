@@ -47,6 +47,20 @@ export function AdminShell({ children }: { children: ReactNode }) {
         </div>
       </aside>
       <main className="min-w-0 flex-1">
+        <div className="sticky top-0 z-20 flex items-center gap-2 overflow-x-auto border-b border-line bg-cloud/95 px-4 py-3 backdrop-blur md:hidden">
+          {items.map((it) => (
+            <Link
+              key={it.to}
+              to={it.to}
+              className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs ${isActive(it.to, it.exact) ? "border-ink bg-ink text-cloud" : "border-line text-ink-soft"}`}
+            >
+              <it.icon size={12} /> {it.label}
+            </Link>
+          ))}
+          <button onClick={signOut} className="ml-1 flex shrink-0 items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-xs text-ink-soft">
+            <LogOut size={12} /> Sign out
+          </button>
+        </div>
         <div className="mx-auto w-full max-w-5xl px-6 py-10 md:px-12">{children}</div>
       </main>
     </div>
