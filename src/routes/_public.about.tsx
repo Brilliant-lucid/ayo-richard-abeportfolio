@@ -17,16 +17,19 @@ function About() {
     <article className="prose-editorial max-w-3xl space-y-8">
       <header>
         <div className="text-xs uppercase tracking-[0.22em] text-electric">About</div>
-        <h1 className="mt-3 font-display text-5xl leading-tight text-ink">Builder, operator, market-maker.</h1>
+        <h1 className="mt-3 font-display text-5xl leading-tight text-ink">Product Manager, Developer & Growth Marketer.</h1>
       </header>
       <p className="text-lg leading-relaxed text-ink-soft">
-        I'm Ayo Richard Abe — a Product Manager, Product Developer, and Growth Marketer with a decade
-        of experience translating engineering complexity into category-defining products.
+        Hello, I'm Ayo Richard Abe — a Product Manager, Product Developer, and Growth Marketer passionate about building products that solve real-world problems.
       </p>
       <p className="text-base leading-relaxed text-ink-soft">
-        My work sits at the intersection of fintech, logistics, and AI tooling. I have shipped products
-        used by millions across emerging markets, led 0-to-1 launches that became category leaders,
-        and built the growth systems that sustained them.
+        My background spans Product Management, Product Development, Marketing, and Growth Strategy. I enjoy working at the intersection of business, technology, and user needs, helping teams transform ideas into products that create value.
+      </p>
+      <p className="text-base leading-relaxed text-ink-soft">
+        I have experience contributing to both product and marketing initiatives, allowing me to understand not only how products are built but also how they are positioned, acquired, and adopted by users.
+      </p>
+      <p className="text-base leading-relaxed text-ink-soft">
+        My approach combines strategic thinking, execution, user research, stakeholder management, and continuous learning. Whether I'm defining product requirements, conducting market research, creating growth strategies, or collaborating with cross-functional teams, I focus on delivering meaningful outcomes.
       </p>
 
       <section>
