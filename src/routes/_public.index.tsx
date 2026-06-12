@@ -118,18 +118,25 @@ function Home() {
               key={p.id}
               to="/projects/$slug"
               params={{ slug: p.slug }}
-              className={`group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-line bg-surface/50 p-6 transition-all hover:border-electric/40 hover:bg-surface ${bentoSize[p.bento_size] ?? bentoSize.small}`}
+              className={`group relative overflow-hidden rounded-2xl border border-line transition-all hover:border-electric/40 ${bentoSize[p.bento_size] ?? bentoSize.small}`}
             >
-              {p.featured_image_url && (
-                <img src={p.featured_image_url} alt={p.name} className="absolute inset-0 h-full w-full object-cover opacity-20 transition-opacity group-hover:opacity-30" />
-              )}
-              <div className="relative">
-                <div className="text-xs uppercase tracking-wider text-muted-ink">{p.category ?? "Project"}</div>
-                <div className="mt-2 font-display text-2xl text-ink">{p.name}</div>
-              </div>
-              <div className="relative">
-                <p className="text-sm text-ink-soft line-clamp-2">{p.summary}</p>
-                <ArrowUpRight size={16} className="absolute right-0 top-0 text-electric opacity-0 transition-opacity group-hover:opacity-100" />
+              <div className="relative h-full w-full">
+                {p.featured_image_url ? (
+                  <img src={p.featured_image_url} alt={p.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center bg-surface">
+                    <span className="text-xs uppercase tracking-wider text-muted-ink">{p.category ?? "Project"}</span>
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/30 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-5">
+                  <div className="text-[10px] uppercase tracking-wider text-cloud/60">{p.category ?? "Project"}</div>
+                  <div className="mt-1 font-display text-xl text-cloud">{p.name}</div>
+                  {p.summary && <p className="mt-1 text-xs text-cloud/80 line-clamp-2">{p.summary}</p>}
+                  <div className="mt-2 inline-flex items-center gap-1 text-xs text-electric opacity-0 transition-opacity group-hover:opacity-100">
+                    View project <ArrowUpRight size={12} />
+                  </div>
+                </div>
               </div>
             </Link>
           ))}

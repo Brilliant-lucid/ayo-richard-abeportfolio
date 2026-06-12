@@ -33,11 +33,18 @@ function ProjectsIndex() {
             key={p.id}
             to="/projects/$slug"
             params={{ slug: p.slug }}
-            className="group overflow-hidden rounded-2xl border border-line bg-cloud p-6 transition-all hover:border-electric/40"
+            className="group overflow-hidden rounded-2xl border border-line bg-cloud transition-all hover:border-electric/40"
           >
-            <div className="text-xs uppercase tracking-wider text-muted-ink">{p.category ?? "Project"}</div>
-            <div className="mt-2 font-display text-2xl text-ink">{p.name}</div>
-            <p className="mt-3 text-sm text-ink-soft">{p.summary}</p>
+            {p.featured_image_url && (
+              <div className="relative aspect-video overflow-hidden">
+                <img src={p.featured_image_url} alt={p.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+              </div>
+            )}
+            <div className="p-6">
+              <div className="text-xs uppercase tracking-wider text-muted-ink">{p.category ?? "Project"}</div>
+              <div className="mt-2 font-display text-2xl text-ink">{p.name}</div>
+              <p className="mt-3 text-sm text-ink-soft">{p.summary}</p>
+            </div>
           </Link>
         ))}
       </div>
