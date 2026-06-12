@@ -202,8 +202,12 @@ export const uploadMedia = createServerFn({ method: "POST" })
       upsert: false,
     });
     if (error) throw new Error(error.message);
-    const { data: pub } = sb.storage.from("media").getPublicUrl(path);
-    return { url: pub.publicUrl, path };
+    // Bucket is private (workspace blocks public buckets); use a long-lived signed URL.
+    const { data: signed, error: signErr } = await sb.storage
+      .from("media")
+      .createSignedUrl(path, 60 * 60 * 24 * 365 * 10); // 10 years
+    if (signErr) throw new Error(signErr.message);
+    return { url: signed.signedUrl, path };
   });
 
 // ===== Blog =====
