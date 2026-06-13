@@ -117,5 +117,73 @@ export const submitContactMessage = createServerFn({ method: "POST" })
       message: data.message,
     });
     if (error) throw new Error(error.message);
+
+    // Fire-and-forget email notification via Gmail connector
+    try {
+      await sendContactNotification(data);
+    } catch (e) {
+      console.error("Contact email notification failed:", e);
+    }
+
     return { ok: true };
   });
+
+const NOTIFY_EMAIL = "Abeayo6@gmail.com";
+
+async function sendContactNotification(d: {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}) {
+  const lovableKey = process.env.LOVABLE_API_KEY;
+  const gmailKey = process.env.GOOGLE_MAIL_API_KEY;
+  if (!lovableKey || !gmailKey) {
+    console.warn("Gmail/Lovable keys missing — skipping notification email.");
+    return;
+  }
+
+  const subjectLine = `New contact form message${d.subject ? ": " + d.subject : ""}`;
+  const body = [
+    `New message from your portfolio contact form.`,
+    ``,
+    `Name: ${d.name}`,
+    `Email: ${d.email}`,
+    `Subject: ${d.subject || "(none)"}`,
+    ``,
+    `Message:`,
+    d.message,
+  ].join("\n");
+
+  const raw = [
+    `To: ${NOTIFY_EMAIL}`,
+    `Reply-To: ${d.email}`,
+    `Subject: ${subjectLine}`,
+    `Content-Type: text/plain; charset="UTF-8"`,
+    ``,
+    body,
+  ].join("\r\n");
+
+  const encoded = Buffer.from(raw, "utf-8")
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+
+  const res = await fetch(
+    "https://connector-gateway.lovable.dev/google_mail/gmail/v1/users/me/messages/send",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${lovableKey}`,
+        "X-Connection-Api-Key": gmailKey,
+      },
+      body: JSON.stringify({ raw: encoded }),
+    },
+  );
+  if (!res.ok) {
+    const txt = await res.text();
+    throw new Error(`Gmail send failed (${res.status}): ${txt}`);
+  }
+}
