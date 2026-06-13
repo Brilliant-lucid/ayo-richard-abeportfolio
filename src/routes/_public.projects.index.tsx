@@ -27,23 +27,34 @@ function ProjectsIndex() {
         <div className="text-xs uppercase tracking-[0.22em] text-electric">Projects</div>
         <h1 className="mt-3 font-display text-5xl text-ink">Selected work</h1>
       </header>
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-2">
         {data.map((p) => (
           <Link
             key={p.id}
             to="/projects/$slug"
             params={{ slug: p.slug }}
-            className="group overflow-hidden rounded-2xl border border-line bg-cloud transition-all hover:border-electric/40"
+            className="group flex flex-col gap-3 rounded-[28px] bg-ink p-3 text-cloud shadow-xl shadow-ink/10 transition-all hover:-translate-y-1 hover:shadow-2xl"
           >
-            {p.featured_image_url && (
-              <div className="relative aspect-video overflow-hidden">
-                <img src={p.featured_image_url} alt={p.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+            {p.featured_image_url ? (
+              <div className="relative aspect-[4/3] overflow-hidden rounded-[20px]">
+                <img
+                  src={p.featured_image_url}
+                  alt={p.name}
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
               </div>
+            ) : (
+              <div className="aspect-[4/3] rounded-[20px] bg-cloud/10" />
             )}
-            <div className="p-6">
-              <div className="text-xs uppercase tracking-wider text-muted-ink">{p.category ?? "Project"}</div>
-              <div className="mt-2 font-display text-2xl text-ink">{p.name}</div>
-              <p className="mt-3 text-sm text-ink-soft">{p.summary}</p>
+            <div className="px-3 pt-2">
+              <div className="text-[10px] uppercase tracking-[0.22em] text-cloud/50">
+                {p.category ?? "Project"}
+              </div>
+              <div className="mt-2 font-display text-2xl">{p.name}</div>
+              <p className="mt-2 line-clamp-3 text-sm text-cloud/70">{p.summary}</p>
+            </div>
+            <div className="mt-3 flex items-center justify-center rounded-full bg-cloud px-5 py-3 text-sm font-medium text-ink transition-colors group-hover:bg-electric group-hover:text-ink">
+              View project
             </div>
           </Link>
         ))}
