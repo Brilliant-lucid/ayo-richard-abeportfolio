@@ -1,6 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Github, Linkedin, Twitter, Mail, Moon, Sun, Menu, X } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
+import { openContactDialog } from "@/lib/contact-dialog-store";
 
 type Nav = { id: string; label: string; href: string };
 type Settings = {
@@ -48,20 +49,30 @@ export function PublicShell({
           <div className="mt-1 text-xs uppercase tracking-[0.18em] text-muted-ink">Portfolio</div>
         </Link>
         <nav className="mt-10 flex flex-col gap-1">
-          {nav.map((n) => (
-            <Link
-              key={n.id}
-              to={n.href}
-              onClick={() => setOpen(false)}
-              className={`rounded-md px-3 py-2 text-sm transition-colors ${
-                isActive(n.href)
-                  ? "bg-surface text-ink font-medium"
-                  : "text-ink-soft hover:bg-surface/60 hover:text-ink"
-              }`}
-            >
-              {n.label}
-            </Link>
-          ))}
+          {nav.map((n) => {
+            const cls = `rounded-md px-3 py-2 text-sm text-left transition-colors ${
+              isActive(n.href)
+                ? "bg-surface text-ink font-medium"
+                : "text-ink-soft hover:bg-surface/60 hover:text-ink"
+            }`;
+            if (n.href === "/contact") {
+              return (
+                <button
+                  key={n.id}
+                  type="button"
+                  onClick={() => { setOpen(false); openContactDialog(); }}
+                  className={cls}
+                >
+                  {n.label}
+                </button>
+              );
+            }
+            return (
+              <Link key={n.id} to={n.href} onClick={() => setOpen(false)} className={cls}>
+                {n.label}
+              </Link>
+            );
+          })}
         </nav>
       </div>
       <div className="space-y-4">
