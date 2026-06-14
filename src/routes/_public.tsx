@@ -2,6 +2,7 @@ import { createFileRoute, Outlet, useRouter } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { getSiteData } from "@/lib/cms/public.functions";
 import { PublicShell } from "@/components/public-shell";
+import { ContactDialog } from "@/components/contact-dialog";
 
 export const siteQueryOptions = queryOptions({
   queryKey: ["site"],
@@ -35,6 +36,7 @@ function PublicLayout() {
       settings={data.settings as never}
     >
       <Outlet />
+      <ContactDialog />
     </PublicShell>
   );
 }

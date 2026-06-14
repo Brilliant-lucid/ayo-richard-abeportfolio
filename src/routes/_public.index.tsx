@@ -1,15 +1,18 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { listProjects, listTestimonials, listBlogPosts } from "@/lib/cms/public.functions";
 import { siteQueryOptions } from "./_public";
 import { ArrowUpRight } from "lucide-react";
 import portrait from "@/assets/portrait.jpg";
+import { useEffect } from "react";
+import { openContactDialog } from "@/lib/contact-dialog-store";
 
 const projectsQO = queryOptions({ queryKey: ["projects"], queryFn: () => listProjects() });
 const testimonialsQO = queryOptions({ queryKey: ["testimonials"], queryFn: () => listTestimonials() });
 const blogQO = queryOptions({ queryKey: ["blog"], queryFn: () => listBlogPosts() });
 
 export const Route = createFileRoute("/_public/")({
+  validateSearch: (s: Record<string, unknown>) => ({ contact: s.contact ? 1 : undefined }) as { contact?: 1 },
   head: () => ({
     meta: [
       { title: "Ayo Richard Abe — Building products that define market categories" },
@@ -30,19 +33,15 @@ export const Route = createFileRoute("/_public/")({
   notFoundComponent: () => <div className="p-8">Not found</div>,
 });
 
-const bentoSize: Record<string, string> = {
-  small: "md:col-span-4 md:row-span-1",
-  medium: "md:col-span-6 md:row-span-1",
-  large: "md:col-span-8 md:row-span-2",
-  wide: "md:col-span-8 md:row-span-1",
-  tall: "md:col-span-4 md:row-span-2",
-};
-
 function Home() {
   const { data: site } = useSuspenseQuery(siteQueryOptions);
   const { data: projects } = useSuspenseQuery(projectsQO);
   const { data: testimonials } = useSuspenseQuery(testimonialsQO);
   const { data: posts } = useSuspenseQuery(blogQO);
+  const search = useSearch({ from: "/_public/" });
+  useEffect(() => {
+    if (search.contact) openContactDialog();
+  }, [search.contact]);
   const hero = site.hero;
   const stats = site.stats;
   const featured = projects.filter((p) => p.featured);
@@ -65,20 +64,14 @@ function Home() {
           )}
           <div className="mt-8 flex flex-wrap gap-3">
             {hero?.cta_primary_label && (
-              <Link
-                to={hero.cta_primary_href ?? "/projects"}
-                className="inline-flex items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-cloud transition-transform hover:scale-[1.02]"
-              >
+              <HeroCta href={hero.cta_primary_href ?? "/projects"} variant="primary">
                 {hero.cta_primary_label} <ArrowUpRight size={14} />
-              </Link>
+              </HeroCta>
             )}
             {hero?.cta_secondary_label && (
-              <Link
-                to={hero.cta_secondary_href ?? "/contact"}
-                className="inline-flex items-center gap-2 rounded-full border border-line px-5 py-2.5 text-sm text-ink hover:bg-surface"
-              >
+              <HeroCta href={hero.cta_secondary_href ?? "/contact"} variant="secondary">
                 {hero.cta_secondary_label}
-              </Link>
+              </HeroCta>
             )}
           </div>
         </div>
@@ -106,37 +99,40 @@ function Home() {
         </section>
       )}
 
-      {/* Bento grid */}
+      {/* Projects & Case Studies */}
       <section>
         <div className="mb-6 flex items-end justify-between">
-          <h2 className="font-display text-3xl text-ink">Selected work</h2>
+          <h2 className="font-display text-3xl text-ink">Projects &amp; Case Studies</h2>
           <Link to="/projects" className="text-sm text-electric hover:underline">View all →</Link>
         </div>
-        <div className="grid auto-rows-[180px] grid-cols-1 gap-4 md:grid-cols-12">
+        <div className="grid gap-6 md:grid-cols-2">
           {featured.map((p) => (
             <Link
               key={p.id}
               to="/projects/$slug"
               params={{ slug: p.slug }}
-              className={`group relative overflow-hidden rounded-2xl border border-line transition-all hover:border-electric/40 ${bentoSize[p.bento_size] ?? bentoSize.small}`}
+              className="group flex flex-col gap-3 rounded-[28px] bg-ink p-3 text-cloud shadow-xl shadow-ink/10 transition-all hover:-translate-y-1 hover:shadow-2xl"
             >
-              <div className="relative h-full w-full">
-                {p.featured_image_url ? (
-                  <img src={p.featured_image_url} alt={p.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-surface">
-                    <span className="text-xs uppercase tracking-wider text-muted-ink">{p.category ?? "Project"}</span>
-                  </div>
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/30 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-5">
-                  <div className="text-[10px] uppercase tracking-wider text-cloud/60">{p.category ?? "Project"}</div>
-                  <div className="mt-1 font-display text-xl text-cloud">{p.name}</div>
-                  {p.summary && <p className="mt-1 text-xs text-cloud/80 line-clamp-2">{p.summary}</p>}
-                  <div className="mt-2 inline-flex items-center gap-1 text-xs text-electric opacity-0 transition-opacity group-hover:opacity-100">
-                    View project <ArrowUpRight size={12} />
-                  </div>
+              {p.featured_image_url ? (
+                <div className="relative aspect-[4/3] overflow-hidden rounded-[20px]">
+                  <img
+                    src={p.featured_image_url}
+                    alt={p.name}
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
                 </div>
+              ) : (
+                <div className="aspect-[4/3] rounded-[20px] bg-cloud/10" />
+              )}
+              <div className="px-3 pt-2">
+                <div className="text-[10px] uppercase tracking-[0.22em] text-cloud/50">
+                  {p.category ?? "Project"}
+                </div>
+                <div className="mt-2 font-display text-2xl">{p.name}</div>
+                {p.summary && <p className="mt-2 line-clamp-3 text-sm text-cloud/70">{p.summary}</p>}
+              </div>
+              <div className="mt-3 flex items-center justify-center rounded-full bg-cloud px-5 py-3 text-sm font-medium text-ink transition-colors group-hover:bg-electric group-hover:text-ink">
+                View project
               </div>
             </Link>
           ))}
@@ -190,13 +186,24 @@ function Home() {
       <section className="rounded-3xl bg-ink p-10 text-cloud md:p-14">
         <div className="font-display text-4xl md:text-5xl">Let's build something inevitable.</div>
         <p className="mt-3 max-w-xl text-cloud/70">Open to product leadership, technical advisory, and selective growth engagements.</p>
-        <Link
-          to="/contact"
+        <button
+          type="button"
+          onClick={() => openContactDialog()}
           className="mt-6 inline-flex items-center gap-2 rounded-full bg-electric px-5 py-2.5 text-sm font-medium text-cloud hover:opacity-90"
         >
           Start a conversation <ArrowUpRight size={14} />
-        </Link>
+        </button>
       </section>
     </div>
   );
+}
+
+function HeroCta({ href, variant, children }: { href: string; variant: "primary" | "secondary"; children: React.ReactNode }) {
+  const cls = variant === "primary"
+    ? "inline-flex items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-cloud transition-transform hover:scale-[1.02]"
+    : "inline-flex items-center gap-2 rounded-full border border-line px-5 py-2.5 text-sm text-ink hover:bg-surface";
+  if (href === "/contact") {
+    return <button type="button" onClick={() => openContactDialog()} className={cls}>{children}</button>;
+  }
+  return <Link to={href} className={cls}>{children}</Link>;
 }
