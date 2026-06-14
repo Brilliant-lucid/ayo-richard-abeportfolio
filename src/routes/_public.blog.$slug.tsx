@@ -35,7 +35,7 @@ function Post() {
   if (!p) return null;
   return (
     <article className="mx-auto max-w-2xl space-y-8">
-      <Link to="/blog" className="inline-flex items-center gap-1 text-sm text-muted-ink hover:text-ink"><ArrowLeft size={14} /> Writing</Link>
+      <Link to="/blog" className="inline-flex items-center gap-2 rounded-full border border-line bg-cloud px-4 py-2 text-sm font-medium text-ink hover:bg-surface"><ArrowLeft size={16} /> Back to Writing</Link>
       <header>
         {p.category && <div className="text-xs uppercase tracking-[0.22em] text-electric">{p.category}</div>}
         <h1 className="mt-3 font-display text-5xl leading-tight text-ink">{p.title}</h1>

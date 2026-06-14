@@ -2,7 +2,6 @@ import { createFileRoute, notFound, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { getProjectBySlug } from "@/lib/cms/public.functions";
 import { ArrowLeft } from "lucide-react";
-import { openContactDialog } from "@/lib/contact-dialog-store";
 
 const qo = (slug: string) => queryOptions({
   queryKey: ["project", slug],
@@ -52,10 +51,9 @@ function ProjectPage() {
     <article className="space-y-10">
       <Link
         to="/projects"
-        onClick={() => setTimeout(() => openContactDialog(), 300)}
-        className="inline-flex items-center gap-1 text-sm text-muted-ink hover:text-ink"
+        className="inline-flex items-center gap-2 rounded-full border border-line bg-cloud px-4 py-2 text-sm font-medium text-ink hover:bg-surface"
       >
-        <ArrowLeft size={14} /> Projects
+        <ArrowLeft size={16} /> Back to Projects
       </Link>
       <header>
         <div className="text-xs uppercase tracking-[0.22em] text-electric">{p.category ?? "Project"}</div>
