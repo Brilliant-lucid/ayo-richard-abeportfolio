@@ -25,7 +25,11 @@ function BlogIndex() {
   return (
     <div className="space-y-10">
       <header>
-        <div className="text-xs uppercase tracking-[0.22em] text-electric">Writing</div>
+        <Link to="/" className="inline-flex items-center gap-2 rounded-full border border-line bg-cloud px-4 py-2 text-sm font-medium text-ink hover:bg-surface">
+          <ArrowLeft className="h-4 w-4" />
+          Back to Home
+        </Link>
+        <div className="mt-6 text-xs uppercase tracking-[0.22em] text-electric">Writing</div>
         <h1 className="mt-3 font-display text-5xl text-ink">Notes & essays</h1>
       </header>
       <div className="divide-y divide-line border-y border-line">
