@@ -1,7 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { claimFirstAdmin } from "@/lib/cms/admin.functions";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth")({
@@ -38,7 +37,6 @@ function Auth() {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
       }
-      try { await claimFirstAdmin(); } catch {}
       toast.success("Signed in");
       navigate({ to: "/admin" });
     } catch (err) {
@@ -52,9 +50,9 @@ function Auth() {
     <div className="flex min-h-screen items-center justify-center bg-cloud px-4">
       <form onSubmit={onSubmit} className="w-full max-w-sm space-y-4 rounded-2xl border border-line bg-cloud p-8">
         <div>
-          <div className="text-xs uppercase tracking-[0.22em] text-electric">Admin</div>
+          <div className="text-xs uppercase tracking-[0.22em] text-electric">Portfolio platform</div>
           <h1 className="mt-2 font-display text-3xl text-ink">{mode === "signin" ? "Sign in" : "Create account"}</h1>
-          <p className="mt-1 text-xs text-muted-ink">The first account becomes the admin automatically.</p>
+          <p className="mt-1 text-xs text-muted-ink">Sign up to create your own shareable portfolio.</p>
         </div>
         <div>
           <label className="text-xs uppercase tracking-wider text-muted-ink">Email</label>
