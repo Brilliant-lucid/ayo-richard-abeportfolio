@@ -22,6 +22,7 @@ export type Database = {
           excerpt: string | null
           featured_image_url: string | null
           id: string
+          owner_id: string
           published_at: string | null
           related_case_study_id: string | null
           related_project_id: string | null
@@ -40,6 +41,7 @@ export type Database = {
           excerpt?: string | null
           featured_image_url?: string | null
           id?: string
+          owner_id: string
           published_at?: string | null
           related_case_study_id?: string | null
           related_project_id?: string | null
@@ -58,6 +60,7 @@ export type Database = {
           excerpt?: string | null
           featured_image_url?: string | null
           id?: string
+          owner_id?: string
           published_at?: string | null
           related_case_study_id?: string | null
           related_project_id?: string | null
@@ -98,6 +101,7 @@ export type Database = {
           id: string
           lessons: string | null
           outcome: string | null
+          owner_id: string
           related_projects: string[] | null
           research: string | null
           slug: string
@@ -118,6 +122,7 @@ export type Database = {
           id?: string
           lessons?: string | null
           outcome?: string | null
+          owner_id: string
           related_projects?: string[] | null
           research?: string | null
           slug: string
@@ -138,6 +143,7 @@ export type Database = {
           id?: string
           lessons?: string | null
           outcome?: string | null
+          owner_id?: string
           related_projects?: string[] | null
           research?: string | null
           slug?: string
@@ -160,6 +166,7 @@ export type Database = {
           issued_on: string | null
           issuer: string
           name: string
+          owner_id: string
           status: Database["public"]["Enums"]["content_status"]
         }
         Insert: {
@@ -172,6 +179,7 @@ export type Database = {
           issued_on?: string | null
           issuer: string
           name: string
+          owner_id: string
           status?: Database["public"]["Enums"]["content_status"]
         }
         Update: {
@@ -184,6 +192,7 @@ export type Database = {
           issued_on?: string | null
           issuer?: string
           name?: string
+          owner_id?: string
           status?: Database["public"]["Enums"]["content_status"]
         }
         Relationships: []
@@ -195,6 +204,7 @@ export type Database = {
           id: string
           message: string
           name: string
+          portfolio_id: string
           read: boolean
           subject: string | null
         }
@@ -204,6 +214,7 @@ export type Database = {
           id?: string
           message: string
           name: string
+          portfolio_id: string
           read?: boolean
           subject?: string | null
         }
@@ -213,10 +224,19 @@ export type Database = {
           id?: string
           message?: string
           name?: string
+          portfolio_id?: string
           read?: boolean
           subject?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "contact_messages_portfolio_id_fkey"
+            columns: ["portfolio_id"]
+            isOneToOne: false
+            referencedRelation: "portfolios"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       experience: {
         Row: {
@@ -227,6 +247,7 @@ export type Database = {
           id: string
           logo_url: string | null
           organization: string
+          owner_id: string
           responsibilities: string[] | null
           role: string
           skills_gained: string[] | null
@@ -241,6 +262,7 @@ export type Database = {
           id?: string
           logo_url?: string | null
           organization: string
+          owner_id: string
           responsibilities?: string[] | null
           role: string
           skills_gained?: string[] | null
@@ -255,6 +277,7 @@ export type Database = {
           id?: string
           logo_url?: string | null
           organization?: string
+          owner_id?: string
           responsibilities?: string[] | null
           role?: string
           skills_gained?: string[] | null
@@ -273,6 +296,7 @@ export type Database = {
           heading: string
           id: string
           intro: string | null
+          owner_id: string
           profile_image_url: string | null
           updated_at: string
         }
@@ -285,6 +309,7 @@ export type Database = {
           heading?: string
           id?: string
           intro?: string | null
+          owner_id: string
           profile_image_url?: string | null
           updated_at?: string
         }
@@ -297,6 +322,7 @@ export type Database = {
           heading?: string
           id?: string
           intro?: string | null
+          owner_id?: string
           profile_image_url?: string | null
           updated_at?: string
         }
@@ -312,6 +338,7 @@ export type Database = {
           id: string
           image_url: string | null
           metrics: Json | null
+          owner_id: string
           slug: string
           status: Database["public"]["Enums"]["content_status"]
           summary: string | null
@@ -327,6 +354,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           metrics?: Json | null
+          owner_id: string
           slug: string
           status?: Database["public"]["Enums"]["content_status"]
           summary?: string | null
@@ -342,6 +370,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           metrics?: Json | null
+          owner_id?: string
           slug?: string
           status?: Database["public"]["Enums"]["content_status"]
           summary?: string | null
@@ -357,6 +386,7 @@ export type Database = {
           href: string
           id: string
           label: string
+          owner_id: string
           visible: boolean
         }
         Insert: {
@@ -365,6 +395,7 @@ export type Database = {
           href: string
           id?: string
           label: string
+          owner_id: string
           visible?: boolean
         }
         Update: {
@@ -373,7 +404,44 @@ export type Database = {
           href?: string
           id?: string
           label?: string
+          owner_id?: string
           visible?: boolean
+        }
+        Relationships: []
+      }
+      portfolios: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string
+          id: string
+          is_published: boolean
+          owner_id: string
+          tagline: string | null
+          updated_at: string
+          username: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name: string
+          id?: string
+          is_published?: boolean
+          owner_id: string
+          tagline?: string | null
+          updated_at?: string
+          username: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string
+          id?: string
+          is_published?: boolean
+          owner_id?: string
+          tagline?: string | null
+          updated_at?: string
+          username?: string
         }
         Relationships: []
       }
@@ -390,6 +458,7 @@ export type Database = {
           id: string
           live_link: string | null
           name: string
+          owner_id: string
           problem: string | null
           process: string | null
           related_projects: string[] | null
@@ -414,6 +483,7 @@ export type Database = {
           id?: string
           live_link?: string | null
           name: string
+          owner_id: string
           problem?: string | null
           process?: string | null
           related_projects?: string[] | null
@@ -438,6 +508,7 @@ export type Database = {
           id?: string
           live_link?: string | null
           name?: string
+          owner_id?: string
           problem?: string | null
           process?: string | null
           related_projects?: string[] | null
@@ -462,6 +533,7 @@ export type Database = {
           id: string
           linkedin_url: string | null
           logo_url: string | null
+          owner_id: string
           primary_color: string | null
           site_name: string
           twitter_url: string | null
@@ -477,6 +549,7 @@ export type Database = {
           id?: string
           linkedin_url?: string | null
           logo_url?: string | null
+          owner_id: string
           primary_color?: string | null
           site_name?: string
           twitter_url?: string | null
@@ -492,6 +565,7 @@ export type Database = {
           id?: string
           linkedin_url?: string | null
           logo_url?: string | null
+          owner_id?: string
           primary_color?: string | null
           site_name?: string
           twitter_url?: string | null
@@ -509,6 +583,7 @@ export type Database = {
           icon_url: string | null
           id: string
           name: string
+          owner_id: string
           proficiency: number | null
         }
         Insert: {
@@ -519,6 +594,7 @@ export type Database = {
           icon_url?: string | null
           id?: string
           name: string
+          owner_id: string
           proficiency?: number | null
         }
         Update: {
@@ -529,6 +605,7 @@ export type Database = {
           icon_url?: string | null
           id?: string
           name?: string
+          owner_id?: string
           proficiency?: number | null
         }
         Relationships: []
@@ -539,6 +616,7 @@ export type Database = {
           display_order: number
           id: string
           label: string
+          owner_id: string
           value: string
         }
         Insert: {
@@ -546,6 +624,7 @@ export type Database = {
           display_order?: number
           id?: string
           label: string
+          owner_id: string
           value: string
         }
         Update: {
@@ -553,6 +632,7 @@ export type Database = {
           display_order?: number
           id?: string
           label?: string
+          owner_id?: string
           value?: string
         }
         Relationships: []
@@ -564,6 +644,7 @@ export type Database = {
           id: string
           image_url: string | null
           name: string
+          owner_id: string
           quote: string
           relationship: string | null
           role: string | null
@@ -574,6 +655,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           name: string
+          owner_id: string
           quote: string
           relationship?: string | null
           role?: string | null
@@ -584,6 +666,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           name?: string
+          owner_id?: string
           quote?: string
           relationship?: string | null
           role?: string | null
@@ -625,6 +708,7 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: never; Returns: boolean }
+      is_portfolio_published: { Args: { _owner: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin"
