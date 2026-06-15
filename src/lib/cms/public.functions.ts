@@ -1,120 +1,184 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
-const slugSchema = z.object({ slug: z.string().min(1) });
+const DEFAULT_USERNAME = "richard";
+
+const slugSchema = z.object({
+  slug: z.string().min(1),
+  username: z.string().optional(),
+});
+const usernameOnly = z.object({ username: z.string().optional() });
 
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   return supabaseAdmin;
 }
 
-export const getSiteData = createServerFn({ method: "GET" }).handler(async () => {
+async function resolvePortfolio(username?: string) {
   const sb = await admin();
-  const [settings, nav, hero, stats] = await Promise.all([
-    sb.from("site_settings").select("*").limit(1).maybeSingle(),
-    sb.from("nav_links").select("*").eq("visible", true).order("display_order"),
-    sb.from("hero").select("*").limit(1).maybeSingle(),
-    sb.from("stats").select("*").order("display_order"),
-  ]);
-  return {
-    settings: settings.data,
-    nav: nav.data ?? [],
-    hero: hero.data,
-    stats: stats.data ?? [],
-  };
-});
-
-export const listProjects = createServerFn({ method: "GET" }).handler(async () => {
-  const sb = await admin();
+  const u = username || DEFAULT_USERNAME;
   const { data } = await sb
-    .from("projects")
+    .from("portfolios")
     .select("*")
-    .eq("status", "published")
-    .order("display_order");
-  return data ?? [];
-});
+    .eq("username", u)
+    .eq("is_published", true)
+    .maybeSingle();
+  return data;
+}
+
+export const getSiteData = createServerFn({ method: "GET" })
+  .inputValidator((d: unknown) => usernameOnly.parse(d ?? {}))
+  .handler(async ({ data }) => {
+    const p = await resolvePortfolio(data.username);
+    if (!p) return { portfolio: null, settings: null, nav: [], hero: null, stats: [] };
+    const sb = await admin();
+    const [settings, nav, hero, stats] = await Promise.all([
+      sb.from("site_settings").select("*").eq("owner_id", p.owner_id).limit(1).maybeSingle(),
+      sb.from("nav_links").select("*").eq("owner_id", p.owner_id).eq("visible", true).order("display_order"),
+      sb.from("hero").select("*").eq("owner_id", p.owner_id).limit(1).maybeSingle(),
+      sb.from("stats").select("*").eq("owner_id", p.owner_id).order("display_order"),
+    ]);
+    return {
+      portfolio: p,
+      settings: settings.data,
+      nav: nav.data ?? [],
+      hero: hero.data,
+      stats: stats.data ?? [],
+    };
+  });
+
+export const listProjects = createServerFn({ method: "GET" })
+  .inputValidator((d: unknown) => usernameOnly.parse(d ?? {}))
+  .handler(async ({ data }) => {
+    const p = await resolvePortfolio(data.username);
+    if (!p) return [];
+    const sb = await admin();
+    const { data: rows } = await sb
+      .from("projects")
+      .select("*")
+      .eq("owner_id", p.owner_id)
+      .eq("status", "published")
+      .order("display_order");
+    return rows ?? [];
+  });
 
 export const getProjectBySlug = createServerFn({ method: "GET" })
   .inputValidator((d: unknown) => slugSchema.parse(d))
   .handler(async ({ data }) => {
+    const p = await resolvePortfolio(data.username);
+    if (!p) return null;
     const sb = await admin();
     const { data: row } = await sb
       .from("projects")
       .select("*")
+      .eq("owner_id", p.owner_id)
       .eq("slug", data.slug)
       .eq("status", "published")
       .maybeSingle();
     return row;
   });
 
-export const listCaseStudies = createServerFn({ method: "GET" }).handler(async () => {
-  const sb = await admin();
-  const { data } = await sb
-    .from("case_studies")
-    .select("*")
-    .eq("status", "published")
-    .order("display_order");
-  return data ?? [];
-});
+export const listCaseStudies = createServerFn({ method: "GET" })
+  .inputValidator((d: unknown) => usernameOnly.parse(d ?? {}))
+  .handler(async ({ data }) => {
+    const p = await resolvePortfolio(data.username);
+    if (!p) return [];
+    const sb = await admin();
+    const { data: rows } = await sb
+      .from("case_studies")
+      .select("*")
+      .eq("owner_id", p.owner_id)
+      .eq("status", "published")
+      .order("display_order");
+    return rows ?? [];
+  });
 
 export const getCaseStudyBySlug = createServerFn({ method: "GET" })
   .inputValidator((d: unknown) => slugSchema.parse(d))
   .handler(async ({ data }) => {
+    const p = await resolvePortfolio(data.username);
+    if (!p) return null;
     const sb = await admin();
     const { data: row } = await sb
       .from("case_studies")
       .select("*")
+      .eq("owner_id", p.owner_id)
       .eq("slug", data.slug)
       .eq("status", "published")
       .maybeSingle();
     return row;
   });
 
-export const listBlogPosts = createServerFn({ method: "GET" }).handler(async () => {
-  const sb = await admin();
-  const { data } = await sb
-    .from("blog_posts")
-    .select("*")
-    .eq("status", "published")
-    .order("published_at", { ascending: false });
-  return data ?? [];
-});
+export const listBlogPosts = createServerFn({ method: "GET" })
+  .inputValidator((d: unknown) => usernameOnly.parse(d ?? {}))
+  .handler(async ({ data }) => {
+    const p = await resolvePortfolio(data.username);
+    if (!p) return [];
+    const sb = await admin();
+    const { data: rows } = await sb
+      .from("blog_posts")
+      .select("*")
+      .eq("owner_id", p.owner_id)
+      .eq("status", "published")
+      .order("published_at", { ascending: false });
+    return rows ?? [];
+  });
 
 export const getBlogPostBySlug = createServerFn({ method: "GET" })
   .inputValidator((d: unknown) => slugSchema.parse(d))
   .handler(async ({ data }) => {
+    const p = await resolvePortfolio(data.username);
+    if (!p) return null;
     const sb = await admin();
     const { data: row } = await sb
       .from("blog_posts")
       .select("*")
+      .eq("owner_id", p.owner_id)
       .eq("slug", data.slug)
       .eq("status", "published")
       .maybeSingle();
     return row;
   });
 
-export const listTestimonials = createServerFn({ method: "GET" }).handler(async () => {
-  const sb = await admin();
-  const { data } = await sb.from("testimonials").select("*").order("display_order");
-  return data ?? [];
-});
+export const listTestimonials = createServerFn({ method: "GET" })
+  .inputValidator((d: unknown) => usernameOnly.parse(d ?? {}))
+  .handler(async ({ data }) => {
+    const p = await resolvePortfolio(data.username);
+    if (!p) return [];
+    const sb = await admin();
+    const { data: rows } = await sb
+      .from("testimonials")
+      .select("*")
+      .eq("owner_id", p.owner_id)
+      .order("display_order");
+    return rows ?? [];
+  });
 
 const contactSchema = z.object({
   name: z.string().min(1).max(120),
   email: z.string().email(),
   subject: z.string().max(200).optional().default(""),
   message: z.string().min(5).max(5000),
+  username: z.string().optional(),
 });
 
 export const submitContactMessage = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => contactSchema.parse(d))
   .handler(async ({ data }) => {
     const sb = await admin();
+    const { data: portfolio } = await sb
+      .from("portfolios")
+      .select("id")
+      .eq("username", data.username || DEFAULT_USERNAME)
+      .maybeSingle();
+    if (!portfolio) throw new Error("Portfolio not found");
+
     const { error } = await sb.from("contact_messages").insert({
       name: data.name,
       email: data.email,
       subject: data.subject || null,
       message: data.message,
+      portfolio_id: portfolio.id,
     });
     if (error) throw new Error(error.message);
 
