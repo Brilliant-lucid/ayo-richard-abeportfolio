@@ -1,8 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { getSiteData } from "@/lib/cms/public.functions";
-import { updateHero, uploadMedia } from "@/lib/cms/admin.functions";
+import { updateHero, uploadMedia, getMyHero } from "@/lib/cms/admin.functions";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/admin/hero")({ component: Page });
@@ -11,13 +10,13 @@ function Page() {
   const save = useServerFn(updateHero);
   const upload = useServerFn(uploadMedia);
   const [h, setH] = useState<any>(null);
-  useEffect(() => { getSiteData().then((d) => setH(d.hero)); }, []);
+  useEffect(() => { getMyHero().then((d) => setH(d ?? { heading: "" })); }, []);
   if (!h) return <div>Loading…</div>;
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     try {
-      await save({ data: { id: h.id, eyebrow: h.eyebrow, heading: h.heading, intro: h.intro, profile_image_url: h.profile_image_url, cta_primary_label: h.cta_primary_label, cta_primary_href: h.cta_primary_href, cta_secondary_label: h.cta_secondary_label, cta_secondary_href: h.cta_secondary_href } });
+      await save({ data: { eyebrow: h.eyebrow, heading: h.heading, intro: h.intro, profile_image_url: h.profile_image_url, cta_primary_label: h.cta_primary_label, cta_primary_href: h.cta_primary_href, cta_secondary_label: h.cta_secondary_label, cta_secondary_href: h.cta_secondary_href } });
       toast.success("Saved");
     } catch (e) { toast.error(e instanceof Error ? e.message : "Failed"); }
   }
