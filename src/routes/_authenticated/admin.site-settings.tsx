@@ -1,8 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { getSiteData } from "@/lib/cms/public.functions";
-import { updateSiteSettings } from "@/lib/cms/admin.functions";
+import { updateSiteSettings, getMySiteSettings } from "@/lib/cms/admin.functions";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/admin/site-settings")({ component: Page });
@@ -10,13 +9,13 @@ export const Route = createFileRoute("/_authenticated/admin/site-settings")({ co
 function Page() {
   const save = useServerFn(updateSiteSettings);
   const [s, setS] = useState<any>(null);
-  useEffect(() => { getSiteData().then((d) => setS(d.settings)); }, []);
+  useEffect(() => { getMySiteSettings().then((d) => setS(d ?? { site_name: "" })); }, []);
   if (!s) return <div>Loading…</div>;
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     try {
-      await save({ data: { id: s.id, site_name: s.site_name, email: s.email, linkedin_url: s.linkedin_url, github_url: s.github_url, twitter_url: s.twitter_url, whatsapp_url: s.whatsapp_url, default_seo_title: s.default_seo_title, default_seo_description: s.default_seo_description, logo_url: s.logo_url } });
+      await save({ data: { site_name: s.site_name, email: s.email, linkedin_url: s.linkedin_url, github_url: s.github_url, twitter_url: s.twitter_url, whatsapp_url: s.whatsapp_url, default_seo_title: s.default_seo_title, default_seo_description: s.default_seo_description, logo_url: s.logo_url } });
       toast.success("Saved");
     } catch (e) { toast.error(e instanceof Error ? e.message : "Failed"); }
   }

@@ -324,3 +324,20 @@ export const deleteBlogPost = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+// ===== Own hero / settings for editors =====
+export const getMyHero = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const sb = await adminClient();
+    const { data } = await sb.from("hero").select("*").eq("owner_id", context.userId).maybeSingle();
+    return data;
+  });
+
+export const getMySiteSettings = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const sb = await adminClient();
+    const { data } = await sb.from("site_settings").select("*").eq("owner_id", context.userId).maybeSingle();
+    return data;
+  });
