@@ -447,79 +447,145 @@ export type Database = {
       }
       projects: {
         Row: {
+          additional_links: Json | null
+          archived_at: string | null
           bento_size: string
+          canonical_url: string | null
           case_study_link: string | null
           category: string | null
+          challenge: string | null
+          constraints: string | null
           created_at: string
           description: string | null
           display_order: number
+          end_date: string | null
           featured: boolean
           featured_image_url: string | null
+          gallery: Json | null
+          goals: string | null
           id: string
+          image_alt: string | null
+          index_allowed: boolean | null
+          learnings: string | null
           live_link: string | null
+          metrics: Json | null
           name: string
+          ongoing: boolean | null
+          overview: string | null
           owner_id: string
           problem: string | null
           process: string | null
+          publish_date: string | null
           related_projects: string[] | null
           results: string | null
           role: string | null
+          roles: string[] | null
+          seo_description: string | null
+          seo_title: string | null
           slug: string
+          social_image_url: string | null
           solution: string | null
+          start_date: string | null
           status: Database["public"]["Enums"]["content_status"]
           summary: string | null
+          title: string | null
           tools: string[] | null
           updated_at: string
+          visibility: string | null
         }
         Insert: {
+          additional_links?: Json | null
+          archived_at?: string | null
           bento_size?: string
+          canonical_url?: string | null
           case_study_link?: string | null
           category?: string | null
+          challenge?: string | null
+          constraints?: string | null
           created_at?: string
           description?: string | null
           display_order?: number
+          end_date?: string | null
           featured?: boolean
           featured_image_url?: string | null
+          gallery?: Json | null
+          goals?: string | null
           id?: string
+          image_alt?: string | null
+          index_allowed?: boolean | null
+          learnings?: string | null
           live_link?: string | null
+          metrics?: Json | null
           name: string
+          ongoing?: boolean | null
+          overview?: string | null
           owner_id: string
           problem?: string | null
           process?: string | null
+          publish_date?: string | null
           related_projects?: string[] | null
           results?: string | null
           role?: string | null
+          roles?: string[] | null
+          seo_description?: string | null
+          seo_title?: string | null
           slug: string
+          social_image_url?: string | null
           solution?: string | null
+          start_date?: string | null
           status?: Database["public"]["Enums"]["content_status"]
           summary?: string | null
+          title?: string | null
           tools?: string[] | null
           updated_at?: string
+          visibility?: string | null
         }
         Update: {
+          additional_links?: Json | null
+          archived_at?: string | null
           bento_size?: string
+          canonical_url?: string | null
           case_study_link?: string | null
           category?: string | null
+          challenge?: string | null
+          constraints?: string | null
           created_at?: string
           description?: string | null
           display_order?: number
+          end_date?: string | null
           featured?: boolean
           featured_image_url?: string | null
+          gallery?: Json | null
+          goals?: string | null
           id?: string
+          image_alt?: string | null
+          index_allowed?: boolean | null
+          learnings?: string | null
           live_link?: string | null
+          metrics?: Json | null
           name?: string
+          ongoing?: boolean | null
+          overview?: string | null
           owner_id?: string
           problem?: string | null
           process?: string | null
+          publish_date?: string | null
           related_projects?: string[] | null
           results?: string | null
           role?: string | null
+          roles?: string[] | null
+          seo_description?: string | null
+          seo_title?: string | null
           slug?: string
+          social_image_url?: string | null
           solution?: string | null
+          start_date?: string | null
           status?: Database["public"]["Enums"]["content_status"]
           summary?: string | null
+          title?: string | null
           tools?: string[] | null
           updated_at?: string
+          visibility?: string | null
         }
         Relationships: []
       }
@@ -712,7 +778,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin"
-      content_status: "draft" | "published"
+      content_status: "draft" | "published" | "unlisted" | "archived"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -841,7 +907,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin"],
-      content_status: ["draft", "published"],
+      content_status: ["draft", "published", "unlisted", "archived"],
     },
   },
 } as const

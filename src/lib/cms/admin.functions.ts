@@ -8,6 +8,21 @@ async function adminClient() {
 }
 
 // ===== Projects =====
+const galleryItemSchema = z.object({
+  url: z.string(),
+  alt: z.string().optional().default(""),
+  caption: z.string().optional().default(""),
+});
+const linkItemSchema = z.object({
+  label: z.string(),
+  url: z.string(),
+});
+const metricItemSchema = z.object({
+  value: z.string(),
+  label: z.string(),
+  note: z.string().optional().default(""),
+});
+
 const projectSchema = z.object({
   id: z.string().uuid().optional(),
   name: z.string().min(1),
@@ -27,7 +42,29 @@ const projectSchema = z.object({
   featured: z.boolean().default(false),
   display_order: z.number().int().default(0),
   bento_size: z.enum(["small", "medium", "large", "wide", "tall"]).default("small"),
-  status: z.enum(["draft", "published"]).default("draft"),
+  status: z.enum(["draft", "published", "unlisted", "archived"]).default("draft"),
+  // new fields
+  title: z.string().nullable().optional(),
+  roles: z.array(z.string()).nullable().optional(),
+  image_alt: z.string().nullable().optional(),
+  gallery: z.array(galleryItemSchema).nullable().optional(),
+  start_date: z.string().nullable().optional(),
+  end_date: z.string().nullable().optional(),
+  ongoing: z.boolean().optional().default(false),
+  additional_links: z.array(linkItemSchema).nullable().optional(),
+  overview: z.string().nullable().optional(),
+  challenge: z.string().nullable().optional(),
+  goals: z.string().nullable().optional(),
+  constraints: z.string().nullable().optional(),
+  learnings: z.string().nullable().optional(),
+  metrics: z.array(metricItemSchema).nullable().optional(),
+  visibility: z.enum(["public", "unlisted", "private"]).optional().default("public"),
+  publish_date: z.string().nullable().optional(),
+  seo_title: z.string().nullable().optional(),
+  seo_description: z.string().nullable().optional(),
+  social_image_url: z.string().nullable().optional(),
+  canonical_url: z.string().nullable().optional(),
+  index_allowed: z.boolean().optional().default(true),
 });
 
 export const listAllProjects = createServerFn({ method: "GET" })
@@ -62,10 +99,16 @@ export const upsertProject = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const sb = await adminClient();
     const { id, ...rest } = data;
+    // Mirror new canonical fields into legacy columns for backward compat.
+    const payload: any = { ...rest };
+    if (payload.title) payload.name = payload.title;
+    if (Array.isArray(payload.roles)) payload.role = payload.roles.join(", ");
+    if (payload.overview != null) payload.description = payload.overview;
+    if (payload.challenge != null) payload.problem = payload.challenge;
     if (id) {
       const { error } = await sb
         .from("projects")
-        .update(rest)
+        .update(payload)
         .eq("id", id)
         .eq("owner_id", context.userId);
       if (error) throw new Error(error.message);
@@ -73,7 +116,7 @@ export const upsertProject = createServerFn({ method: "POST" })
     }
     const { data: inserted, error } = await sb
       .from("projects")
-      .insert({ ...rest, owner_id: context.userId })
+      .insert({ ...payload, owner_id: context.userId })
       .select("id")
       .single();
     if (error) throw new Error(error.message);
@@ -90,6 +133,46 @@ export const deleteProject = createServerFn({ method: "POST" })
       .delete()
       .eq("id", data.id)
       .eq("owner_id", context.userId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const duplicateProject = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const sb = await adminClient();
+    const { data: src, error: readErr } = await sb
+      .from("projects").select("*").eq("id", data.id).eq("owner_id", context.userId).maybeSingle();
+    if (readErr) throw new Error(readErr.message);
+    if (!src) throw new Error("Not found");
+    const { id: _id, created_at: _c, updated_at: _u, ...rest } = src as any;
+    const copy = {
+      ...rest,
+      name: (rest.name || "Untitled") + " (copy)",
+      title: (rest.title || rest.name || "Untitled") + " (copy)",
+      slug: `${rest.slug}-copy-${Math.random().toString(36).slice(2, 6)}`,
+      status: "draft",
+      featured: false,
+    };
+    const { data: inserted, error } = await sb.from("projects").insert(copy).select("id").single();
+    if (error) throw new Error(error.message);
+    return { id: inserted.id };
+  });
+
+export const setProjectStatus = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z.object({
+      id: z.string().uuid(),
+      status: z.enum(["draft", "published", "unlisted", "archived"]),
+    }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const sb = await adminClient();
+    const patch: any = { status: data.status };
+    if (data.status === "archived") patch.archived_at = new Date().toISOString();
+    const { error } = await sb.from("projects").update(patch).eq("id", data.id).eq("owner_id", context.userId);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
