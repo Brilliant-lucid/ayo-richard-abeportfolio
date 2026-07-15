@@ -1,98 +1,52 @@
 ## Goal
-Redesign only the **Edit Project** admin page (`src/routes/_authenticated/admin.projects.$id.tsx`) into a polished, sectioned CMS-style editor. Preserve all existing data, routes, auth, and the public site's current appearance. Extend the schema minimally (additive only) to support the new fields, and update the public project page just enough to render the new structured content when present.
+Redesign only `src/routes/_public.projects.$slug.tsx` into a premium, polished case-study page. No changes to admin, editors, schema, auth, or other routes.
 
-## Schema changes (single additive migration)
+## Data source
+Continue using `getProjectBySlug` for the current project. Add a lightweight call to `listProjects` (already cached by the projects index route) via `queryOptions` to derive Previous/Next by `display_order`. No new server functions.
 
-Add nullable columns to `public.projects` — no destructive changes, existing data untouched:
+## Page structure (in order)
+1. Back to Projects link (kept)
+2. **Hero**: category eyebrow, title (`title || name`), summary, meta row (Roles, Tools, Category, Timeframe from `start_date`/`end_date`/`ongoing`), primary CTA "View Live Project" (`live_link`), secondary "Case Study" (`case_study_link`), plus `additional_links` as labeled buttons — never raw URLs. Featured image below as a wide, rounded hero visual with `image_alt`.
+3. **Key Results** — metric cards (only if `metrics[]` non-empty), rendered near top under hero.
+4. **Overview** — `overview || description` (readable prose column, max-w-2xl-ish).
+5. **The Challenge** — `challenge || problem`.
+6. **Goals & Constraints** — two-column on desktop when both short, stacked on mobile; each hidden individually if empty.
+7. **Process** — rendered as rich HTML if the stored content is HTML (via `dangerouslySetInnerHTML` inside a `prose` container), otherwise `whitespace-pre-wrap`. Detection: string starts with `<`.
+8. **The Solution** — same rich/plain handling.
+9. **Project Gallery** — responsive grid from `gallery[]` with captions + alt, `loading="lazy"`, fixed aspect ratio to prevent layout shift. Hidden if empty.
+10. **Results and Impact** — `results` text (rich/plain). Metric cards only re-shown here if Key Results wasn't rendered up top (avoid duplication).
+11. **Learnings** — `learnings` (rich/plain), hidden if empty.
+12. **Project Links** — consolidated button row of live/case study/additional links with icons inferred from URL host (github, appstore, play.google, figma, generic external). Hidden if none.
+13. **Prev / Next / All Projects** — derived from `listProjects` ordered by `display_order`; each shows thumbnail + title + direction label. Hide side when none.
+14. **Contact CTA** — small section with heading + button opening the existing contact dialog (`openContactDialog` from `@/lib/contact-dialog-store`).
+15. Footer is provided by `_public` shell — unchanged.
 
-- `title text` — new canonical field; backfilled from `name`. `name` stays as-is for compatibility.
-- `roles text[]` — backfilled by splitting existing `role` on commas.
-- `image_alt text`
-- `gallery jsonb` — array of `{ url, alt, caption }`.
-- `start_date date`, `end_date date`, `ongoing boolean default false`.
-- `additional_links jsonb` — array of `{ label, url }`.
-- `overview text` — backfilled from `description` where present.
-- `challenge text` — backfilled from `problem`.
-- `goals text`, `constraints text`, `learnings text`.
-- `metrics jsonb` — array of `{ value, label, note }`.
-- `visibility text default 'public'` — one of `public|unlisted|private`.
-- `publish_date timestamptz`.
-- `seo_title text`, `seo_description text`, `social_image_url text`, `canonical_url text`, `index_allowed boolean default true`.
-- `archived_at timestamptz`.
+## Rendering helpers (local to the file)
+- `RichOrPlain({ html }: { html: string })` — renders trusted admin HTML via `prose prose-neutral max-w-none` when it looks like HTML, else preserves line breaks.
+- `Section({ title, children })` — semantic `<section>` with consistent heading style; caller decides whether to render (empty-state gating stays outside).
+- `formatTimeframe(start, end, ongoing)` — "Mar 2024 – Present" / "2023 – 2024" / single date; hidden if all null.
+- `linkIcon(url)` — returns lucide icon based on host.
 
-Extend `content_status` enum to also allow `unlisted` and `archived` (kept alongside `draft`, `published`).
+## Visual/UX
+- Use existing tokens (`ink`, `cloud`, `electric`, `line`, `surface`, `muted-ink`, `font-display`). No new colors.
+- Wider hero image (full column width, `rounded-2xl`), generous vertical rhythm (`space-y-16` between major blocks, tighter within).
+- Metadata pills instead of boxed "Meta" cards for a cleaner look.
+- All external links: `target="_blank" rel="noreferrer noopener"`.
+- Every section conditionally rendered — no empty headings.
+- Mobile: single column, full-width CTAs, stacked metadata, prev/next stacked.
+- Semantic `<article>`, `<header>`, `<section>`, single `<h1>`, `<h2>` per section.
 
-Old columns (`name`, `role`, `problem`, `description`) stay in the DB so nothing breaks; the editor writes to both old and new fields for now.
+## SEO / head
+Keep existing `head()` (title, description, og:title/description/image). No changes.
 
-## Server function changes (`src/lib/cms/admin.functions.ts`)
-
-- Widen `projectSchema` with the new optional fields above.
-- On save, mirror writes: `title → name`, `roles → role` (joined string), `challenge → problem`, `overview → description`. Existing consumers keep working.
-- Add `duplicateProject`, `archiveProject`, `setProjectStatus` server fns for the header actions.
-- No changes to `listAllProjects` / `getProjectById` shape besides the extra columns flowing through.
-
-## Public page (`src/routes/_public.projects.$slug.tsx`)
-
-Minimal, backward-compatible tweaks only:
-- Prefer `overview` over `description`, `challenge` over `problem`, when present.
-- If `metrics` present, render a small metric grid above Results.
-- If `gallery` present, render thumbnails below the featured image.
-- Everything else unchanged.
-
-## Editor redesign (`src/routes/_authenticated/admin.projects.$id.tsx`)
-
-Full rewrite of this one file into a sectioned editor using existing tokens (`ink`, `cloud`, `line`, `electric`, `font-display`) — no new visual system.
-
-**Sticky header**
-- Title "Edit Project" + current project name + status badge (Draft / Published / Unlisted / Archived).
-- Actions: Preview (opens `/projects/<slug>` in new tab), Save Draft, Publish/Update, More menu (Duplicate, Unpublish, Archive, Delete — all wired to real server fns, with confirm dialogs on destructive actions).
-- Sticky on scroll; also mirrored as a bottom action bar on mobile.
-
-**Layout**
-- Two-column on desktop (main content left, Publishing/SEO panels right), single column on mobile.
-
-**Sections**
-
-1. **Project Details** — Title (required), Slug (auto-generated from title, editable, live URL preview `/{username}/projects/{slug}`, lowercase/URL-safe/uniqueness validation against sibling slugs on the owner), Short Summary (textarea + 200-char counter), Category (searchable dropdown: Crypto, Fintech, SaaS, E-commerce, Consumer, Internal Tools, Other; free-type allowed), Roles (multi-select chip input with presets + custom), Technologies & Tools (chip input, Enter/comma to add, removable, drag-reorder via `@dnd-kit/sortable`), Timeframe (start/end date + Ongoing toggle disabling end date).
-
-2. **Media** — Featured Image (drag-and-drop zone reusing `uploadMedia`, Choose File, Import from URL, preview, Replace, Remove, type/size validation, "Recommended 16:9, ≤2MB" helper), Image Alt Text, Gallery (multi-upload, thumbnail grid, drag-reorder, per-item caption + alt, remove).
-
-3. **Project Links** — Live Project URL, External Case Study URL (marked optional with helper text), Additional Links (repeatable list of `{label, url}` with Add/Remove/Reorder). All URL fields validated; auto-prepend `https://` on blur when missing.
-
-4. **Case Study** — Rich-text fields for Overview, The Challenge, Goals, Constraints, Process, Solution, Results & Impact, Learnings. Rich-text editor: lightweight — use `@tiptap/react` + StarterKit + Link + Image (small install). Metrics editor under Results: repeatable cards with Value / Label / Optional note. Old `description` field is hidden from the UI but preserved; if `overview` is empty and `description` has content, prefill Overview with it on load (does not overwrite until user saves).
-
-**Right column (desktop) — Publishing Settings**
-- Status (Draft / Published / Unlisted / Archived).
-- Featured toggle.
-- Publish date/time.
-- Visibility (Public / Unlisted / Private).
-- Display order (numeric, with a note that drag-reorder on the projects list is the preferred way — out of scope for this task).
-
-**Collapsed "SEO and Sharing" panel**
-- SEO title, meta description (+counter), social image (upload/URL), canonical URL, "Allow search-engine indexing" toggle. Defaults auto-derived from title/summary/featured image when fields are empty.
-
-**UX behaviors**
-- React Hook Form + zod resolver for validation; inline field errors.
-- `beforeunload` + router `blocker` when form is dirty ("You have unsaved changes").
-- Toast on save success/failure; disabled buttons + spinner during save.
-- Autosave draft every 30s when dirty and status is `draft` (silent, with subtle "Saved · 12:04" indicator).
-- Confirm dialogs for Delete and Archive.
-- All controls keyboard-accessible; visible focus rings.
+## Compatibility
+- Legacy records (only `name`/`description`/`problem`/`role`/`tools`) render cleanly via the `new || legacy` fallback already in place.
+- URLs unchanged; route path unchanged; loader signature unchanged.
 
 ## Files touched
+- `src/routes/_public.projects.$slug.tsx` — rewritten.
 
-- **New migration** — additive columns + enum extension on `public.projects`, with backfill from `name`/`role`/`problem`/`description`.
-- **Edit** `src/lib/cms/admin.functions.ts` — extend schema, mirror-write old fields, add `duplicateProject` / `archiveProject` / `setProjectStatus`.
-- **Rewrite** `src/routes/_authenticated/admin.projects.$id.tsx` — the new editor.
-- **Small edit** `src/routes/_public.projects.$slug.tsx` — prefer new fields, render metrics/gallery when present.
-- **New deps** (via `bun add`): `@tiptap/react`, `@tiptap/starter-kit`, `@tiptap/extension-link`, `@tiptap/extension-image`, `@dnd-kit/core`, `@dnd-kit/sortable`, `react-hook-form`, `@hookform/resolvers`. (zod, sonner, lucide already present.)
+No other files modified. No schema changes. No new dependencies (tiptap output is plain HTML; Tailwind Typography classes already work via existing `prose` usage in RichText preview styling — if `prose` isn't configured, fallback styling is inlined via utility classes on child elements).
 
-## Explicitly out of scope
-
-- Admin projects list drag-reorder (mentioned as a preference — separate task).
-- Public site redesign.
-- Templates/themes/custom domains (Phase 3).
-
-## Verification checklist (post-build)
-
-Create + edit + save draft + publish + unpublish + archive + duplicate + delete a project; upload/replace/remove featured image; add/remove tag chips; drag-reorder tools; add/remove/reorder gallery items and additional links; add metrics; slug uniqueness + URL validation; unsaved-changes warning; autosave indicator; existing legacy project (comma-separated tools/role) loads cleanly; public project page still renders old records unchanged and shows new structured content for updated records; mobile layout single-column with sticky bottom action bar.
+## Verification checklist
+- Full-content project, minimal project, no metrics, no gallery, no external links, long HTML process/solution, multiple images, desktop/tablet/mobile, prev/next edges (first & last project), keyboard nav, lazy image loading, existing `/projects/<slug>` URLs still resolve.
