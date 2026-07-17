@@ -19,6 +19,8 @@ import {
 } from "lucide-react";
 import { ChipInput } from "@/components/editor/ChipInput";
 import { RichText } from "@/components/editor/RichText";
+import { ProjectAiAssist } from "@/components/admin/ProjectAiAssist";
+import type { AiAssistFields } from "@/lib/cms/ai-assist.functions";
 import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors,
 } from "@dnd-kit/core";
@@ -340,6 +342,57 @@ function EditProject() {
     }
   }
 
+  function applyAiFields(fields: AiAssistFields) {
+    setForm((f) => {
+      const next: Form = { ...f };
+      const setStr = (k: keyof Form, v: string | null | undefined) => {
+        if (v == null) return;
+        const s = String(v).trim();
+        if (!s) return;
+        (next as any)[k] = s;
+      };
+      const setArr = (k: keyof Form, v: string[] | null | undefined) => {
+        if (!Array.isArray(v) || v.length === 0) return;
+        const cur = (f as any)[k] as string[];
+        const merged = Array.from(new Set([...(cur || []), ...v.map((x) => String(x).trim()).filter(Boolean)]));
+        (next as any)[k] = merged;
+      };
+
+      setStr("title", fields.title);
+      if (fields.slug) { setSlugTouched(true); (next as any).slug = slugify(fields.slug); }
+      setStr("summary", fields.summary);
+      setStr("category", fields.category);
+      setArr("roles", fields.roles);
+      setArr("tools", fields.tools);
+      setStr("start_date", fields.start_date);
+      setStr("end_date", fields.end_date);
+      if (fields.ongoing != null) next.ongoing = !!fields.ongoing;
+      setStr("live_link", fields.live_link);
+      setStr("case_study_link", fields.case_study_link);
+      if (Array.isArray(fields.additional_links) && fields.additional_links.length) {
+        const cur = f.additional_links || [];
+        next.additional_links = [...cur, ...fields.additional_links.filter((l) => l && (l.label || l.url))];
+      }
+      setStr("image_alt", fields.image_alt);
+      setStr("overview", fields.overview);
+      setStr("challenge", fields.challenge);
+      setStr("goals", fields.goals);
+      setStr("constraints", fields.constraints);
+      setStr("process", fields.process);
+      setStr("solution", fields.solution);
+      setStr("results", fields.results);
+      setStr("learnings", fields.learnings);
+      if (Array.isArray(fields.metrics) && fields.metrics.length) {
+        const cur = f.metrics || [];
+        next.metrics = [...cur, ...fields.metrics.filter((m) => m && (m.value || m.label))];
+      }
+      setStr("seo_title", fields.seo_title);
+      setStr("seo_description", fields.seo_description);
+      return next;
+    });
+    setDirty(true);
+  }
+
   if (loading) return <div className="py-20 text-center text-muted-ink">Loading…</div>;
 
   const statusBadge = STATUS_BADGE[form.status];
@@ -415,6 +468,7 @@ function EditProject() {
       {/* Body */}
       <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="space-y-8">
+          <ProjectAiAssist currentValues={form as unknown as Record<string, unknown>} onApply={applyAiFields} />
           {/* 1. Project Details */}
           <Section title="Project Details" description="Basic information used across your portfolio.">
             <Field label="Project Title" required error={errors.title}>
