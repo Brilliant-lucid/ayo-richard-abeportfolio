@@ -96,11 +96,11 @@ export const generateProjectFields = createServerFn({ method: "POST" })
     ].join("\n");
 
     try {
-      const { experimental_output: output } = await generateText({
+      const { output } = await generateText({
         model,
         system: SYSTEM_PROMPT,
         prompt: userPrompt,
-        experimental_output: Output.object({ schema: FieldsSchema }),
+        output: Output.object({ schema: FieldsSchema }),
       });
       return { fields: output as AiAssistFields };
     } catch (error) {
