@@ -1,52 +1,76 @@
 ## Goal
-Redesign only `src/routes/_public.projects.$slug.tsx` into a premium, polished case-study page. No changes to admin, editors, schema, auth, or other routes.
+Add an AI assist panel to the admin Project editor (`src/routes/_authenticated/admin.projects.$id.tsx`) that:
+1. Shows the list of fields the editor expects.
+2. Accepts a free-form "brain dump" (paste anything: notes, transcript, links, bullet points).
+3. Calls an AI server function that returns structured JSON matching those fields.
+4. Fills the form in-place (user reviews before saving — nothing is auto-saved).
 
-## Data source
-Continue using `getProjectBySlug` for the current project. Add a lightweight call to `listProjects` (already cached by the projects index route) via `queryOptions` to derive Previous/Next by `display_order`. No new server functions.
+Scope: admin project editor only. No public-page, schema, auth, or other-editor changes.
 
-## Page structure (in order)
-1. Back to Projects link (kept)
-2. **Hero**: category eyebrow, title (`title || name`), summary, meta row (Roles, Tools, Category, Timeframe from `start_date`/`end_date`/`ongoing`), primary CTA "View Live Project" (`live_link`), secondary "Case Study" (`case_study_link`), plus `additional_links` as labeled buttons — never raw URLs. Featured image below as a wide, rounded hero visual with `image_alt`.
-3. **Key Results** — metric cards (only if `metrics[]` non-empty), rendered near top under hero.
-4. **Overview** — `overview || description` (readable prose column, max-w-2xl-ish).
-5. **The Challenge** — `challenge || problem`.
-6. **Goals & Constraints** — two-column on desktop when both short, stacked on mobile; each hidden individually if empty.
-7. **Process** — rendered as rich HTML if the stored content is HTML (via `dangerouslySetInnerHTML` inside a `prose` container), otherwise `whitespace-pre-wrap`. Detection: string starts with `<`.
-8. **The Solution** — same rich/plain handling.
-9. **Project Gallery** — responsive grid from `gallery[]` with captions + alt, `loading="lazy"`, fixed aspect ratio to prevent layout shift. Hidden if empty.
-10. **Results and Impact** — `results` text (rich/plain). Metric cards only re-shown here if Key Results wasn't rendered up top (avoid duplication).
-11. **Learnings** — `learnings` (rich/plain), hidden if empty.
-12. **Project Links** — consolidated button row of live/case study/additional links with icons inferred from URL host (github, appstore, play.google, figma, generic external). Hidden if none.
-13. **Prev / Next / All Projects** — derived from `listProjects` ordered by `display_order`; each shows thumbnail + title + direction label. Hide side when none.
-14. **Contact CTA** — small section with heading + button opening the existing contact dialog (`openContactDialog` from `@/lib/contact-dialog-store`).
-15. Footer is provided by `_public` shell — unchanged.
+## UX
 
-## Rendering helpers (local to the file)
-- `RichOrPlain({ html }: { html: string })` — renders trusted admin HTML via `prose prose-neutral max-w-none` when it looks like HTML, else preserves line breaks.
-- `Section({ title, children })` — semantic `<section>` with consistent heading style; caller decides whether to render (empty-state gating stays outside).
-- `formatTimeframe(start, end, ongoing)` — "Mar 2024 – Present" / "2023 – 2024" / single date; hidden if all null.
-- `linkIcon(url)` — returns lucide icon based on host.
+- New collapsible "AI Assist" card at the top of the editor (above Project Details).
+- Two views inside:
+  - **Checklist view** (default): shows every field the AI can fill (Title, Slug, Summary, Category, Roles, Tools, Timeframe, Live link, Case study link, Additional links, Image alt, Overview, Challenge, Goals, Constraints, Process, Solution, Results, Learnings, Metrics, SEO title, SEO description). Each row shows current fill state (empty / has value). A "Copy checklist" button copies a plain-text version the user can fill offline.
+  - **Brain-dump view**: large textarea + "Fill fields with AI" button. Optional toggle "Overwrite existing values" (default off — only fills empty fields).
+- After generation:
+  - Diff preview: for each field the AI proposes, show current value vs proposed value with per-field "Apply" / "Skip" checkboxes and one "Apply selected" button.
+  - Nothing writes to the DB — it just populates the form state. User still clicks Save Draft / Publish.
+- Loading state uses a shimmer/spinner; errors surface as toast + inline message.
+- Rate-limit (429) and credits-exhausted (402) errors show a clear message.
 
-## Visual/UX
-- Use existing tokens (`ink`, `cloud`, `electric`, `line`, `surface`, `muted-ink`, `font-display`). No new colors.
-- Wider hero image (full column width, `rounded-2xl`), generous vertical rhythm (`space-y-16` between major blocks, tighter within).
-- Metadata pills instead of boxed "Meta" cards for a cleaner look.
-- All external links: `target="_blank" rel="noreferrer noopener"`.
-- Every section conditionally rendered — no empty headings.
-- Mobile: single column, full-width CTAs, stacked metadata, prev/next stacked.
-- Semantic `<article>`, `<header>`, `<section>`, single `<h1>`, `<h2>` per section.
+## Server function
 
-## SEO / head
-Keep existing `head()` (title, description, og:title/description/image). No changes.
+New file `src/lib/cms/ai-assist.functions.ts`:
 
-## Compatibility
-- Legacy records (only `name`/`description`/`problem`/`role`/`tools`) render cleanly via the `new || legacy` fallback already in place.
-- URLs unchanged; route path unchanged; loader signature unchanged.
+- `generateProjectFields = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth])`
+- Input (zod): `{ brainDump: string (min 10), existing: partial current form values, overwrite: boolean }`
+- Reads `LOVABLE_API_KEY` inside handler.
+- Uses AI SDK via the shared Lovable gateway helper. Since we need OpenAI-quality structured output on a schema this large, build the provider with `{ structuredOutputs: true }` and call `openai/gpt-5.4-mini` (fast, cheap, good extraction). Fallback path parses `error.text` if `NoObjectGeneratedError` fires.
+- Schema kept **flat and constraint-free** (per `ai-sdk-lovable-gateway` rules): all fields nullable strings / string arrays / small object arrays. Length caps live in the prompt, not the schema. Metrics = `Array<{ value, label, note }>` nullable. Additional links = `Array<{ label, url }>` nullable.
+- System prompt: "You extract portfolio project case-study fields from unstructured notes. Only fill fields the notes actually support. Never invent metrics, dates, or URLs. Keep summary ≤ 200 chars. Slug is lowercase-hyphenated derived from title. Overview/Challenge/etc. plain markdown paragraphs. Return nulls for anything unknown."
+- User message includes the brain dump plus (optionally) the current field values for context when `overwrite=false` so the model can skip filled fields.
+
+## Shared gateway helper
+
+New file `src/lib/ai-gateway.server.ts` containing the canonical `createLovableAiGatewayProvider` / run-id helpers from the `ai-sdk-lovable-gateway` knowledge (server-only). Reused by any future AI features.
+
+## Client wiring
+
+- New component `src/components/admin/ProjectAiAssist.tsx` — self-contained card. Props: `values` (current form snapshot) and `onApply(patch)` (parent merges into form state).
+- The editor passes its current form values in and receives the diff-approved patch back. No changes to save/publish logic.
+- Uses `useServerFn(generateProjectFields)` inside a `useMutation` (react-query already in use) for pending/error state.
+
+## Dependencies
+
+Verify installed via `bun add` in build mode:
+- `ai`
+- `@ai-sdk/openai-compatible`
+- `zod` (already used)
+
+No client-side AI SDK needed — server-only.
+
+## Guardrails / non-goals
+
+- No auto-save. AI output is a proposal, not a write.
+- No image generation.
+- No streaming — one-shot `generateText` with `Output.object`.
+- No changes to case-study or blog editors (can be added later using the same helper).
+- Doesn't touch the public site.
+
+## Verification
+
+- Missing `LOVABLE_API_KEY` returns a clear error surfaced in the panel.
+- Brain dump with rich detail fills most fields; sparse input leaves fields null.
+- "Overwrite existing values = off" preserves already-filled fields.
+- Per-field Skip works — skipped fields don't change.
+- Toggle Apply on a metrics/additional-links proposal correctly patches array fields.
+- Save Draft after Apply persists the AI-filled values via the existing `saveProject` flow.
+- 429 / 402 render friendly errors, not raw stack traces.
 
 ## Files touched
-- `src/routes/_public.projects.$slug.tsx` — rewritten.
-
-No other files modified. No schema changes. No new dependencies (tiptap output is plain HTML; Tailwind Typography classes already work via existing `prose` usage in RichText preview styling — if `prose` isn't configured, fallback styling is inlined via utility classes on child elements).
-
-## Verification checklist
-- Full-content project, minimal project, no metrics, no gallery, no external links, long HTML process/solution, multiple images, desktop/tablet/mobile, prev/next edges (first & last project), keyboard nav, lazy image loading, existing `/projects/<slug>` URLs still resolve.
+- new: `src/lib/ai-gateway.server.ts`
+- new: `src/lib/cms/ai-assist.functions.ts`
+- new: `src/components/admin/ProjectAiAssist.tsx`
+- edited: `src/routes/_authenticated/admin.projects.$id.tsx` (mount the panel, wire `onApply` into existing form state)
+- edited: `package.json` / `bun.lock` (add `ai`, `@ai-sdk/openai-compatible` if missing)
