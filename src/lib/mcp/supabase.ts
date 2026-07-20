@@ -16,7 +16,9 @@ export function requireAuth(ctx: ToolContext) {
   if (!ctx.isAuthenticated()) {
     throw new Error("Not authenticated");
   }
-  return ctx.getUserId();
+  const uid = ctx.getUserId();
+  if (!uid) throw new Error("Not authenticated");
+  return uid;
 }
 
 export function textResult(text: string, structured?: unknown) {
