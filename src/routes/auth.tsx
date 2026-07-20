@@ -5,12 +5,22 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
+  validateSearch: (s: Record<string, unknown>) => ({
+    next: typeof s.next === "string" ? s.next : undefined,
+  }),
   head: () => ({ meta: [{ title: "Sign in — Admin" }] }),
   component: Auth,
 });
 
 function Auth() {
   const navigate = useNavigate();
+  const { next } = Route.useSearch();
+  // Only allow same-origin relative paths.
+  const safeNext = next && next.startsWith("/") && !next.startsWith("//") ? next : null;
+  const goNext = () => {
+    if (safeNext) window.location.href = safeNext;
+    else navigate({ to: "/admin" });
+  };
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -19,9 +29,10 @@ function Auth() {
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
-      if (data.user) navigate({ to: "/admin" });
+      if (data.user) goNext();
     });
-  }, [navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -29,7 +40,7 @@ function Auth() {
     try {
       if (mode === "forgot") {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: window.location.origin + "/reset-password",
+          redirectTo: window.location.origin + "/reset-password" + (safeNext ? `?next=${encodeURIComponent(safeNext)}` : ""),
         });
         if (error) throw error;
         setResetSent(true);
@@ -40,7 +51,7 @@ function Auth() {
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: window.location.origin + "/admin" },
+          options: { emailRedirectTo: window.location.origin + (safeNext ?? "/admin") },
         });
         if (error) throw error;
       } else {
@@ -48,7 +59,7 @@ function Auth() {
         if (error) throw error;
       }
       toast.success("Signed in");
-      navigate({ to: "/admin" });
+      goNext();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Auth failed");
     } finally {
