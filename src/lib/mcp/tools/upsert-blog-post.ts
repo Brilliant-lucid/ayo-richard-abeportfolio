@@ -22,7 +22,8 @@ export default defineTool({
     const userId = requireAuth(ctx);
     const sb = supabaseForCaller(ctx);
     const { id, ...rest } = input;
-    const payload: Record<string, unknown> = { ...rest };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const payload: any = { ...rest };
     if (rest.status === "published") payload.published_at = new Date().toISOString();
     if (id) {
       const { error } = await sb.from("blog_posts").update(payload).eq("id", id).eq("owner_id", userId);
@@ -31,7 +32,7 @@ export default defineTool({
     }
     if (!rest.slug || !rest.title) return errorResult("slug and title are required to create a post.");
     const { data, error } = await sb.from("blog_posts")
-      .insert({ ...payload, owner_id: userId })
+      .insert({ ...payload, owner_id: userId } as any)
       .select("id, slug").single();
     if (error) return errorResult(error.message);
     return textResult(`Created post ${data.slug}.`, { id: data.id, slug: data.slug });
