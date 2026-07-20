@@ -32,7 +32,8 @@ export default defineTool({
     const userId = requireAuth(ctx);
     const sb = supabaseForCaller(ctx);
     const { id, ...rest } = input;
-    const payload: Record<string, unknown> = { ...rest };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const payload: any = { ...rest };
     if (rest.title) payload.name = rest.title;
     if (rest.roles) payload.role = rest.roles.join(", ");
     if (rest.overview !== undefined) payload.description = rest.overview;
@@ -44,7 +45,7 @@ export default defineTool({
     }
     if (!rest.slug || !rest.title) return errorResult("slug and title are required to create a project.");
     const { data, error } = await sb.from("projects")
-      .insert({ ...payload, owner_id: userId })
+      .insert({ ...payload, owner_id: userId } as any)
       .select("id, slug").single();
     if (error) return errorResult(error.message);
     return textResult(`Created project ${data.slug}.`, { id: data.id, slug: data.slug });
