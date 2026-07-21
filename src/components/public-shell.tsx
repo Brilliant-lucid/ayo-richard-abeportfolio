@@ -1,10 +1,9 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { Github, Linkedin, Twitter, Mail, Moon, Sun, Menu, X, LogIn, LayoutDashboard, User, LogOut } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { openContactDialog } from "@/lib/contact-dialog-store";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
 
 type Nav = { id: string; label: string; href: string };
 type Settings = {
