@@ -5,7 +5,7 @@ import { z } from "zod";
 
 const InputSchema = z.object({
   brainDump: z.string().min(10, "Add a bit more detail"),
-  existing: z.record(z.any()).optional(),
+  existing: z.record(z.string(), z.any()).optional(),
   overwrite: z.boolean().optional(),
 });
 
