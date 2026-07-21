@@ -51,16 +51,9 @@ function ProfilePage() {
     if (!file) return;
     setUploading(true);
     try {
-      const buffer = await file.arrayBuffer();
-      const base64 = btoa(String.fromCharCode(...new Uint8Array(buffer)));
-      const res = await upload({
-        data: {
-          fileName: file.name,
-          contentType: file.type,
-          base64,
-          folder: "avatars",
-        },
-      });
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await upload({ data: fd as never });
       setAvatarUrl(res.url);
       toast.success("Avatar uploaded");
     } catch (err) {
