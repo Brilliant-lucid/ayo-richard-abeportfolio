@@ -1,7 +1,9 @@
-import { Link, useRouterState } from "@tanstack/react-router";
-import { Github, Linkedin, Twitter, Mail, Moon, Sun, Menu, X } from "lucide-react";
+import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
+import { Github, Linkedin, Twitter, Mail, Moon, Sun, Menu, X, LogIn, LayoutDashboard, User, LogOut } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { openContactDialog } from "@/lib/contact-dialog-store";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 
 type Nav = { id: string; label: string; href: string };
 type Settings = {
@@ -24,6 +26,112 @@ function useTheme() {
     try { localStorage.setItem("theme", next ? "dark" : "light"); } catch {}
   };
   return { dark, toggle };
+}
+
+type MePortfolio = { username: string; display_name: string | null; avatar_url: string | null } | null;
+
+function useMe() {
+  const [me, setMe] = useState<{ id: string; email: string | null } | null | undefined>(undefined);
+  const [portfolio, setPortfolio] = useState<MePortfolio>(null);
+  useEffect(() => {
+    let alive = true;
+    async function load() {
+      const { data } = await supabase.auth.getUser();
+      if (!alive) return;
+      if (!data.user) { setMe(null); setPortfolio(null); return; }
+      setMe({ id: data.user.id, email: data.user.email ?? null });
+      const { data: p } = await supabase
+        .from("portfolios")
+        .select("username, display_name, avatar_url")
+        .eq("owner_id", data.user.id)
+        .maybeSingle();
+      if (alive) setPortfolio(p ?? null);
+    }
+    load();
+    const { data: sub } = supabase.auth.onAuthStateChange(() => load());
+    return () => { alive = false; sub.subscription.unsubscribe(); };
+  }, []);
+  return { me, portfolio };
+}
+
+function AccountMenu({ compact }: { compact?: boolean }) {
+  const { me, portfolio } = useMe();
+  const [open, setOpen] = useState(false);
+  const qc = useQueryClient();
+  const navigate = useNavigate();
+
+  async function signOut() {
+    setOpen(false);
+    await qc.cancelQueries();
+    qc.clear();
+    await supabase.auth.signOut();
+    navigate({ to: "/", replace: true });
+  }
+
+  if (me === undefined) {
+    return <div className={compact ? "h-8 w-16 animate-pulse rounded-full bg-surface" : "h-9 w-full animate-pulse rounded-md bg-surface"} />;
+  }
+
+  if (me === null) {
+    return (
+      <Link
+        to="/auth"
+        className={compact
+          ? "inline-flex items-center gap-1.5 rounded-full bg-ink px-3 py-1.5 text-xs font-medium text-cloud hover:opacity-90"
+          : "flex w-full items-center justify-center gap-2 rounded-md bg-ink py-2 text-xs font-medium text-cloud hover:opacity-90"}
+      >
+        <LogIn size={12} /> Sign in
+      </Link>
+    );
+  }
+
+  const label = portfolio?.display_name || me.email || "Account";
+  const initial = (portfolio?.display_name || me.email || "?").charAt(0).toUpperCase();
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className={compact
+          ? "flex items-center gap-2 rounded-full border border-line px-2 py-1 text-xs text-ink hover:bg-surface"
+          : "flex w-full items-center gap-2 rounded-md border border-line px-2 py-1.5 text-xs text-ink hover:bg-surface"}
+      >
+        {portfolio?.avatar_url ? (
+          <img src={portfolio.avatar_url} alt="" className="h-6 w-6 rounded-full object-cover" />
+        ) : (
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-ink text-[10px] font-medium text-cloud">{initial}</span>
+        )}
+        <span className="max-w-[110px] truncate">{label}</span>
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <div className={`absolute z-50 mt-2 w-56 overflow-hidden rounded-xl border border-line bg-cloud shadow-lg ${compact ? "right-0" : "left-0"}`}>
+            <Link to="/admin" onClick={() => setOpen(false)} className="flex items-center gap-2 px-3 py-2 text-xs text-ink hover:bg-surface">
+              <LayoutDashboard size={12} /> Dashboard
+            </Link>
+            {portfolio && (
+              <Link
+                to="/u/$username"
+                params={{ username: portfolio.username }}
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-2 px-3 py-2 text-xs text-ink hover:bg-surface"
+              >
+                <User size={12} /> My portfolio
+              </Link>
+            )}
+            <Link to="/admin/profile" onClick={() => setOpen(false)} className="flex items-center gap-2 px-3 py-2 text-xs text-ink hover:bg-surface">
+              <User size={12} /> Profile settings
+            </Link>
+            <button onClick={signOut} className="flex w-full items-center gap-2 border-t border-line px-3 py-2 text-left text-xs text-ink hover:bg-surface">
+              <LogOut size={12} /> Sign out
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
 }
 
 export function PublicShell({
@@ -76,6 +184,7 @@ export function PublicShell({
         </nav>
       </div>
       <div className="space-y-4">
+        <AccountMenu />
         <div className="flex items-center gap-3 text-muted-ink">
           {settings?.linkedin_url && (
             <a href={settings.linkedin_url} target="_blank" rel="noreferrer" aria-label="LinkedIn" className="hover:text-electric"><Linkedin size={16} /></a>
@@ -109,9 +218,12 @@ export function PublicShell({
       {/* Mobile header */}
       <div className="fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-between border-b border-line bg-cloud/90 px-4 backdrop-blur md:hidden">
         <Link to="/" className="font-display text-lg">{settings?.site_name ?? "Ayo Richard Abe"}</Link>
-        <button onClick={() => setOpen((v) => !v)} aria-label="Menu" className="rounded-md p-2 text-ink">
-          {open ? <X size={20} /> : <Menu size={20} />}
-        </button>
+        <div className="flex items-center gap-2">
+          <AccountMenu compact />
+          <button onClick={() => setOpen((v) => !v)} aria-label="Menu" className="rounded-md p-2 text-ink">
+            {open ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
       </div>
       {open && (
         <div className="fixed inset-0 top-14 z-30 md:hidden">

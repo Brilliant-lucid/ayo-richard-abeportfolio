@@ -87,6 +87,7 @@ export const updateMyPortfolio = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) =>
     z.object({
+      username: usernameSchema.optional(),
       display_name: z.string().min(1).max(80).optional(),
       tagline: z.string().max(160).nullable().optional(),
       avatar_url: z.string().nullable().optional(),
@@ -95,10 +96,32 @@ export const updateMyPortfolio = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const sb = await adminClient();
+    if (data.username) {
+      const { data: taken } = await sb
+        .from("portfolios")
+        .select("owner_id")
+        .eq("username", data.username)
+        .maybeSingle();
+      if (taken && taken.owner_id !== context.userId) {
+        throw new Error("That username is taken");
+      }
+    }
     const { error } = await sb
       .from("portfolios")
       .update(data)
       .eq("owner_id", context.userId);
     if (error) throw new Error(error.message);
     return { ok: true };
+  });
+
+export const getMyPortfolioSummary = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const sb = await adminClient();
+    const { data } = await sb
+      .from("portfolios")
+      .select("username, display_name, avatar_url")
+      .eq("owner_id", context.userId)
+      .maybeSingle();
+    return data;
   });

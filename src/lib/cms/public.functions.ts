@@ -26,6 +26,17 @@ async function resolvePortfolio(username?: string) {
   return data;
 }
 
+export const listFeaturedPortfolios = createServerFn({ method: "GET" }).handler(async () => {
+  const sb = await admin();
+  const { data } = await sb
+    .from("portfolios")
+    .select("username, display_name, tagline, avatar_url")
+    .eq("is_published", true)
+    .order("created_at", { ascending: false })
+    .limit(12);
+  return data ?? [];
+});
+
 export const getSiteData = createServerFn({ method: "GET" })
   .inputValidator((d: unknown) => usernameOnly.parse(d ?? {}))
   .handler(async ({ data }) => {
