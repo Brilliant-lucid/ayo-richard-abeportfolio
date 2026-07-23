@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowUpRight, LayoutTemplate, Share2, Sparkles, LayoutDashboard, LogIn } from "lucide-react";
 import { listFeaturedPortfolios } from "@/lib/cms/public.functions";
 import { supabase } from "@/integrations/supabase/client";
@@ -31,6 +31,27 @@ export const Route = createFileRoute("/")({
 function Landing() {
   const { data: featured } = useSuspenseQuery(featuredQO);
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
+  const [mounted, setMounted] = useState(false);
+  const heroRef = useRef<HTMLDivElement | null>(null);
+  const [pointer, setPointer] = useState({ x: 0.5, y: 0.5 });
+  const words = useMemo(() => ["Publish your work.", "Own your link.", "Share your story."], []);
+  const [wordIdx, setWordIdx] = useState(0);
+
+  useEffect(() => {
+    setMounted(true);
+    const id = setInterval(() => setWordIdx((i) => (i + 1) % words.length), 2600);
+    return () => clearInterval(id);
+  }, [words.length]);
+
+  function onHeroMove(e: React.MouseEvent<HTMLDivElement>) {
+    const el = heroRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    setPointer({
+      x: (e.clientX - rect.left) / rect.width,
+      y: (e.clientY - rect.top) / rect.height,
+    });
+  }
 
   useEffect(() => {
     let mounted = true;
@@ -47,10 +68,20 @@ function Landing() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-cloud text-ink">
+    <div className="relative min-h-screen overflow-hidden bg-cloud text-ink">
+      {/* Animated background blobs */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute -top-32 -left-24 h-[420px] w-[420px] rounded-full bg-electric/25 blur-3xl animate-blob" />
+        <div className="absolute top-1/3 -right-24 h-[380px] w-[380px] rounded-full bg-fuchsia-300/30 blur-3xl animate-blob animation-delay-2000" />
+        <div className="absolute bottom-0 left-1/3 h-[360px] w-[360px] rounded-full bg-amber-200/40 blur-3xl animate-blob animation-delay-4000" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(0,0,0,0.05)_1px,transparent_0)] [background-size:24px_24px]" />
+      </div>
       {/* Top bar */}
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
-        <Link to="/" className="font-display text-xl">Portfolio Platform</Link>
+        <Link to="/" className="group inline-flex items-center gap-2 font-display text-xl">
+          <span className="inline-block h-2 w-2 rounded-full bg-electric animate-pulse" />
+          <span className="transition-transform group-hover:-translate-y-0.5">Portfolio Platform</span>
+        </Link>
         <nav className="flex items-center gap-2 text-sm">
           {signedIn ? (
             <Link
@@ -77,10 +108,30 @@ function Landing() {
 
       <main className="mx-auto max-w-6xl space-y-24 px-6 pb-24 pt-8 md:pt-16">
         {/* Hero */}
-        <section>
+        <section
+          ref={heroRef}
+          onMouseMove={onHeroMove}
+          className={`relative transition-all duration-700 ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+        >
+          {/* Cursor spotlight */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -inset-6 -z-10 rounded-3xl opacity-70 transition-[background] duration-300"
+            style={{
+              background: `radial-gradient(500px circle at ${pointer.x * 100}% ${pointer.y * 100}%, color-mix(in oklab, var(--electric) 22%, transparent), transparent 60%)`,
+            }}
+          />
           <div className="text-xs uppercase tracking-[0.22em] text-electric">Portfolio platform</div>
           <h1 className="mt-4 font-display text-5xl leading-[1.05] tracking-tight text-ink md:text-7xl">
-            Publish your work.<br />Own your link.
+            <span className="block">Publish your work.</span>
+            <span className="relative block">
+              <span
+                key={wordIdx}
+                className="inline-block bg-gradient-to-r from-electric via-fuchsia-500 to-amber-500 bg-clip-text text-transparent animate-fade-in"
+              >
+                {words[wordIdx]}
+              </span>
+            </span>
           </h1>
           <p className="mt-6 max-w-2xl text-lg text-ink-soft">
             Spin up a beautiful portfolio in minutes — projects, case studies, and a blog, all under
@@ -89,9 +140,10 @@ function Landing() {
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
               to="/auth"
-              className="inline-flex items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-cloud transition-transform hover:scale-[1.02]"
+              className="group inline-flex items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-cloud shadow-lg shadow-ink/20 transition-transform hover:scale-[1.03] active:scale-[0.98]"
             >
-              Create your portfolio <ArrowUpRight size={14} />
+              Create your portfolio
+              <ArrowUpRight size={14} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </Link>
             {!signedIn && (
               <Link
@@ -112,9 +164,13 @@ function Landing() {
               { icon: Sparkles, title: "Claim your username", body: "Sign up in seconds. Pick a username — that becomes your public link." },
               { icon: LayoutTemplate, title: "Add your work", body: "Use the admin dashboard to add projects, case studies, blog posts and more." },
               { icon: Share2, title: "Publish & share", body: "Toggle publish on — share your /u/your-name link anywhere." },
-            ].map((s) => (
-              <div key={s.title} className="rounded-2xl border border-line bg-cloud p-6">
-                <s.icon size={18} className="text-electric" />
+            ].map((s, i) => (
+              <div
+                key={s.title}
+                style={{ animationDelay: `${i * 120}ms` }}
+                className="group rounded-2xl border border-line bg-cloud/70 p-6 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-electric/40 hover:shadow-xl animate-fade-in"
+              >
+                <s.icon size={18} className="text-electric transition-transform group-hover:rotate-12 group-hover:scale-110" />
                 <div className="mt-4 font-display text-xl text-ink">{s.title}</div>
                 <p className="mt-2 text-sm text-ink-soft">{s.body}</p>
               </div>
@@ -129,12 +185,13 @@ function Landing() {
               <h2 className="font-display text-3xl text-ink">Portfolios on the platform</h2>
             </div>
             <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-              {featured.map((p) => (
+              {featured.map((p, i) => (
                 <Link
                   key={p.username}
                   to="/u/$username"
                   params={{ username: p.username }}
-                  className="group flex items-center gap-4 rounded-2xl border border-line bg-cloud p-4 transition-colors hover:border-electric/40"
+                  style={{ animationDelay: `${i * 60}ms` }}
+                  className="group flex items-center gap-4 rounded-2xl border border-line bg-cloud/80 p-4 backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-electric/40 hover:shadow-lg animate-fade-in"
                 >
                   {p.avatar_url ? (
                     <img src={p.avatar_url} alt="" className="h-14 w-14 rounded-full object-cover ring-1 ring-line" />

@@ -7,6 +7,7 @@ import {
   listProjects,
   listBlogPosts,
   listTestimonials,
+  notifyPortfolioVisit,
 } from "@/lib/cms/public.functions";
 import { PublicShell } from "@/components/public-shell";
 import { ContactDialog } from "@/components/contact-dialog";
@@ -66,6 +67,33 @@ function UserPortfolio() {
   useEffect(() => {
     if (search.contact) openContactDialog();
   }, [search.contact]);
+
+  // Fire visitor notification once per 12h per browser per portfolio.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const key = `visited:${username}`;
+      const last = Number(localStorage.getItem(key) || 0);
+      const now = Date.now();
+      if (now - last < 12 * 60 * 60 * 1000) return;
+      // Skip if the viewer is the owner
+      import("@/integrations/supabase/client").then(({ supabase }) => {
+        supabase.auth.getUser().then(({ data }) => {
+          if (data.user && data.user.id === site.portfolio?.owner_id) return;
+          localStorage.setItem(key, String(now));
+          notifyPortfolioVisit({
+            data: {
+              username,
+              referrer: document.referrer || "",
+              userAgent: navigator.userAgent || "",
+            },
+          }).catch(() => {});
+        });
+      });
+    } catch {
+      /* noop */
+    }
+  }, [username, site.portfolio?.owner_id]);
 
   const hero = site.hero;
   const stats = site.stats;
