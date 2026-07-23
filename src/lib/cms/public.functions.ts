@@ -262,3 +262,73 @@ async function sendContactNotification(d: {
     throw new Error(`Gmail send failed (${res.status}): ${txt}`);
   }
 }
+
+const visitSchema = z.object({
+  username: z.string().min(1),
+  referrer: z.string().max(500).optional().default(""),
+  userAgent: z.string().max(500).optional().default(""),
+});
+
+export const notifyPortfolioVisit = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => visitSchema.parse(d))
+  .handler(async ({ data }) => {
+    const sb = await admin();
+    const { data: portfolio } = await sb
+      .from("portfolios")
+      .select("owner_id, username, display_name")
+      .eq("username", data.username)
+      .eq("is_published", true)
+      .maybeSingle();
+    if (!portfolio) return { ok: false };
+
+    const lovableKey = process.env.LOVABLE_API_KEY;
+    const gmailKey = process.env.GOOGLE_MAIL_API_KEY;
+    if (!lovableKey || !gmailKey) return { ok: false };
+
+    // Lookup owner email via Auth Admin API
+    const { data: userRes } = await sb.auth.admin.getUserById(portfolio.owner_id);
+    const toEmail = userRes?.user?.email;
+    if (!toEmail) return { ok: false };
+
+    const when = new Date().toISOString();
+    const body = [
+      `Someone just visited your portfolio.`,
+      ``,
+      `Portfolio: /u/${portfolio.username}`,
+      `Time: ${when}`,
+      `Referrer: ${data.referrer || "(direct)"}`,
+      `User agent: ${data.userAgent || "(unknown)"}`,
+    ].join("\n");
+
+    const raw = [
+      `To: ${toEmail}`,
+      `Subject: New visitor on your portfolio`,
+      `Content-Type: text/plain; charset="UTF-8"`,
+      ``,
+      body,
+    ].join("\r\n");
+
+    const encoded = Buffer.from(raw, "utf-8")
+      .toString("base64")
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=+$/, "");
+
+    try {
+      await fetch(
+        "https://connector-gateway.lovable.dev/google_mail/gmail/v1/users/me/messages/send",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${lovableKey}`,
+            "X-Connection-Api-Key": gmailKey,
+          },
+          body: JSON.stringify({ raw: encoded }),
+        },
+      );
+    } catch (e) {
+      console.error("Visit notification failed:", e);
+    }
+    return { ok: true };
+  });
