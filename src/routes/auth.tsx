@@ -23,6 +23,7 @@ function Auth() {
   };
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<"signin" | "signup" | "forgot">("signin");
   const [resetSent, setResetSent] = useState(false);
@@ -48,6 +49,11 @@ function Auth() {
         return;
       }
       if (mode === "signup") {
+        if (password !== confirmPassword) {
+          toast.error("Passwords don't match");
+          setLoading(false);
+          return;
+        }
         const { error } = await supabase.auth.signUp({
           email,
           password,
@@ -96,6 +102,22 @@ function Auth() {
               )}
             </div>
             <input type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} className="mt-1 w-full rounded-md border border-line bg-cloud px-3 py-2 text-sm focus:border-electric focus:outline-none" />
+          </div>
+        )}
+        {mode === "signup" && (
+          <div>
+            <label className="text-xs uppercase tracking-wider text-muted-ink">Confirm password</label>
+            <input
+              type="password"
+              required
+              minLength={6}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="mt-1 w-full rounded-md border border-line bg-cloud px-3 py-2 text-sm focus:border-electric focus:outline-none"
+            />
+            {confirmPassword && password !== confirmPassword && (
+              <p className="mt-1 text-[11px] text-destructive">Passwords don't match</p>
+            )}
           </div>
         )}
         {mode === "forgot" && resetSent && (
