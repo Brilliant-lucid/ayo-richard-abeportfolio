@@ -118,7 +118,7 @@ function Landing() {
             aria-hidden
             className="pointer-events-none absolute -inset-6 -z-10 rounded-3xl opacity-70 transition-[background] duration-300"
             style={{
-              background: `radial-gradient(500px circle at ${pointer.x * 100}% ${pointer.y * 100}%, hsl(var(--electric) / 0.18), transparent 60%)`,
+              background: `radial-gradient(500px circle at ${pointer.x * 100}% ${pointer.y * 100}%, color-mix(in oklab, var(--electric) 22%, transparent), transparent 60%)`,
             }}
           />
           <div className="text-xs uppercase tracking-[0.22em] text-electric">Portfolio platform</div>
