@@ -75,7 +75,13 @@ function Auth() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-cloud px-4">
+    <div className="relative flex min-h-screen items-center justify-center bg-cloud px-4">
+      <Link
+        to="/"
+        className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full border border-line bg-cloud px-3 py-1.5 text-xs text-ink-soft hover:text-ink"
+      >
+        <ArrowLeft size={12} /> Back to home
+      </Link>
       <form onSubmit={onSubmit} className="w-full max-w-sm space-y-4 rounded-2xl border border-line bg-cloud p-8">
         <div>
           <div className="text-xs uppercase tracking-[0.22em] text-electric">Portfolio platform</div>
