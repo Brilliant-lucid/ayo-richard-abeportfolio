@@ -131,6 +131,14 @@ function UserPortfolio() {
               >
                 Get in touch <ArrowUpRight size={14} />
               </button>
+              {featured.length > 0 && (
+                <a
+                  href="#projects"
+                  className="inline-flex items-center gap-2 rounded-full border border-line bg-cloud px-5 py-2.5 text-sm font-medium text-ink transition-colors hover:bg-surface"
+                >
+                  View Projects <ArrowUpRight size={14} />
+                </a>
+              )}
             </div>
           </div>
           {portraitSrc && (
@@ -159,19 +167,21 @@ function UserPortfolio() {
         )}
 
         {featured.length > 0 && (
-          <section>
+          <section id="projects" className="scroll-mt-20">
             <div className="mb-6 flex items-end justify-between">
               <h2 className="font-display text-3xl text-ink">Projects &amp; Case Studies</h2>
             </div>
             <div className="grid gap-6 md:grid-cols-2">
               {featured.map((p) => (
-                <div
+                <Link
                   key={p.id}
-                  className="group flex flex-col gap-3 rounded-[28px] bg-ink p-3 text-cloud shadow-xl shadow-ink/10"
+                  to="/projects/$slug"
+                  params={{ slug: p.slug }}
+                  className="group flex flex-col gap-3 rounded-[28px] bg-ink p-3 text-cloud shadow-xl shadow-ink/10 transition-all hover:-translate-y-1 hover:shadow-2xl"
                 >
                   {p.featured_image_url ? (
                     <div className="relative aspect-[4/3] overflow-hidden rounded-[20px]">
-                      <img src={p.featured_image_url} alt={p.name} className="h-full w-full object-cover" />
+                      <img src={p.featured_image_url} alt={p.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
                     </div>
                   ) : (
                     <div className="aspect-[4/3] rounded-[20px] bg-cloud/10" />
@@ -183,7 +193,10 @@ function UserPortfolio() {
                     <div className="mt-2 font-display text-2xl">{p.name}</div>
                     {p.summary && <p className="mt-2 line-clamp-3 text-sm text-cloud/70">{p.summary}</p>}
                   </div>
-                </div>
+                  <div className="mt-3 flex items-center justify-center rounded-full bg-cloud px-5 py-3 text-sm font-medium text-ink transition-colors group-hover:bg-electric group-hover:text-ink">
+                    View project
+                  </div>
+                </Link>
               ))}
             </div>
           </section>
