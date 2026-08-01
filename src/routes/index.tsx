@@ -16,8 +16,8 @@ export const Route = createFileRoute("/")({
     meta: [
       { title: "Portfolio Platform — Publish your work with your own link" },
       { name: "description", content: "Create a beautiful portfolio in minutes. Share your projects, case studies and blog under your own /u/username link." },
-      { property: "og:title", content: "Portfolio Platform" },
-      { property: "og:description", content: "Create a beautiful portfolio in minutes. Your own shareable /u/username link." },
+      { property: "og:title", content: "Portfolio Platform — Publish your work with your own link" },
+      { property: "og:description", content: "Create a beautiful portfolio in minutes. Share your projects, case studies and blog under your own /u/username link." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
