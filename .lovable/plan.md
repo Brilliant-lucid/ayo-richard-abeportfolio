@@ -1,67 +1,68 @@
+## Context / one correction
 
-## Goal
+This app is **TanStack Start (React)**, not Laravel — there are no controllers, Blade views, or middleware. The equivalents are route files in `src/routes/` and server functions in `src/lib/cms/`. Everything below maps your requests onto that stack.
 
-Right now `/` shows your portfolio and there's no way for a signed-in user to reach their own dashboard/profile from the public site. Make the platform truly multi-tenant on the surface: platform landing at `/`, personal portfolios at `/u/$username`, and an account affordance in the nav on every public page.
+On URLs: wildcard subdomains (`username.example.com`) are not available on Lovable hosting — only individually connected domains. So I'll use the dedicated, independent portfolio URL space you allowed as an alternative:
 
-## 1. Platform landing at `/`
+```text
+/                         platform landing + directory
+/u/ayo                    a user's portfolio home
+/u/ayo/projects           /u/ayo/projects/meetmind
+/u/ayo/case-studies       /u/ayo/case-studies/<slug>
+/u/ayo/blog               /u/ayo/blog/<slug>
+/u/ayo/about
+```
 
-Rewrite `src/routes/_public.index.tsx` to be a platform marketing page (not Ayo's portfolio):
+If you later connect a real custom domain per user, this same structure can be mapped to a subdomain without another rewrite.
 
-- Hero: "Create your portfolio in minutes" + primary CTA
-  - Signed out → `Sign up` (goes to `/auth` in signup mode) and `Sign in`
-  - Signed in → `Go to dashboard` (goes to `/admin`) and `View my portfolio` (`/u/{my-username}`)
-- "How it works" (3 steps)
-- "Featured portfolios" grid — a few published portfolios (pulled from `portfolios` where `is_published = true`) with avatar, display_name, tagline, link to `/u/$username`
-- Footer CTA
+## 1. Portfolio route namespace
 
-New public server fn `listFeaturedPortfolios()` in `src/lib/cms/public.functions.ts` (publishable-key client, scoped `TO anon` on `portfolios` where `is_published = true`). Verify/adjust the existing RLS/GRANT on `portfolios` in a migration if the anon SELECT policy isn't already in place.
+Today only `/u/$username` exists (a single long page), while `/projects/$slug`, `/blog/$slug`, `/case-studies/$slug` are legacy single-tenant routes hardcoded to the default user "richard". That's why portfolio cards either 404 or show the wrong person's content.
 
-## 2. Personal portfolios at `/u/$username`
+- Convert `u.$username.tsx` into a layout route that loads the portfolio + site data once and renders the shared shell + `<Outlet />`.
+- Add leaf routes: `index` (portfolio home), `about`, `projects`, `projects/$slug`, `case-studies`, `case-studies/$slug`, `blog`, `blog/$slug` — all under `/u/$username`.
+- All data comes from the existing `public.functions.ts` server functions, passing `username` through, so a project of user A is never reachable under user B.
+- Keep the old `/projects/*`, `/blog/*`, `/case-studies/*` paths working as **redirects** to the default portfolio's new URL, so existing shared links and search results don't break.
+- All pages stay fully public (no auth), server-rendered.
 
-Create the missing `/u/$username` route tree (dashboard already links to it):
+## 2. Navigation
 
-- `src/routes/u.$username.tsx` — layout that loads the owner by username + their site data (nav, settings, hero, stats), renders `PublicShell` scoped to that owner, `<Outlet />`
-- `src/routes/u.$username.index.tsx` — the current home content (hero, projects & case studies, from-the-blog, testimonials)
-- `src/routes/u.$username.about.tsx`, `u.$username.projects.index.tsx`, `u.$username.projects.$slug.tsx`, `u.$username.case-studies.*`, `u.$username.blog.*`
+- Inside a portfolio, nav links, "back" buttons, prev/next project, and the logo all resolve to `/u/$username/...` — never to the platform landing page.
+- When signed in and viewing your own portfolio, "Home" goes to your portfolio home; the account menu keeps Dashboard / Profile. Only **Sign out** returns to `/`.
+- The platform landing page never auto-redirects into a portfolio.
 
-Refactor public data fns in `src/lib/cms/public.functions.ts` to take an `ownerId` (resolved from username) instead of implicit single-tenant. `getSiteData(ownerId)`, `listProjects(ownerId)`, etc. Each leaf route has its own `head()` with the owner's display_name/tagline and (for detail pages) the item's cover image as `og:image` / `twitter:image`.
+## 3. Share links
 
-404 if username doesn't exist or portfolio isn't published (and the viewer isn't the owner).
+- A small "Copy link" / Share control on each project, case study, and blog post page (and on the cards' hover state), copying the absolute public URL with a toast confirmation.
+- Uses the Web Share API on mobile where available, clipboard copy otherwise.
 
-Keep the existing `_public.*` routes (Ayo's paths like `/about`, `/projects`) but redirect them to `/u/ayo/*` for backward compatibility — cleanest, since they're currently hardcoded to a single tenant.
+## 4. OG / SEO metadata
 
-## 3. Account menu in the public nav
+Partially present today (blog detail has some tags), but titles are hardcoded to one person, and canonical / `og:url` / `twitter:image` / absolute image URLs are missing — which is why previews are wrong or blank.
 
-Update `src/components/public-shell.tsx` (used by both `/` and `/u/$username`):
+Per public page, generated from loader data:
+- `title`, `meta description`
+- `og:title`, `og:description`, `og:image` (absolute URL from the item's featured/cover image), `og:type` (`article` for blog, `website`/`profile` otherwise), `og:url`
+- `twitter:card = summary_large_image`, `twitter:image`
+- `<link rel="canonical">` self-referencing the page
+- JSON-LD: `Article` for blog posts, `CreativeWork` for projects/case studies, `Person` for the portfolio home
+- Absolute URLs built server-side from the request origin so LinkedIn / X / WhatsApp / Facebook / Slack / Discord all resolve the image.
 
-- On mount, read `supabase.auth.getUser()` (client-only) and subscribe to `onAuthStateChange` to keep the affordance in sync.
-- Desktop sidebar footer + mobile top-bar:
-  - Signed out → `Sign in` button (links to `/auth`)
-  - Signed in → avatar + name button that opens a dropdown with:
-    - Dashboard → `/admin`
-    - My portfolio → `/u/{username}` (fetched once via a lightweight `getMyPortfolioSummary()` public-ish fn, or from `getMyPortfolio`)
-    - Sign out (uses the existing sign-out sequence: cancel + clear queries, `supabase.auth.signOut()`, navigate to `/`)
+Note: platforms cache previews, so a re-share may need a refresh in their debugger.
 
-The dropdown/menu uses existing tailwind primitives already in the shell — no new component library dependency.
+## 5–6. Clickable cards
 
-## 4. Profile page in admin
+- Case study cards and blog cards on the portfolio home and index pages become links to their detail pages (blog cards are currently plain `div`s — that's the bug).
+- Project cards keep working but now point at the username-scoped URL.
 
-New route `src/routes/_authenticated/admin.profile.tsx`:
+## 9. Review pass
 
-- Form for: `username` (with availability check), `display_name`, `tagline`, `avatar_url` (uses existing `uploadMedia`), and the `is_published` toggle.
-- Reuses `updateMyPortfolio` (already accepts display_name/tagline/avatar_url/is_published). Extend it to accept `username` with the same reserved-list + uniqueness validation used in `createMyPortfolio`, since username can now change.
-- Add "Profile" as the first item in `src/components/admin-shell.tsx` sidebar (`/admin/profile`).
+- Verify every card, back button, and nav item resolves within the right portfolio.
+- Confirm unauthenticated access to every public page, including direct deep links and refresh.
+- Confirm draft/unpublished content and unpublished portfolios stay hidden (404).
+- Update `sitemap.xml` to list published portfolios and their items.
 
 ## Technical notes
 
-- Data layer: `getSiteData`, `listProjects`, `listBlogPosts`, `listTestimonials`, `listStats`, `getHero` — every public reader takes `ownerId`. Loaders resolve `ownerId` from `params.username` via a new `getOwnerByUsername(username)` public fn (publishable-key client on `portfolios`, only rows where `is_published = true` unless the viewer is the owner).
-- Admin functions already scope by `context.userId` — no changes needed there for the tenant boundary.
-- `siteQueryOptions` currently exported from `src/routes/_public.tsx` becomes username-parameterized inside the `/u/$username` layout; the platform landing at `/` does not use it.
-- `_public.tsx` layout keeps its role but its shell is repurposed to a lightweight "platform" shell for the landing (no per-user nav). The per-user `PublicShell` moves under the `/u/$username` layout.
-- Migration (if needed): add `TO anon SELECT` policy on `portfolios` filtered by `is_published = true`, plus `GRANT SELECT ON public.portfolios TO anon`. Verify current policies before writing.
-
-## Out of scope for this pass
-
-- Social sharing of platform landing OG image (keep text meta only).
-- Redesigning the admin dashboard beyond adding the Profile entry.
-- Custom domains per user.
+- New/edited files: `src/routes/u.$username.tsx` (→ layout), new `u.$username.*.tsx` leaves, redirect stubs for the old `_public.*` detail routes, `src/components/public-shell.tsx` (username-aware nav), a small `share-button` component, and an origin helper server fn for absolute URLs.
+- `src/lib/cms/public.functions.ts` already accepts `username` on every read; no schema changes needed.

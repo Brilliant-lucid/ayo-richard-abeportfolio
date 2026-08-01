@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { subscribeContactDialog } from "@/lib/contact-dialog-store";
 
-export function ContactDialog() {
+export function ContactDialog({ username }: { username?: string } = {}) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
@@ -27,6 +27,7 @@ export function ContactDialog() {
           email: String(fd.get("email") ?? ""),
           subject: String(fd.get("subject") ?? ""),
           message: String(fd.get("message") ?? ""),
+          username,
         },
       });
       setDone(true);
@@ -47,7 +48,7 @@ export function ContactDialog() {
           <div className="text-xs uppercase tracking-[0.22em] text-electric">Contact</div>
           <DialogTitle className="font-display text-3xl text-ink">Let's talk.</DialogTitle>
           <DialogDescription className="text-ink-soft">
-            For product, advisory, or growth engagements. I respond within two business days.
+            Send a message — it lands straight in the inbox and gets a reply within two business days.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-3">

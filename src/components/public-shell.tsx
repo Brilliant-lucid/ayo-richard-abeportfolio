@@ -138,21 +138,33 @@ export function PublicShell({
   children,
   nav,
   settings,
+  username,
 }: {
   children: ReactNode;
   nav: Nav[];
   settings: Settings;
+  /** When set, nav hrefs are resolved inside this user's portfolio namespace. */
+  username?: string;
 }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { dark, toggle } = useTheme();
   const [open, setOpen] = useState(false);
 
-  const isActive = (href: string) => href === "/" ? pathname === "/" : pathname.startsWith(href);
+  const homeHref = username ? `/u/${username}` : "/";
+  const resolve = (href: string) => {
+    if (!username) return href || "/";
+    if (href.startsWith("http") || href.startsWith("#")) return href;
+    return `/u/${username}${href === "/" ? "" : href}`;
+  };
+  const isActive = (href: string) => {
+    const target = resolve(href);
+    return target === homeHref ? pathname === homeHref : pathname.startsWith(target);
+  };
 
   const Sidebar = (
     <aside className="flex h-full w-64 shrink-0 flex-col justify-between border-r border-line bg-cloud px-6 py-8">
       <div>
-        <Link to="/" onClick={() => setOpen(false)} className="block">
+        <Link to={homeHref} onClick={() => setOpen(false)} className="block">
           <div className="font-display text-2xl leading-none text-ink">{settings?.site_name ?? "Ayo Richard Abe"}</div>
           <div className="mt-1 text-xs uppercase tracking-[0.18em] text-muted-ink">Portfolio</div>
         </Link>
@@ -163,7 +175,7 @@ export function PublicShell({
                 ? "bg-surface text-ink font-medium"
                 : "text-ink-soft hover:bg-surface/60 hover:text-ink"
             }`;
-            if (n.href === "/contact") {
+            if (n.href === "/contact" || n.href === "contact") {
               return (
                 <button
                   key={n.id}
@@ -176,7 +188,7 @@ export function PublicShell({
               );
             }
             return (
-              <Link key={n.id} to={n.href} onClick={() => setOpen(false)} className={cls}>
+              <Link key={n.id} to={resolve(n.href)} onClick={() => setOpen(false)} className={cls}>
                 {n.label}
               </Link>
             );
@@ -217,7 +229,7 @@ export function PublicShell({
 
       {/* Mobile header */}
       <div className="fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-between border-b border-line bg-cloud/90 px-4 backdrop-blur md:hidden">
-        <Link to="/" className="font-display text-lg">{settings?.site_name ?? "Ayo Richard Abe"}</Link>
+        <Link to={homeHref} className="font-display text-lg">{settings?.site_name ?? "Ayo Richard Abe"}</Link>
         <div className="flex items-center gap-2">
           <AccountMenu compact />
           <button onClick={() => setOpen((v) => !v)} aria-label="Menu" className="rounded-md p-2 text-ink">

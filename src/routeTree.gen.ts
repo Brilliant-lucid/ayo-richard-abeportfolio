@@ -11,23 +11,24 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as McpRouteImport } from './routes/mcp'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AuthRouteImport } from './routes/auth'
-import { Route as PublicRouteImport } from './routes/_public'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ProjectsIndexRouteImport } from './routes/projects.index'
+import { Route as CaseStudiesIndexRouteImport } from './routes/case-studies.index'
+import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
-import { Route as PublicContactRouteImport } from './routes/_public.contact'
-import { Route as PublicAboutRouteImport } from './routes/_public.about'
+import { Route as ProjectsSlugRouteImport } from './routes/projects.$slug'
+import { Route as CaseStudiesSlugRouteImport } from './routes/case-studies.$slug'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
-import { Route as PublicProjectsIndexRouteImport } from './routes/_public.projects.index'
-import { Route as PublicCaseStudiesIndexRouteImport } from './routes/_public.case-studies.index'
-import { Route as PublicBlogIndexRouteImport } from './routes/_public.blog.index'
+import { Route as UUsernameIndexRouteImport } from './routes/u.$username.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
-import { Route as PublicProjectsSlugRouteImport } from './routes/_public.projects.$slug'
-import { Route as PublicCaseStudiesSlugRouteImport } from './routes/_public.case-studies.$slug'
-import { Route as PublicBlogSlugRouteImport } from './routes/_public.blog.$slug'
+import { Route as UUsernameAboutRouteImport } from './routes/u.$username.about'
 import { Route as AuthenticatedAdminSiteSettingsRouteImport } from './routes/_authenticated/admin.site-settings'
 import { Route as AuthenticatedAdminProfileRouteImport } from './routes/_authenticated/admin.profile'
 import { Route as AuthenticatedAdminMessagesRouteImport } from './routes/_authenticated/admin.messages'
@@ -35,8 +36,14 @@ import { Route as AuthenticatedAdminHeroRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAdminCaseStudiesRouteImport } from './routes/_authenticated/admin.case-studies'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
+import { Route as UUsernameProjectsIndexRouteImport } from './routes/u.$username.projects.index'
+import { Route as UUsernameCaseStudiesIndexRouteImport } from './routes/u.$username.case-studies.index'
+import { Route as UUsernameBlogIndexRouteImport } from './routes/u.$username.blog.index'
 import { Route as AuthenticatedAdminProjectsIndexRouteImport } from './routes/_authenticated/admin.projects.index'
 import { Route as AuthenticatedAdminBlogIndexRouteImport } from './routes/_authenticated/admin.blog.index'
+import { Route as UUsernameProjectsSlugRouteImport } from './routes/u.$username.projects.$slug'
+import { Route as UUsernameCaseStudiesSlugRouteImport } from './routes/u.$username.case-studies.$slug'
+import { Route as UUsernameBlogSlugRouteImport } from './routes/u.$username.blog.$slug'
 import { Route as AuthenticatedAdminProjectsIdRouteImport } from './routes/_authenticated/admin.projects.$id'
 import { Route as AuthenticatedAdminBlogIdRouteImport } from './routes/_authenticated/admin.blog.$id'
 
@@ -50,13 +57,19 @@ const McpRoute = McpRouteImport.update({
   path: '/mcp',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PublicRoute = PublicRouteImport.update({
-  id: '/_public',
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
@@ -68,20 +81,40 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProjectsIndexRoute = ProjectsIndexRouteImport.update({
+  id: '/projects/',
+  path: '/projects/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CaseStudiesIndexRoute = CaseStudiesIndexRouteImport.update({
+  id: '/case-studies/',
+  path: '/case-studies/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UUsernameRoute = UUsernameRouteImport.update({
   id: '/u/$username',
   path: '/u/$username',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PublicContactRoute = PublicContactRouteImport.update({
-  id: '/contact',
-  path: '/contact',
-  getParentRoute: () => PublicRoute,
+const ProjectsSlugRoute = ProjectsSlugRouteImport.update({
+  id: '/projects/$slug',
+  path: '/projects/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const PublicAboutRoute = PublicAboutRouteImport.update({
-  id: '/about',
-  path: '/about',
-  getParentRoute: () => PublicRoute,
+const CaseStudiesSlugRoute = CaseStudiesSlugRouteImport.update({
+  id: '/case-studies/$slug',
+  path: '/case-studies/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/blog/$slug',
+  path: '/blog/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
@@ -100,40 +133,20 @@ const Char91DotmcpChar93ListToolsRoute =
     path: '/.mcp/list-tools',
     getParentRoute: () => rootRouteImport,
   } as any)
-const PublicProjectsIndexRoute = PublicProjectsIndexRouteImport.update({
-  id: '/projects/',
-  path: '/projects/',
-  getParentRoute: () => PublicRoute,
-} as any)
-const PublicCaseStudiesIndexRoute = PublicCaseStudiesIndexRouteImport.update({
-  id: '/case-studies/',
-  path: '/case-studies/',
-  getParentRoute: () => PublicRoute,
-} as any)
-const PublicBlogIndexRoute = PublicBlogIndexRouteImport.update({
-  id: '/blog/',
-  path: '/blog/',
-  getParentRoute: () => PublicRoute,
+const UUsernameIndexRoute = UUsernameIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => UUsernameRoute,
 } as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
-const PublicProjectsSlugRoute = PublicProjectsSlugRouteImport.update({
-  id: '/projects/$slug',
-  path: '/projects/$slug',
-  getParentRoute: () => PublicRoute,
-} as any)
-const PublicCaseStudiesSlugRoute = PublicCaseStudiesSlugRouteImport.update({
-  id: '/case-studies/$slug',
-  path: '/case-studies/$slug',
-  getParentRoute: () => PublicRoute,
-} as any)
-const PublicBlogSlugRoute = PublicBlogSlugRouteImport.update({
-  id: '/blog/$slug',
-  path: '/blog/$slug',
-  getParentRoute: () => PublicRoute,
+const UUsernameAboutRoute = UUsernameAboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => UUsernameRoute,
 } as any)
 const AuthenticatedAdminSiteSettingsRoute =
   AuthenticatedAdminSiteSettingsRouteImport.update({
@@ -175,6 +188,22 @@ const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
   path: '/.lovable/oauth/consent',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UUsernameProjectsIndexRoute = UUsernameProjectsIndexRouteImport.update({
+  id: '/projects/',
+  path: '/projects/',
+  getParentRoute: () => UUsernameRoute,
+} as any)
+const UUsernameCaseStudiesIndexRoute =
+  UUsernameCaseStudiesIndexRouteImport.update({
+    id: '/case-studies/',
+    path: '/case-studies/',
+    getParentRoute: () => UUsernameRoute,
+  } as any)
+const UUsernameBlogIndexRoute = UUsernameBlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => UUsernameRoute,
+} as any)
 const AuthenticatedAdminProjectsIndexRoute =
   AuthenticatedAdminProjectsIndexRouteImport.update({
     id: '/projects/',
@@ -187,6 +216,22 @@ const AuthenticatedAdminBlogIndexRoute =
     path: '/blog/',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const UUsernameProjectsSlugRoute = UUsernameProjectsSlugRouteImport.update({
+  id: '/projects/$slug',
+  path: '/projects/$slug',
+  getParentRoute: () => UUsernameRoute,
+} as any)
+const UUsernameCaseStudiesSlugRoute =
+  UUsernameCaseStudiesSlugRouteImport.update({
+    id: '/case-studies/$slug',
+    path: '/case-studies/$slug',
+    getParentRoute: () => UUsernameRoute,
+  } as any)
+const UUsernameBlogSlugRoute = UUsernameBlogSlugRouteImport.update({
+  id: '/blog/$slug',
+  path: '/blog/$slug',
+  getParentRoute: () => UUsernameRoute,
+} as any)
 const AuthenticatedAdminProjectsIdRoute =
   AuthenticatedAdminProjectsIdRouteImport.update({
     id: '/projects/$id',
@@ -202,15 +247,21 @@ const AuthenticatedAdminBlogIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
+  '/contact': typeof ContactRoute
   '/mcp': typeof McpRoute
   '/reset-password': typeof ResetPasswordRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
-  '/about': typeof PublicAboutRoute
-  '/contact': typeof PublicContactRoute
-  '/u/$username': typeof UUsernameRoute
+  '/blog/$slug': typeof BlogSlugRoute
+  '/case-studies/$slug': typeof CaseStudiesSlugRoute
+  '/projects/$slug': typeof ProjectsSlugRoute
+  '/u/$username': typeof UUsernameRouteWithChildren
+  '/blog/': typeof BlogIndexRoute
+  '/case-studies/': typeof CaseStudiesIndexRoute
+  '/projects/': typeof ProjectsIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/admin/case-studies': typeof AuthenticatedAdminCaseStudiesRoute
@@ -218,28 +269,35 @@ export interface FileRoutesByFullPath {
   '/admin/messages': typeof AuthenticatedAdminMessagesRoute
   '/admin/profile': typeof AuthenticatedAdminProfileRoute
   '/admin/site-settings': typeof AuthenticatedAdminSiteSettingsRoute
-  '/blog/$slug': typeof PublicBlogSlugRoute
-  '/case-studies/$slug': typeof PublicCaseStudiesSlugRoute
-  '/projects/$slug': typeof PublicProjectsSlugRoute
+  '/u/$username/about': typeof UUsernameAboutRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
-  '/blog/': typeof PublicBlogIndexRoute
-  '/case-studies/': typeof PublicCaseStudiesIndexRoute
-  '/projects/': typeof PublicProjectsIndexRoute
+  '/u/$username/': typeof UUsernameIndexRoute
   '/admin/blog/$id': typeof AuthenticatedAdminBlogIdRoute
   '/admin/projects/$id': typeof AuthenticatedAdminProjectsIdRoute
+  '/u/$username/blog/$slug': typeof UUsernameBlogSlugRoute
+  '/u/$username/case-studies/$slug': typeof UUsernameCaseStudiesSlugRoute
+  '/u/$username/projects/$slug': typeof UUsernameProjectsSlugRoute
   '/admin/blog/': typeof AuthenticatedAdminBlogIndexRoute
   '/admin/projects/': typeof AuthenticatedAdminProjectsIndexRoute
+  '/u/$username/blog/': typeof UUsernameBlogIndexRoute
+  '/u/$username/case-studies/': typeof UUsernameCaseStudiesIndexRoute
+  '/u/$username/projects/': typeof UUsernameProjectsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
+  '/contact': typeof ContactRoute
   '/mcp': typeof McpRoute
   '/reset-password': typeof ResetPasswordRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
-  '/about': typeof PublicAboutRoute
-  '/contact': typeof PublicContactRoute
-  '/u/$username': typeof UUsernameRoute
+  '/blog/$slug': typeof BlogSlugRoute
+  '/case-studies/$slug': typeof CaseStudiesSlugRoute
+  '/projects/$slug': typeof ProjectsSlugRoute
+  '/blog': typeof BlogIndexRoute
+  '/case-studies': typeof CaseStudiesIndexRoute
+  '/projects': typeof ProjectsIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/admin/case-studies': typeof AuthenticatedAdminCaseStudiesRoute
@@ -247,32 +305,39 @@ export interface FileRoutesByTo {
   '/admin/messages': typeof AuthenticatedAdminMessagesRoute
   '/admin/profile': typeof AuthenticatedAdminProfileRoute
   '/admin/site-settings': typeof AuthenticatedAdminSiteSettingsRoute
-  '/blog/$slug': typeof PublicBlogSlugRoute
-  '/case-studies/$slug': typeof PublicCaseStudiesSlugRoute
-  '/projects/$slug': typeof PublicProjectsSlugRoute
+  '/u/$username/about': typeof UUsernameAboutRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
-  '/blog': typeof PublicBlogIndexRoute
-  '/case-studies': typeof PublicCaseStudiesIndexRoute
-  '/projects': typeof PublicProjectsIndexRoute
+  '/u/$username': typeof UUsernameIndexRoute
   '/admin/blog/$id': typeof AuthenticatedAdminBlogIdRoute
   '/admin/projects/$id': typeof AuthenticatedAdminProjectsIdRoute
+  '/u/$username/blog/$slug': typeof UUsernameBlogSlugRoute
+  '/u/$username/case-studies/$slug': typeof UUsernameCaseStudiesSlugRoute
+  '/u/$username/projects/$slug': typeof UUsernameProjectsSlugRoute
   '/admin/blog': typeof AuthenticatedAdminBlogIndexRoute
   '/admin/projects': typeof AuthenticatedAdminProjectsIndexRoute
+  '/u/$username/blog': typeof UUsernameBlogIndexRoute
+  '/u/$username/case-studies': typeof UUsernameCaseStudiesIndexRoute
+  '/u/$username/projects': typeof UUsernameProjectsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
-  '/_public': typeof PublicRouteWithChildren
+  '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
+  '/contact': typeof ContactRoute
   '/mcp': typeof McpRoute
   '/reset-password': typeof ResetPasswordRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
-  '/_public/about': typeof PublicAboutRoute
-  '/_public/contact': typeof PublicContactRoute
-  '/u/$username': typeof UUsernameRoute
+  '/blog/$slug': typeof BlogSlugRoute
+  '/case-studies/$slug': typeof CaseStudiesSlugRoute
+  '/projects/$slug': typeof ProjectsSlugRoute
+  '/u/$username': typeof UUsernameRouteWithChildren
+  '/blog/': typeof BlogIndexRoute
+  '/case-studies/': typeof CaseStudiesIndexRoute
+  '/projects/': typeof ProjectsIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/_authenticated/admin/case-studies': typeof AuthenticatedAdminCaseStudiesRoute
@@ -280,60 +345,39 @@ export interface FileRoutesById {
   '/_authenticated/admin/messages': typeof AuthenticatedAdminMessagesRoute
   '/_authenticated/admin/profile': typeof AuthenticatedAdminProfileRoute
   '/_authenticated/admin/site-settings': typeof AuthenticatedAdminSiteSettingsRoute
-  '/_public/blog/$slug': typeof PublicBlogSlugRoute
-  '/_public/case-studies/$slug': typeof PublicCaseStudiesSlugRoute
-  '/_public/projects/$slug': typeof PublicProjectsSlugRoute
+  '/u/$username/about': typeof UUsernameAboutRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
-  '/_public/blog/': typeof PublicBlogIndexRoute
-  '/_public/case-studies/': typeof PublicCaseStudiesIndexRoute
-  '/_public/projects/': typeof PublicProjectsIndexRoute
+  '/u/$username/': typeof UUsernameIndexRoute
   '/_authenticated/admin/blog/$id': typeof AuthenticatedAdminBlogIdRoute
   '/_authenticated/admin/projects/$id': typeof AuthenticatedAdminProjectsIdRoute
+  '/u/$username/blog/$slug': typeof UUsernameBlogSlugRoute
+  '/u/$username/case-studies/$slug': typeof UUsernameCaseStudiesSlugRoute
+  '/u/$username/projects/$slug': typeof UUsernameProjectsSlugRoute
   '/_authenticated/admin/blog/': typeof AuthenticatedAdminBlogIndexRoute
   '/_authenticated/admin/projects/': typeof AuthenticatedAdminProjectsIndexRoute
+  '/u/$username/blog/': typeof UUsernameBlogIndexRoute
+  '/u/$username/case-studies/': typeof UUsernameCaseStudiesIndexRoute
+  '/u/$username/projects/': typeof UUsernameProjectsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/about'
     | '/auth'
+    | '/contact'
     | '/mcp'
     | '/reset-password'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/admin'
-    | '/about'
-    | '/contact'
-    | '/u/$username'
-    | '/.lovable/oauth/consent'
-    | '/.mcp/invoke-tool/$tool'
-    | '/admin/case-studies'
-    | '/admin/hero'
-    | '/admin/messages'
-    | '/admin/profile'
-    | '/admin/site-settings'
     | '/blog/$slug'
     | '/case-studies/$slug'
     | '/projects/$slug'
-    | '/admin/'
+    | '/u/$username'
     | '/blog/'
     | '/case-studies/'
     | '/projects/'
-    | '/admin/blog/$id'
-    | '/admin/projects/$id'
-    | '/admin/blog/'
-    | '/admin/projects/'
-  fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/auth'
-    | '/mcp'
-    | '/reset-password'
-    | '/.mcp/list-tools'
-    | '/.well-known/oauth-protected-resource'
-    | '/about'
-    | '/contact'
-    | '/u/$username'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/admin/case-studies'
@@ -341,31 +385,74 @@ export interface FileRouteTypes {
     | '/admin/messages'
     | '/admin/profile'
     | '/admin/site-settings'
+    | '/u/$username/about'
+    | '/admin/'
+    | '/u/$username/'
+    | '/admin/blog/$id'
+    | '/admin/projects/$id'
+    | '/u/$username/blog/$slug'
+    | '/u/$username/case-studies/$slug'
+    | '/u/$username/projects/$slug'
+    | '/admin/blog/'
+    | '/admin/projects/'
+    | '/u/$username/blog/'
+    | '/u/$username/case-studies/'
+    | '/u/$username/projects/'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/about'
+    | '/auth'
+    | '/contact'
+    | '/mcp'
+    | '/reset-password'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/blog/$slug'
     | '/case-studies/$slug'
     | '/projects/$slug'
-    | '/admin'
     | '/blog'
     | '/case-studies'
     | '/projects'
+    | '/.lovable/oauth/consent'
+    | '/.mcp/invoke-tool/$tool'
+    | '/admin/case-studies'
+    | '/admin/hero'
+    | '/admin/messages'
+    | '/admin/profile'
+    | '/admin/site-settings'
+    | '/u/$username/about'
+    | '/admin'
+    | '/u/$username'
     | '/admin/blog/$id'
     | '/admin/projects/$id'
+    | '/u/$username/blog/$slug'
+    | '/u/$username/case-studies/$slug'
+    | '/u/$username/projects/$slug'
     | '/admin/blog'
     | '/admin/projects'
+    | '/u/$username/blog'
+    | '/u/$username/case-studies'
+    | '/u/$username/projects'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
-    | '/_public'
+    | '/about'
     | '/auth'
+    | '/contact'
     | '/mcp'
     | '/reset-password'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/_authenticated/admin'
-    | '/_public/about'
-    | '/_public/contact'
+    | '/blog/$slug'
+    | '/case-studies/$slug'
+    | '/projects/$slug'
     | '/u/$username'
+    | '/blog/'
+    | '/case-studies/'
+    | '/projects/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/_authenticated/admin/case-studies'
@@ -373,29 +460,38 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/messages'
     | '/_authenticated/admin/profile'
     | '/_authenticated/admin/site-settings'
-    | '/_public/blog/$slug'
-    | '/_public/case-studies/$slug'
-    | '/_public/projects/$slug'
+    | '/u/$username/about'
     | '/_authenticated/admin/'
-    | '/_public/blog/'
-    | '/_public/case-studies/'
-    | '/_public/projects/'
+    | '/u/$username/'
     | '/_authenticated/admin/blog/$id'
     | '/_authenticated/admin/projects/$id'
+    | '/u/$username/blog/$slug'
+    | '/u/$username/case-studies/$slug'
+    | '/u/$username/projects/$slug'
     | '/_authenticated/admin/blog/'
     | '/_authenticated/admin/projects/'
+    | '/u/$username/blog/'
+    | '/u/$username/case-studies/'
+    | '/u/$username/projects/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
-  PublicRoute: typeof PublicRouteWithChildren
+  AboutRoute: typeof AboutRoute
   AuthRoute: typeof AuthRoute
+  ContactRoute: typeof ContactRoute
   McpRoute: typeof McpRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
-  UUsernameRoute: typeof UUsernameRoute
+  BlogSlugRoute: typeof BlogSlugRoute
+  CaseStudiesSlugRoute: typeof CaseStudiesSlugRoute
+  ProjectsSlugRoute: typeof ProjectsSlugRoute
+  UUsernameRoute: typeof UUsernameRouteWithChildren
+  BlogIndexRoute: typeof BlogIndexRoute
+  CaseStudiesIndexRoute: typeof CaseStudiesIndexRoute
+  ProjectsIndexRoute: typeof ProjectsIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
 }
@@ -416,6 +512,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof McpRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -423,11 +526,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_public': {
-      id: '/_public'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof PublicRouteImport
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -444,6 +547,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/projects/': {
+      id: '/projects/'
+      path: '/projects'
+      fullPath: '/projects/'
+      preLoaderRoute: typeof ProjectsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/case-studies/': {
+      id: '/case-studies/'
+      path: '/case-studies'
+      fullPath: '/case-studies/'
+      preLoaderRoute: typeof CaseStudiesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/': {
+      id: '/blog/'
+      path: '/blog'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/u/$username': {
       id: '/u/$username'
       path: '/u/$username'
@@ -451,19 +575,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UUsernameRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_public/contact': {
-      id: '/_public/contact'
-      path: '/contact'
-      fullPath: '/contact'
-      preLoaderRoute: typeof PublicContactRouteImport
-      parentRoute: typeof PublicRoute
+    '/projects/$slug': {
+      id: '/projects/$slug'
+      path: '/projects/$slug'
+      fullPath: '/projects/$slug'
+      preLoaderRoute: typeof ProjectsSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_public/about': {
-      id: '/_public/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof PublicAboutRouteImport
-      parentRoute: typeof PublicRoute
+    '/case-studies/$slug': {
+      id: '/case-studies/$slug'
+      path: '/case-studies/$slug'
+      fullPath: '/case-studies/$slug'
+      preLoaderRoute: typeof CaseStudiesSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/blog/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
@@ -486,26 +617,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char91DotmcpChar93ListToolsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_public/projects/': {
-      id: '/_public/projects/'
-      path: '/projects'
-      fullPath: '/projects/'
-      preLoaderRoute: typeof PublicProjectsIndexRouteImport
-      parentRoute: typeof PublicRoute
-    }
-    '/_public/case-studies/': {
-      id: '/_public/case-studies/'
-      path: '/case-studies'
-      fullPath: '/case-studies/'
-      preLoaderRoute: typeof PublicCaseStudiesIndexRouteImport
-      parentRoute: typeof PublicRoute
-    }
-    '/_public/blog/': {
-      id: '/_public/blog/'
-      path: '/blog'
-      fullPath: '/blog/'
-      preLoaderRoute: typeof PublicBlogIndexRouteImport
-      parentRoute: typeof PublicRoute
+    '/u/$username/': {
+      id: '/u/$username/'
+      path: '/'
+      fullPath: '/u/$username/'
+      preLoaderRoute: typeof UUsernameIndexRouteImport
+      parentRoute: typeof UUsernameRoute
     }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
@@ -514,26 +631,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/_public/projects/$slug': {
-      id: '/_public/projects/$slug'
-      path: '/projects/$slug'
-      fullPath: '/projects/$slug'
-      preLoaderRoute: typeof PublicProjectsSlugRouteImport
-      parentRoute: typeof PublicRoute
-    }
-    '/_public/case-studies/$slug': {
-      id: '/_public/case-studies/$slug'
-      path: '/case-studies/$slug'
-      fullPath: '/case-studies/$slug'
-      preLoaderRoute: typeof PublicCaseStudiesSlugRouteImport
-      parentRoute: typeof PublicRoute
-    }
-    '/_public/blog/$slug': {
-      id: '/_public/blog/$slug'
-      path: '/blog/$slug'
-      fullPath: '/blog/$slug'
-      preLoaderRoute: typeof PublicBlogSlugRouteImport
-      parentRoute: typeof PublicRoute
+    '/u/$username/about': {
+      id: '/u/$username/about'
+      path: '/about'
+      fullPath: '/u/$username/about'
+      preLoaderRoute: typeof UUsernameAboutRouteImport
+      parentRoute: typeof UUsernameRoute
     }
     '/_authenticated/admin/site-settings': {
       id: '/_authenticated/admin/site-settings'
@@ -584,6 +687,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DotlovableOauthConsentRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/u/$username/projects/': {
+      id: '/u/$username/projects/'
+      path: '/projects'
+      fullPath: '/u/$username/projects/'
+      preLoaderRoute: typeof UUsernameProjectsIndexRouteImport
+      parentRoute: typeof UUsernameRoute
+    }
+    '/u/$username/case-studies/': {
+      id: '/u/$username/case-studies/'
+      path: '/case-studies'
+      fullPath: '/u/$username/case-studies/'
+      preLoaderRoute: typeof UUsernameCaseStudiesIndexRouteImport
+      parentRoute: typeof UUsernameRoute
+    }
+    '/u/$username/blog/': {
+      id: '/u/$username/blog/'
+      path: '/blog'
+      fullPath: '/u/$username/blog/'
+      preLoaderRoute: typeof UUsernameBlogIndexRouteImport
+      parentRoute: typeof UUsernameRoute
+    }
     '/_authenticated/admin/projects/': {
       id: '/_authenticated/admin/projects/'
       path: '/projects'
@@ -597,6 +721,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/blog/'
       preLoaderRoute: typeof AuthenticatedAdminBlogIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/u/$username/projects/$slug': {
+      id: '/u/$username/projects/$slug'
+      path: '/projects/$slug'
+      fullPath: '/u/$username/projects/$slug'
+      preLoaderRoute: typeof UUsernameProjectsSlugRouteImport
+      parentRoute: typeof UUsernameRoute
+    }
+    '/u/$username/case-studies/$slug': {
+      id: '/u/$username/case-studies/$slug'
+      path: '/case-studies/$slug'
+      fullPath: '/u/$username/case-studies/$slug'
+      preLoaderRoute: typeof UUsernameCaseStudiesSlugRouteImport
+      parentRoute: typeof UUsernameRoute
+    }
+    '/u/$username/blog/$slug': {
+      id: '/u/$username/blog/$slug'
+      path: '/blog/$slug'
+      fullPath: '/u/$username/blog/$slug'
+      preLoaderRoute: typeof UUsernameBlogSlugRouteImport
+      parentRoute: typeof UUsernameRoute
     }
     '/_authenticated/admin/projects/$id': {
       id: '/_authenticated/admin/projects/$id'
@@ -655,42 +800,50 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
-interface PublicRouteChildren {
-  PublicAboutRoute: typeof PublicAboutRoute
-  PublicContactRoute: typeof PublicContactRoute
-  PublicBlogSlugRoute: typeof PublicBlogSlugRoute
-  PublicCaseStudiesSlugRoute: typeof PublicCaseStudiesSlugRoute
-  PublicProjectsSlugRoute: typeof PublicProjectsSlugRoute
-  PublicBlogIndexRoute: typeof PublicBlogIndexRoute
-  PublicCaseStudiesIndexRoute: typeof PublicCaseStudiesIndexRoute
-  PublicProjectsIndexRoute: typeof PublicProjectsIndexRoute
+interface UUsernameRouteChildren {
+  UUsernameAboutRoute: typeof UUsernameAboutRoute
+  UUsernameIndexRoute: typeof UUsernameIndexRoute
+  UUsernameBlogSlugRoute: typeof UUsernameBlogSlugRoute
+  UUsernameCaseStudiesSlugRoute: typeof UUsernameCaseStudiesSlugRoute
+  UUsernameProjectsSlugRoute: typeof UUsernameProjectsSlugRoute
+  UUsernameBlogIndexRoute: typeof UUsernameBlogIndexRoute
+  UUsernameCaseStudiesIndexRoute: typeof UUsernameCaseStudiesIndexRoute
+  UUsernameProjectsIndexRoute: typeof UUsernameProjectsIndexRoute
 }
 
-const PublicRouteChildren: PublicRouteChildren = {
-  PublicAboutRoute: PublicAboutRoute,
-  PublicContactRoute: PublicContactRoute,
-  PublicBlogSlugRoute: PublicBlogSlugRoute,
-  PublicCaseStudiesSlugRoute: PublicCaseStudiesSlugRoute,
-  PublicProjectsSlugRoute: PublicProjectsSlugRoute,
-  PublicBlogIndexRoute: PublicBlogIndexRoute,
-  PublicCaseStudiesIndexRoute: PublicCaseStudiesIndexRoute,
-  PublicProjectsIndexRoute: PublicProjectsIndexRoute,
+const UUsernameRouteChildren: UUsernameRouteChildren = {
+  UUsernameAboutRoute: UUsernameAboutRoute,
+  UUsernameIndexRoute: UUsernameIndexRoute,
+  UUsernameBlogSlugRoute: UUsernameBlogSlugRoute,
+  UUsernameCaseStudiesSlugRoute: UUsernameCaseStudiesSlugRoute,
+  UUsernameProjectsSlugRoute: UUsernameProjectsSlugRoute,
+  UUsernameBlogIndexRoute: UUsernameBlogIndexRoute,
+  UUsernameCaseStudiesIndexRoute: UUsernameCaseStudiesIndexRoute,
+  UUsernameProjectsIndexRoute: UUsernameProjectsIndexRoute,
 }
 
-const PublicRouteWithChildren =
-  PublicRoute._addFileChildren(PublicRouteChildren)
+const UUsernameRouteWithChildren = UUsernameRoute._addFileChildren(
+  UUsernameRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
-  PublicRoute: PublicRouteWithChildren,
+  AboutRoute: AboutRoute,
   AuthRoute: AuthRoute,
+  ContactRoute: ContactRoute,
   McpRoute: McpRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
-  UUsernameRoute: UUsernameRoute,
+  BlogSlugRoute: BlogSlugRoute,
+  CaseStudiesSlugRoute: CaseStudiesSlugRoute,
+  ProjectsSlugRoute: ProjectsSlugRoute,
+  UUsernameRoute: UUsernameRouteWithChildren,
+  BlogIndexRoute: BlogIndexRoute,
+  CaseStudiesIndexRoute: CaseStudiesIndexRoute,
+  ProjectsIndexRoute: ProjectsIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
 }
