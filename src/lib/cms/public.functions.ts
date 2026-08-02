@@ -30,11 +30,37 @@ export const listFeaturedPortfolios = createServerFn({ method: "GET" }).handler(
   const sb = await admin();
   const { data } = await sb
     .from("portfolios")
-    .select("username, display_name, tagline, avatar_url")
+    .select("username, display_name, tagline, avatar_url, owner_id")
     .eq("is_published", true)
     .order("created_at", { ascending: false })
     .limit(24);
-  return data ?? [];
+  const rows = data ?? [];
+  if (rows.length === 0) return [];
+
+  const ownerIds = rows.map((r) => r.owner_id);
+  const [heroes, projects] = await Promise.all([
+    sb.from("hero").select("owner_id, profile_image_url").in("owner_id", ownerIds),
+    sb
+      .from("projects")
+      .select("owner_id, featured_image_url, created_at")
+      .in("owner_id", ownerIds)
+      .eq("status", "published")
+      .order("created_at", { ascending: false }),
+  ]);
+
+  const heroMap = new Map<string, string>();
+  for (const h of heroes.data ?? []) {
+    if (h.profile_image_url) heroMap.set(h.owner_id, h.profile_image_url);
+  }
+  const projMap = new Map<string, string>();
+  for (const p of projects.data ?? []) {
+    if (p.featured_image_url && !projMap.has(p.owner_id)) projMap.set(p.owner_id, p.featured_image_url);
+  }
+
+  return rows.map(({ owner_id, ...rest }) => ({
+    ...rest,
+    cover_url: heroMap.get(owner_id) ?? projMap.get(owner_id) ?? rest.avatar_url ?? null,
+  }));
 });
 
 export const getSiteData = createServerFn({ method: "GET" })
