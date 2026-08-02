@@ -33,7 +33,7 @@ export const listFeaturedPortfolios = createServerFn({ method: "GET" }).handler(
     .select("username, display_name, tagline, avatar_url")
     .eq("is_published", true)
     .order("created_at", { ascending: false })
-    .limit(12);
+    .limit(24);
   return data ?? [];
 });
 
