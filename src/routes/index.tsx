@@ -179,10 +179,10 @@ function Landing() {
         </section>
 
         {/* Featured portfolios */}
-        {featured.length > 0 && (
-          <section>
+        <section>
             <div className="mb-6 flex items-end justify-between">
               <h2 className="font-display text-3xl text-ink">Portfolios on the platform</h2>
+              <span className="text-xs text-muted-ink">{featured.length} published</span>
             </div>
             <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
               {featured.map((p, i) => (
@@ -207,9 +207,22 @@ function Landing() {
                   </div>
                 </Link>
               ))}
+              {Array.from({ length: Math.max(0, 12 - featured.length) }).map((_, i) => (
+                <Link
+                  key={`slot-${i}`}
+                  to="/auth"
+                  style={{ animationDelay: `${(featured.length + i) * 60}ms` }}
+                  className="group flex items-center gap-4 rounded-2xl border border-dashed border-line/70 p-4 text-left transition-all duration-300 hover:-translate-y-0.5 hover:border-electric/40 animate-fade-in"
+                >
+                  <div className="flex h-14 w-14 items-center justify-center rounded-full border border-dashed border-line text-lg text-muted-ink">+</div>
+                  <div className="min-w-0">
+                    <div className="font-display text-lg text-ink-soft group-hover:text-electric">Your portfolio here</div>
+                    <div className="truncate text-xs text-muted-ink">Claim your /u/username</div>
+                  </div>
+                </Link>
+              ))}
             </div>
-          </section>
-        )}
+        </section>
 
         {/* CTA */}
         <section className="rounded-3xl bg-ink p-10 text-cloud md:p-14">
