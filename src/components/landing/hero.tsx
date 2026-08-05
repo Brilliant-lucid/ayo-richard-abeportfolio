@@ -107,7 +107,7 @@ export function Hero({ demoUsername }: { demoUsername?: string }) {
           </div>
 
           {/* Floating UI elements */}
-          <div className="pointer-events-none absolute -left-4 top-24 hidden animate-blob rounded-2xl border border-line bg-cloud/95 px-3.5 py-2.5 shadow-xl backdrop-blur sm:flex sm:items-center sm:gap-2">
+          <div className="pointer-events-none absolute -left-5 top-1/2 hidden animate-blob rounded-2xl border border-line bg-cloud/95 px-3.5 py-2.5 shadow-xl backdrop-blur sm:flex sm:items-center sm:gap-2">
             <BadgeCheck size={16} className="text-electric" />
             <span className="text-[11px] font-medium text-ink">Verified profile</span>
           </div>
