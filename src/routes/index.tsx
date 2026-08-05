@@ -1,9 +1,24 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowUpRight, LayoutTemplate, Share2, Sparkles, LayoutDashboard, LogIn } from "lucide-react";
+import { useEffect, useState } from "react";
 import { listFeaturedPortfolios } from "@/lib/cms/public.functions";
 import { supabase } from "@/integrations/supabase/client";
+import { LandingNav } from "@/components/landing/landing-nav";
+import { Hero } from "@/components/landing/hero";
+import {
+  SocialProof,
+  WhyChoose,
+  ShowcaseGrid,
+  BuiltFor,
+  HowItWorks,
+  PlatformFeatures,
+  Testimonials,
+  Pricing,
+  FAQ,
+  FinalCTA,
+} from "@/components/landing/sections";
+import { PortfolioShowcase } from "@/components/landing/portfolio-showcase";
+import { LandingFooter } from "@/components/landing/landing-footer";
 
 const featuredQO = queryOptions({
   queryKey: ["platform", "featured-portfolios"],
@@ -11,15 +26,33 @@ const featuredQO = queryOptions({
   staleTime: 60_000,
 });
 
+const TITLE = "Portfolio Platform — Build a Professional Portfolio";
+const DESCRIPTION =
+  "Create a beautiful, personalized portfolio that showcases your skills, experience, projects and achievements — all from a single shareable link.";
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Portfolio Platform — Publish your work with your own link" },
-      { name: "description", content: "Create a beautiful portfolio in minutes. Share your projects, case studies and blog under your own /u/username link." },
-      { property: "og:title", content: "Portfolio Platform — Publish your work with your own link" },
-      { property: "og:description", content: "Create a beautiful portfolio in minutes. Share your projects, case studies and blog under your own /u/username link." },
+      { title: TITLE },
+      { name: "description", content: DESCRIPTION },
+      { property: "og:title", content: TITLE },
+      { property: "og:description", content: DESCRIPTION },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://portfolio-platform.lovable.app/" },
       { name: "twitter:card", content: "summary_large_image" },
+    ],
+    links: [{ rel: "canonical", href: "https://portfolio-platform.lovable.app/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "Portfolio Platform",
+          url: "https://portfolio-platform.lovable.app/",
+          description: DESCRIPTION,
+        }),
+      },
     ],
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(featuredQO),
@@ -31,249 +64,42 @@ export const Route = createFileRoute("/")({
 function Landing() {
   const { data: featured } = useSuspenseQuery(featuredQO);
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
-  const [mounted, setMounted] = useState(false);
-  const heroRef = useRef<HTMLDivElement | null>(null);
-  const [pointer, setPointer] = useState({ x: 0.5, y: 0.5 });
-  const words = useMemo(() => ["Publish your work.", "Own your link.", "Share your story."], []);
-  const [wordIdx, setWordIdx] = useState(0);
 
   useEffect(() => {
-    setMounted(true);
-    const id = setInterval(() => setWordIdx((i) => (i + 1) % words.length), 2600);
-    return () => clearInterval(id);
-  }, [words.length]);
-
-  function onHeroMove(e: React.MouseEvent<HTMLDivElement>) {
-    const el = heroRef.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    setPointer({
-      x: (e.clientX - rect.left) / rect.width,
-      y: (e.clientY - rect.top) / rect.height,
-    });
-  }
-
-  useEffect(() => {
-    let mounted = true;
+    let active = true;
     supabase.auth.getUser().then(({ data }) => {
-      if (mounted) setSignedIn(!!data.user);
+      if (active) setSignedIn(!!data.user);
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
       setSignedIn(!!session?.user);
     });
     return () => {
-      mounted = false;
+      active = false;
       sub.subscription.unsubscribe();
     };
   }, []);
 
+  const demoUsername = featured[0]?.username;
+
   return (
-    <div className="relative min-h-screen overflow-hidden bg-cloud text-ink">
-      {/* Animated background blobs */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute -top-32 -left-24 h-[420px] w-[420px] rounded-full bg-electric/25 blur-3xl animate-blob" />
-        <div className="absolute top-1/3 -right-24 h-[380px] w-[380px] rounded-full bg-fuchsia-300/30 blur-3xl animate-blob animation-delay-2000" />
-        <div className="absolute bottom-0 left-1/3 h-[360px] w-[360px] rounded-full bg-amber-200/40 blur-3xl animate-blob animation-delay-4000" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(0,0,0,0.05)_1px,transparent_0)] [background-size:24px_24px]" />
-      </div>
-      {/* Top bar */}
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
-        <Link to="/" className="group inline-flex items-center gap-2 font-display text-xl">
-          <span className="inline-block h-2 w-2 rounded-full bg-electric animate-pulse" />
-          <span className="transition-transform group-hover:-translate-y-0.5">Portfolio Platform</span>
-        </Link>
-        <nav className="flex items-center gap-2 text-sm">
-          {signedIn ? (
-            <Link
-              to="/admin"
-              className="inline-flex items-center gap-1.5 rounded-full bg-ink px-4 py-2 text-xs font-medium text-cloud hover:opacity-90"
-            >
-              <LayoutDashboard size={12} /> Dashboard
-            </Link>
-          ) : (
-            <>
-              <Link to="/auth" className="rounded-full px-4 py-2 text-xs text-ink-soft hover:text-ink">
-                Sign in
-              </Link>
-              <Link
-                to="/auth"
-                className="inline-flex items-center gap-1.5 rounded-full bg-ink px-4 py-2 text-xs font-medium text-cloud hover:opacity-90"
-              >
-                <LogIn size={12} /> Get started
-              </Link>
-            </>
-          )}
-        </nav>
-      </header>
-
-      <main className="mx-auto max-w-6xl space-y-24 px-6 pb-24 pt-8 md:pt-16">
-        {/* Hero */}
-        <section
-          ref={heroRef}
-          onMouseMove={onHeroMove}
-          className={`relative transition-all duration-700 ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
-        >
-          {/* Cursor spotlight */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -inset-6 -z-10 rounded-3xl opacity-70 transition-[background] duration-300"
-            style={{
-              background: `radial-gradient(500px circle at ${pointer.x * 100}% ${pointer.y * 100}%, color-mix(in oklab, var(--electric) 22%, transparent), transparent 60%)`,
-            }}
-          />
-          <div className="text-xs uppercase tracking-[0.22em] text-electric">Portfolio platform</div>
-          <h1 className="mt-4 font-display text-5xl leading-[1.05] tracking-tight text-ink md:text-7xl">
-            <span className="block">Publish your work.</span>
-            <span className="relative block">
-              <span
-                key={wordIdx}
-                className="inline-block bg-gradient-to-r from-electric via-fuchsia-500 to-amber-500 bg-clip-text text-transparent animate-fade-in"
-              >
-                {words[wordIdx]}
-              </span>
-            </span>
-          </h1>
-          <p className="mt-6 max-w-2xl text-lg text-ink-soft">
-            Spin up a beautiful portfolio in minutes — projects, case studies, and a blog, all under
-            your own <span className="font-mono text-ink">/u/your-name</span> URL.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link
-              to="/auth"
-              className="group inline-flex items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-cloud shadow-lg shadow-ink/20 transition-transform hover:scale-[1.03] active:scale-[0.98]"
-            >
-              Create your portfolio
-              <ArrowUpRight size={14} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-            </Link>
-            {!signedIn && (
-              <Link
-                to="/auth"
-                className="inline-flex items-center gap-2 rounded-full border border-line px-5 py-2.5 text-sm text-ink hover:bg-surface"
-              >
-                Sign in
-              </Link>
-            )}
-          </div>
-        </section>
-
-        {/* How it works */}
-        <section>
-          <h2 className="font-display text-3xl text-ink">How it works</h2>
-          <div className="mt-6 grid gap-4 md:grid-cols-3">
-            {[
-              { icon: Sparkles, title: "Claim your username", body: "Sign up in seconds. Pick a username — that becomes your public link." },
-              { icon: LayoutTemplate, title: "Add your work", body: "Use the admin dashboard to add projects, case studies, blog posts and more." },
-              { icon: Share2, title: "Publish & share", body: "Toggle publish on — share your /u/your-name link anywhere." },
-            ].map((s, i) => (
-              <div
-                key={s.title}
-                style={{ animationDelay: `${i * 120}ms` }}
-                className="group rounded-2xl border border-line bg-cloud/70 p-6 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-electric/40 hover:shadow-xl animate-fade-in"
-              >
-                <s.icon size={18} className="text-electric transition-transform group-hover:rotate-12 group-hover:scale-110" />
-                <div className="mt-4 font-display text-xl text-ink">{s.title}</div>
-                <p className="mt-2 text-sm text-ink-soft">{s.body}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Featured portfolios */}
-        <section>
-            <div className="mb-6 flex items-end justify-between">
-              <h2 className="font-display text-3xl text-ink">Portfolios on the platform</h2>
-              <span className="text-xs text-muted-ink">{featured.length} published</span>
-            </div>
-            <div className="grid gap-5 sm:grid-cols-2 md:grid-cols-3">
-              {featured.map((p, i) => (
-                <Link
-                  key={p.username}
-                  to="/u/$username"
-                  params={{ username: p.username }}
-                  style={{ animationDelay: `${i * 60}ms` }}
-                  className="group relative flex aspect-[4/3] flex-col justify-end overflow-hidden rounded-2xl border border-line bg-surface transition-all duration-300 hover:-translate-y-1 hover:border-electric/40 hover:shadow-xl animate-fade-in"
-                >
-                  {p.cover_url ? (
-                    <>
-                      <img
-                        src={p.cover_url}
-                        alt={`${p.display_name ?? p.username}'s portfolio cover`}
-                        loading="lazy"
-                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/40 to-transparent" />
-                    </>
-                  ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-surface to-cloud" />
-                  )}
-
-                  <div className="relative flex items-end gap-3 p-4">
-                    {p.avatar_url ? (
-                      <img
-                        src={p.avatar_url}
-                        alt=""
-                        loading="lazy"
-                        className={`h-11 w-11 shrink-0 rounded-full object-cover ring-2 ${p.cover_url ? "ring-cloud/70" : "ring-line"}`}
-                      />
-                    ) : (
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-cloud font-display text-base text-ink">
-                        {(p.display_name ?? p.username).charAt(0).toUpperCase()}
-                      </div>
-                    )}
-                    <div className="min-w-0">
-                      <div className={`truncate font-display text-lg ${p.cover_url ? "text-cloud" : "text-ink"}`}>
-                        {p.display_name ?? p.username}
-                      </div>
-                      <div className={`truncate text-xs ${p.cover_url ? "text-cloud/70" : "text-muted-ink"}`}>/u/{p.username}</div>
-                      {p.tagline && (
-                        <div className={`mt-0.5 line-clamp-1 text-xs ${p.cover_url ? "text-cloud/70" : "text-ink-soft"}`}>{p.tagline}</div>
-                      )}
-                    </div>
-                  </div>
-
-                  <span className="pointer-events-none absolute right-3 top-3 inline-flex translate-y-1 items-center gap-1 rounded-full bg-cloud/95 px-3 py-1 text-[11px] font-medium text-ink opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-                    View portfolio <ArrowUpRight size={12} />
-                  </span>
-                </Link>
-              ))}
-              {Array.from({ length: Math.max(0, 12 - featured.length) }).map((_, i) => (
-                <Link
-                  key={`slot-${i}`}
-                  to="/auth"
-                  style={{ animationDelay: `${(featured.length + i) * 60}ms` }}
-                  className="group relative flex aspect-[4/3] flex-col justify-end overflow-hidden rounded-2xl border border-dashed border-line/70 text-left transition-all duration-300 hover:-translate-y-1 hover:border-electric/40 animate-fade-in"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-electric/10 via-transparent to-ink/5 blur-2xl" />
-                  <div className="relative flex items-end gap-3 p-4">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-dashed border-line text-lg text-muted-ink">+</div>
-                    <div className="min-w-0">
-                      <div className="font-display text-lg text-ink-soft group-hover:text-electric">Your portfolio here</div>
-                      <div className="truncate text-xs text-muted-ink">Claim your /u/username</div>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-        </section>
-
-        {/* CTA */}
-        <section className="rounded-3xl bg-ink p-10 text-cloud md:p-14">
-          <div className="font-display text-4xl md:text-5xl">Ready to launch yours?</div>
-          <p className="mt-3 max-w-xl text-cloud/70">Free to try. Sign up and share your first portfolio in the next 5 minutes.</p>
-          <Link
-            to="/auth"
-            className="mt-6 inline-flex items-center gap-2 rounded-full bg-electric px-5 py-2.5 text-sm font-medium text-cloud hover:opacity-90"
-          >
-            Get started <ArrowUpRight size={14} />
-          </Link>
-        </section>
+    <div className="min-h-screen bg-cloud text-ink">
+      <LandingNav signedIn={signedIn} />
+      <main>
+        <h1 className="sr-only">Portfolio Platform — build a professional portfolio that opens doors</h1>
+        <Hero demoUsername={demoUsername} />
+        <SocialProof portfolioCount={featured.length} />
+        <WhyChoose />
+        <ShowcaseGrid />
+        <BuiltFor />
+        <PortfolioShowcase featured={featured} />
+        <HowItWorks />
+        <PlatformFeatures />
+        <Testimonials />
+        <Pricing />
+        <FAQ />
+        <FinalCTA demoUsername={demoUsername} />
       </main>
-
-      <footer className="border-t border-line py-8">
-        <div className="mx-auto max-w-6xl px-6 text-xs text-muted-ink">
-          © {new Date().getFullYear()} Portfolio Platform
-        </div>
-      </footer>
+      <LandingFooter />
     </div>
   );
 }
