@@ -85,7 +85,6 @@ function Landing() {
     <div className="min-h-screen bg-cloud text-ink">
       <LandingNav signedIn={signedIn} />
       <main>
-        <h1 className="sr-only">Portfolio Platform — build a professional portfolio that opens doors</h1>
         <Hero demoUsername={demoUsername} />
         <SocialProof portfolioCount={featured.length} />
         <WhyChoose />
