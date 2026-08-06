@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      awards: {
+        Row: {
+          awarded_on: string | null
+          created_at: string
+          description: string | null
+          display_order: number
+          id: string
+          image_url: string | null
+          link: string | null
+          organization: string | null
+          owner_id: string
+          status: Database["public"]["Enums"]["content_status"]
+          title: string
+        }
+        Insert: {
+          awarded_on?: string | null
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          image_url?: string | null
+          link?: string | null
+          organization?: string | null
+          owner_id: string
+          status?: Database["public"]["Enums"]["content_status"]
+          title: string
+        }
+        Update: {
+          awarded_on?: string | null
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          image_url?: string | null
+          link?: string | null
+          organization?: string | null
+          owner_id?: string
+          status?: Database["public"]["Enums"]["content_status"]
+          title?: string
+        }
+        Relationships: []
+      }
       blog_posts: {
         Row: {
           category: string | null
@@ -158,9 +200,11 @@ export type Database = {
       certifications: {
         Row: {
           created_at: string
+          credential_id: string | null
           credential_url: string | null
           description: string | null
           display_order: number
+          expires_on: string | null
           id: string
           image_url: string | null
           issued_on: string | null
@@ -171,9 +215,11 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          credential_id?: string | null
           credential_url?: string | null
           description?: string | null
           display_order?: number
+          expires_on?: string | null
           id?: string
           image_url?: string | null
           issued_on?: string | null
@@ -184,9 +230,11 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          credential_id?: string | null
           credential_url?: string | null
           description?: string | null
           display_order?: number
+          expires_on?: string | null
           id?: string
           image_url?: string | null
           issued_on?: string | null
@@ -240,9 +288,11 @@ export type Database = {
       }
       experience: {
         Row: {
+          achievements: string[] | null
           created_at: string
           description: string | null
           display_order: number
+          employment_type: string | null
           end_date: string | null
           id: string
           logo_url: string | null
@@ -255,9 +305,11 @@ export type Database = {
           status: Database["public"]["Enums"]["content_status"]
         }
         Insert: {
+          achievements?: string[] | null
           created_at?: string
           description?: string | null
           display_order?: number
+          employment_type?: string | null
           end_date?: string | null
           id?: string
           logo_url?: string | null
@@ -270,9 +322,11 @@ export type Database = {
           status?: Database["public"]["Enums"]["content_status"]
         }
         Update: {
+          achievements?: string[] | null
           created_at?: string
           description?: string | null
           display_order?: number
+          employment_type?: string | null
           end_date?: string | null
           id?: string
           logo_url?: string | null
@@ -288,43 +342,67 @@ export type Database = {
       }
       hero: {
         Row: {
+          availability: string | null
+          bio: string | null
           cta_primary_href: string | null
           cta_primary_label: string | null
           cta_secondary_href: string | null
           cta_secondary_label: string | null
+          expertise: string[] | null
           eyebrow: string | null
           heading: string
+          headline: string | null
           id: string
+          industries: string[] | null
           intro: string | null
+          location: string | null
+          mission: string | null
           owner_id: string
           profile_image_url: string | null
           updated_at: string
+          years_experience: number | null
         }
         Insert: {
+          availability?: string | null
+          bio?: string | null
           cta_primary_href?: string | null
           cta_primary_label?: string | null
           cta_secondary_href?: string | null
           cta_secondary_label?: string | null
+          expertise?: string[] | null
           eyebrow?: string | null
           heading?: string
+          headline?: string | null
           id?: string
+          industries?: string[] | null
           intro?: string | null
+          location?: string | null
+          mission?: string | null
           owner_id: string
           profile_image_url?: string | null
           updated_at?: string
+          years_experience?: number | null
         }
         Update: {
+          availability?: string | null
+          bio?: string | null
           cta_primary_href?: string | null
           cta_primary_label?: string | null
           cta_secondary_href?: string | null
           cta_secondary_label?: string | null
+          expertise?: string[] | null
           eyebrow?: string | null
           heading?: string
+          headline?: string | null
           id?: string
+          industries?: string[] | null
           intro?: string | null
+          location?: string | null
+          mission?: string | null
           owner_id?: string
           profile_image_url?: string | null
           updated_at?: string
+          years_experience?: number | null
         }
         Relationships: []
       }
@@ -589,6 +667,51 @@ export type Database = {
         }
         Relationships: []
       }
+      publications: {
+        Row: {
+          created_at: string
+          description: string | null
+          display_order: number
+          id: string
+          image_url: string | null
+          kind: string
+          outlet: string | null
+          owner_id: string
+          published_on: string | null
+          status: Database["public"]["Enums"]["content_status"]
+          title: string
+          url: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          image_url?: string | null
+          kind?: string
+          outlet?: string | null
+          owner_id: string
+          published_on?: string | null
+          status?: Database["public"]["Enums"]["content_status"]
+          title: string
+          url?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          image_url?: string | null
+          kind?: string
+          outlet?: string | null
+          owner_id?: string
+          published_on?: string | null
+          status?: Database["public"]["Enums"]["content_status"]
+          title?: string
+          url?: string | null
+        }
+        Relationships: []
+      }
       site_settings: {
         Row: {
           default_seo_description: string | null
@@ -705,6 +828,7 @@ export type Database = {
       }
       testimonials: {
         Row: {
+          company: string | null
           created_at: string
           display_order: number
           id: string
@@ -712,10 +836,12 @@ export type Database = {
           name: string
           owner_id: string
           quote: string
+          rating: number | null
           relationship: string | null
           role: string | null
         }
         Insert: {
+          company?: string | null
           created_at?: string
           display_order?: number
           id?: string
@@ -723,10 +849,12 @@ export type Database = {
           name: string
           owner_id: string
           quote: string
+          rating?: number | null
           relationship?: string | null
           role?: string | null
         }
         Update: {
+          company?: string | null
           created_at?: string
           display_order?: number
           id?: string
@@ -734,6 +862,7 @@ export type Database = {
           name?: string
           owner_id?: string
           quote?: string
+          rating?: number | null
           relationship?: string | null
           role?: string | null
         }
