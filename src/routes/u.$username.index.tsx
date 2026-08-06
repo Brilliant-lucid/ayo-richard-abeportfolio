@@ -1,10 +1,28 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { ArrowUpRight, ArrowRight } from "lucide-react";
-import { siteQO, projectsQO, blogQO, caseStudiesQO, testimonialsQO } from "@/lib/cms/portfolio-queries";
+import { ArrowUpRight, ArrowRight, MapPin, Github, Linkedin, Twitter, Mail } from "lucide-react";
+import {
+  siteQO,
+  projectsQO,
+  blogQO,
+  caseStudiesQO,
+  testimonialsQO,
+  profileQO,
+} from "@/lib/cms/portfolio-queries";
 import { openContactDialog } from "@/lib/contact-dialog-store";
 import { absoluteUrl, absoluteImage } from "@/lib/site-url";
 import { ShareButton } from "@/components/portfolio/share-button";
+import { Reveal } from "@/components/landing/reveal";
+import {
+  Section,
+  Pill,
+  ExperienceTimeline,
+  CertificationGrid,
+  SkillGroups,
+  TestimonialGrid,
+  AwardList,
+  PublicationList,
+} from "@/components/portfolio/sections";
 
 export const Route = createFileRoute("/u/$username/")({
   loader: async ({ context, params }) => {
@@ -15,6 +33,7 @@ export const Route = createFileRoute("/u/$username/")({
       context.queryClient.ensureQueryData(caseStudiesQO(u)),
       context.queryClient.ensureQueryData(blogQO(u)),
       context.queryClient.ensureQueryData(testimonialsQO(u)),
+      context.queryClient.ensureQueryData(profileQO(u)),
     ]);
     return {
       name: site.portfolio?.display_name ?? u,
@@ -67,56 +86,101 @@ function PortfolioHome() {
   const { data: studies } = useSuspenseQuery(caseStudiesQO(username));
   const { data: posts } = useSuspenseQuery(blogQO(username));
   const { data: testimonials } = useSuspenseQuery(testimonialsQO(username));
+  const { data: profile } = useSuspenseQuery(profileQO(username));
 
   const hero = site.hero;
+  const settings = site.settings;
   const stats = site.stats;
   const featured = projects.filter((p) => p.featured);
   const shownProjects = featured.length > 0 ? featured : projects.slice(0, 4);
   const featuredPosts = posts.slice(0, 3);
   const portraitSrc = hero?.profile_image_url || site.portfolio?.avatar_url || undefined;
+  const name = site.portfolio?.display_name ?? username;
+  const headline = hero?.headline || hero?.eyebrow || site.portfolio?.tagline || "";
+  const summary = hero?.intro || site.portfolio?.tagline || "";
+  const socials = [
+    settings?.linkedin_url && { href: settings.linkedin_url, Icon: Linkedin, label: "LinkedIn" },
+    settings?.github_url && { href: settings.github_url, Icon: Github, label: "GitHub" },
+    settings?.twitter_url && { href: settings.twitter_url, Icon: Twitter, label: "X" },
+    settings?.email && { href: `mailto:${settings.email}`, Icon: Mail, label: "Email" },
+  ].filter(Boolean) as { href: string; Icon: typeof Mail; label: string }[];
+  const aboutBody = hero?.bio || site.portfolio?.tagline || "";
+  const hasAbout = Boolean(
+    aboutBody || hero?.expertise?.length || hero?.industries?.length || hero?.years_experience || hero?.mission,
+  );
 
   return (
-    <div className="space-y-20">
-      <section className="grid gap-10 md:grid-cols-[1fr_auto] md:items-end">
-        <div>
-          {hero?.eyebrow && <div className="mb-4 text-xs uppercase tracking-[0.22em] text-electric">{hero.eyebrow}</div>}
-          <h1 className="font-display text-5xl leading-[1.05] tracking-tight text-ink md:text-7xl">
-            {hero?.heading ?? site.portfolio?.display_name}
-          </h1>
-          {(hero?.intro || site.portfolio?.tagline) && (
-            <p className="mt-6 max-w-2xl text-lg text-ink-soft">{hero?.intro ?? site.portfolio?.tagline}</p>
+    <div className="space-y-24">
+      {/* 1. Hero — who is this */}
+      <section id="overview" className="scroll-mt-24 grid gap-10 md:grid-cols-[1fr_auto] md:items-center">
+        <Reveal className="min-w-0">
+          {hero?.availability && (
+            <span className="inline-flex items-center gap-2 rounded-full border border-electric/30 bg-electric/10 px-3 py-1 text-xs font-medium text-electric">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-electric" />
+              {hero.availability}
+            </span>
           )}
+          <h1 className="mt-5 font-display text-4xl leading-[1.05] tracking-tight text-ink sm:text-5xl md:text-7xl">
+            {hero?.heading ?? name}
+          </h1>
+          {headline && <p className="mt-4 text-lg font-medium text-ink md:text-xl">{headline}</p>}
+          {summary && <p className="mt-4 max-w-2xl text-base text-ink-soft md:text-lg">{summary}</p>}
+
+          <div className="mt-5 flex flex-wrap items-center gap-3 text-sm text-muted-ink">
+            {hero?.location && (
+              <span className="inline-flex items-center gap-1.5">
+                <MapPin size={14} /> {hero.location}
+              </span>
+            )}
+            {socials.length > 0 && (
+              <span className="flex items-center gap-2">
+                {socials.map(({ href, Icon, label }) => (
+                  <a
+                    key={label}
+                    href={href}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={label}
+                    className="grid h-9 w-9 place-items-center rounded-full border border-line text-ink-soft transition-colors hover:border-electric/40 hover:text-electric"
+                  >
+                    <Icon size={15} />
+                  </a>
+                ))}
+              </span>
+            )}
+          </div>
+
           <div className="mt-8 flex flex-wrap gap-3">
             <button
               type="button"
               onClick={() => openContactDialog()}
-              className="inline-flex items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-cloud transition-transform hover:scale-[1.02]"
+              className="inline-flex min-h-11 items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-cloud transition-transform hover:scale-[1.02]"
             >
-              Get in touch <ArrowUpRight size={14} />
+              {hero?.cta_primary_label || "Hire me"} <ArrowUpRight size={14} />
             </button>
             {projects.length > 0 && (
               <Link
                 to="/u/$username/projects"
                 params={{ username }}
-                className="inline-flex items-center gap-2 rounded-full border border-line bg-cloud px-5 py-2.5 text-sm font-medium text-ink transition-colors hover:bg-surface"
+                className="inline-flex min-h-11 items-center gap-2 rounded-full border border-line bg-cloud px-5 py-2.5 text-sm font-medium text-ink transition-colors hover:bg-surface"
               >
                 View Projects <ArrowUpRight size={14} />
               </Link>
             )}
-            <ShareButton title={site.portfolio?.display_name ?? username} />
+            <ShareButton title={name} />
           </div>
-        </div>
+        </Reveal>
         {portraitSrc && (
-          <div className="order-first justify-self-center md:order-none md:justify-self-end">
+          <Reveal delay={80} className="order-first justify-self-center md:order-none md:justify-self-end">
             <div className="relative">
               <div className="absolute -inset-3 rounded-3xl bg-gradient-to-br from-electric/30 to-transparent blur-xl" aria-hidden />
               <img
                 src={portraitSrc}
-                alt={site.portfolio?.display_name ?? username}
-                className="relative h-48 w-48 rounded-2xl object-cover ring-1 ring-line md:h-72 md:w-72"
+                alt={name}
+                className="relative h-44 w-44 rounded-2xl object-cover ring-1 ring-line sm:h-56 sm:w-56 md:h-72 md:w-72"
               />
             </div>
-          </div>
+          </Reveal>
         )}
       </section>
 
@@ -131,14 +195,103 @@ function PortfolioHome() {
         </section>
       )}
 
+      {/* 2. About */}
+      {hasAbout && (
+        <Section
+          id="about"
+          eyebrow="About"
+          title={`Who ${name.split(" ")[0]} is`}
+          action={
+            <Link
+              to="/u/$username/about"
+              params={{ username }}
+              className="hidden shrink-0 items-center gap-1 text-sm text-ink-soft hover:text-electric sm:inline-flex"
+            >
+              Full bio <ArrowRight size={14} />
+            </Link>
+          }
+        >
+          <div className="grid gap-6 md:grid-cols-[1.4fr_1fr]">
+            <Reveal className="rounded-2xl border border-line bg-cloud p-6">
+              {aboutBody && <p className="whitespace-pre-wrap text-base leading-relaxed text-ink-soft">{aboutBody}</p>}
+              {hero?.mission && (
+                <p className="mt-5 border-l-2 border-electric pl-4 text-base italic text-ink">{hero.mission}</p>
+              )}
+            </Reveal>
+            <Reveal delay={80} className="space-y-4">
+              {hero?.years_experience ? (
+                <div className="rounded-2xl border border-line bg-cloud p-6">
+                  <div className="font-display text-4xl text-ink">{hero.years_experience}+</div>
+                  <div className="mt-1 text-xs uppercase tracking-wider text-muted-ink">Years of experience</div>
+                </div>
+              ) : null}
+              {hero?.expertise?.length ? (
+                <div className="rounded-2xl border border-line bg-cloud p-6">
+                  <div className="text-xs uppercase tracking-[0.18em] text-muted-ink">Areas of expertise</div>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {hero.expertise.map((e) => (
+                      <Pill key={e}>{e}</Pill>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+              {hero?.industries?.length ? (
+                <div className="rounded-2xl border border-line bg-cloud p-6">
+                  <div className="text-xs uppercase tracking-[0.18em] text-muted-ink">Industries</div>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {hero.industries.map((e) => (
+                      <Pill key={e}>{e}</Pill>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+            </Reveal>
+          </div>
+        </Section>
+      )}
+
+      {/* 3. Experience & Certifications */}
+      {(profile.experience.length > 0 || profile.certifications.length > 0) && (
+        <Section
+          id="experience"
+          eyebrow="Credibility"
+          title="Experience & certifications"
+          description="A track record of shipped work, verified by the organisations behind it."
+        >
+          <div className="space-y-10">
+            {profile.experience.length > 0 && <ExperienceTimeline items={profile.experience} />}
+            {profile.certifications.length > 0 && (
+              <div>
+                <h3 className="mb-4 font-display text-xl text-ink">Certifications</h3>
+                <CertificationGrid items={profile.certifications} />
+              </div>
+            )}
+          </div>
+        </Section>
+      )}
+
+      {/* 4. Skills */}
+      {profile.skills.length > 0 && (
+        <Section id="skills" eyebrow="Capabilities" title="Skills & tools">
+          <SkillGroups items={profile.skills} />
+        </Section>
+      )}
+
       {shownProjects.length > 0 && (
-        <section id="projects" className="scroll-mt-20">
-          <div className="mb-6 flex items-end justify-between">
-            <h2 className="font-display text-3xl text-ink">Projects &amp; Case Studies</h2>
-            <Link to="/u/$username/projects" params={{ username }} className="inline-flex items-center gap-1 text-sm text-ink-soft hover:text-electric">
+        <Section
+          id="projects"
+          eyebrow="Work"
+          title="Projects & case studies"
+          action={
+            <Link
+              to="/u/$username/projects"
+              params={{ username }}
+              className="inline-flex shrink-0 items-center gap-1 text-sm text-ink-soft hover:text-electric"
+            >
               All projects <ArrowRight size={14} />
             </Link>
-          </div>
+          }
+        >
           <div className="grid gap-6 md:grid-cols-2">
             {shownProjects.map((p) => (
               <Link
@@ -158,6 +311,15 @@ function PortfolioHome() {
                   <div className="text-[10px] uppercase tracking-[0.22em] text-cloud/50">{p.category ?? "Project"}</div>
                   <div className="mt-2 font-display text-2xl">{p.name}</div>
                   {p.summary && <p className="mt-2 line-clamp-3 text-sm text-cloud/70">{p.summary}</p>}
+                  {p.tools?.length ? (
+                    <div className="mt-3 flex flex-wrap gap-1.5">
+                      {p.tools.slice(0, 4).map((t) => (
+                        <span key={t} className="rounded-full border border-cloud/20 px-2 py-0.5 text-[10px] text-cloud/70">
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
                 </div>
                 <div className="mt-3 flex items-center justify-center rounded-full bg-cloud px-5 py-3 text-sm font-medium text-ink transition-colors group-hover:bg-electric group-hover:text-ink">
                   View project
@@ -165,17 +327,24 @@ function PortfolioHome() {
               </Link>
             ))}
           </div>
-        </section>
+        </Section>
       )}
 
       {studies.length > 0 && (
-        <section>
-          <div className="mb-6 flex items-end justify-between">
-            <h2 className="font-display text-3xl text-ink">Case studies</h2>
-            <Link to="/u/$username/case-studies" params={{ username }} className="inline-flex items-center gap-1 text-sm text-ink-soft hover:text-electric">
+        <Section
+          id="case-studies"
+          eyebrow="Deep dives"
+          title="Case studies"
+          action={
+            <Link
+              to="/u/$username/case-studies"
+              params={{ username }}
+              className="inline-flex shrink-0 items-center gap-1 text-sm text-ink-soft hover:text-electric"
+            >
               All case studies <ArrowRight size={14} />
             </Link>
-          </div>
+          }
+        >
           <div className="grid gap-4 md:grid-cols-2">
             {studies.slice(0, 4).map((c) => (
               <Link
@@ -190,17 +359,45 @@ function PortfolioHome() {
               </Link>
             ))}
           </div>
-        </section>
+        </Section>
+      )}
+
+      {/* 6. Testimonials */}
+      {testimonials.length > 0 && (
+        <Section id="testimonials" eyebrow="Trust" title="What people say">
+          <TestimonialGrid items={testimonials} />
+        </Section>
+      )}
+
+      {/* 7. Awards */}
+      {profile.awards.length > 0 && (
+        <Section id="awards" eyebrow="Recognition" title="Awards & recognition">
+          <AwardList items={profile.awards} />
+        </Section>
+      )}
+
+      {/* 8. Publications & media */}
+      {profile.publications.length > 0 && (
+        <Section id="publications" eyebrow="Media" title="Publications & media">
+          <PublicationList items={profile.publications} />
+        </Section>
       )}
 
       {featuredPosts.length > 0 && (
-        <section>
-          <div className="mb-6 flex items-end justify-between">
-            <h2 className="font-display text-3xl text-ink">From the blog</h2>
-            <Link to="/u/$username/blog" params={{ username }} className="inline-flex items-center gap-1 text-sm text-ink-soft hover:text-electric">
+        <Section
+          id="writing"
+          eyebrow="Writing"
+          title="From the blog"
+          action={
+            <Link
+              to="/u/$username/blog"
+              params={{ username }}
+              className="inline-flex shrink-0 items-center gap-1 text-sm text-ink-soft hover:text-electric"
+            >
               All posts <ArrowRight size={14} />
             </Link>
-          </div>
+          }
+        >
           <div className="grid gap-6 md:grid-cols-3">
             {featuredPosts.map((p) => (
               <Link
@@ -217,33 +414,22 @@ function PortfolioHome() {
               </Link>
             ))}
           </div>
-        </section>
+        </Section>
       )}
 
-      {testimonials.length > 0 && (
-        <section>
-          <h2 className="mb-6 font-display text-3xl">Praise</h2>
-          <div className="grid gap-6 md:grid-cols-2">
-            {testimonials.map((t) => (
-              <figure key={t.id} className="rounded-2xl border border-line bg-cloud p-6">
-                <blockquote className="text-base leading-relaxed text-ink">"{t.quote}"</blockquote>
-                <figcaption className="mt-4 text-sm text-ink-soft">— {t.name}{t.role ? `, ${t.role}` : ""}</figcaption>
-              </figure>
-            ))}
-          </div>
-        </section>
-      )}
-
-      <section className="rounded-3xl bg-ink p-10 text-cloud md:p-14">
-        <div className="font-display text-4xl md:text-5xl">Let's build something together.</div>
-        <button
-          type="button"
-          onClick={() => openContactDialog()}
-          className="mt-6 inline-flex items-center gap-2 rounded-full bg-electric px-5 py-2.5 text-sm font-medium text-cloud hover:opacity-90"
-        >
-          Start a conversation <ArrowUpRight size={14} />
-        </button>
-      </section>
+      <Reveal as="section" className="scroll-mt-24">
+        <div id="contact" className="rounded-3xl bg-ink p-10 text-cloud md:p-14">
+          <div className="font-display text-4xl md:text-5xl">Let's build something together.</div>
+          {hero?.availability && <p className="mt-3 text-sm text-cloud/70">{hero.availability}</p>}
+          <button
+            type="button"
+            onClick={() => openContactDialog()}
+            className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full bg-electric px-5 py-2.5 text-sm font-medium text-cloud hover:opacity-90"
+          >
+            Start a conversation <ArrowUpRight size={14} />
+          </button>
+        </div>
+      </Reveal>
     </div>
   );
 }
