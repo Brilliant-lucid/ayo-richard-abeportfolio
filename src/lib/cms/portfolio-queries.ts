@@ -5,6 +5,7 @@ import {
   listCaseStudies,
   listBlogPosts,
   listTestimonials,
+  getPortfolioProfile,
   getProjectBySlug,
   getCaseStudyBySlug,
   getBlogPostBySlug,
@@ -39,6 +40,12 @@ export const testimonialsQO = (username: string) =>
   queryOptions({
     queryKey: ["u", username, "testimonials"],
     queryFn: () => listTestimonials({ data: { username } }),
+  });
+
+export const profileQO = (username: string) =>
+  queryOptions({
+    queryKey: ["u", username, "profile"],
+    queryFn: () => getPortfolioProfile({ data: { username } }),
   });
 
 export const projectQO = (username: string, slug: string) =>
