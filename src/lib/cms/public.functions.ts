@@ -191,6 +191,28 @@ export const listTestimonials = createServerFn({ method: "GET" })
     return rows ?? [];
   });
 
+export const getPortfolioProfile = createServerFn({ method: "GET" })
+  .inputValidator((d: unknown) => usernameOnly.parse(d ?? {}))
+  .handler(async ({ data }) => {
+    const p = await resolvePortfolio(data.username);
+    if (!p) return { experience: [], certifications: [], skills: [], awards: [], publications: [] };
+    const sb = await admin();
+    const [experience, certifications, skills, awards, publications] = await Promise.all([
+      sb.from("experience").select("*").eq("owner_id", p.owner_id).eq("status", "published").order("display_order"),
+      sb.from("certifications").select("*").eq("owner_id", p.owner_id).eq("status", "published").order("display_order"),
+      sb.from("skills").select("*").eq("owner_id", p.owner_id).order("display_order"),
+      sb.from("awards").select("*").eq("owner_id", p.owner_id).eq("status", "published").order("display_order"),
+      sb.from("publications").select("*").eq("owner_id", p.owner_id).eq("status", "published").order("display_order"),
+    ]);
+    return {
+      experience: experience.data ?? [],
+      certifications: certifications.data ?? [],
+      skills: skills.data ?? [],
+      awards: awards.data ?? [],
+      publications: publications.data ?? [],
+    };
+  });
+
 const contactSchema = z.object({
   name: z.string().min(1).max(120),
   email: z.string().email(),
