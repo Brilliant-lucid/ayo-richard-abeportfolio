@@ -9,7 +9,17 @@ export const Route = createFileRoute("/auth")({
   ssr: false,
   validateSearch: (s: Record<string, unknown>): { next?: string } =>
     typeof s.next === "string" ? { next: s.next } : {},
-  head: () => ({ meta: [{ title: "Sign in — Admin" }] }),
+  head: () => ({
+    meta: [
+      { title: "Sign in or create your portfolio — Portfolio Platform" },
+      {
+        name: "description",
+        content:
+          "Sign in to manage your portfolio, services and inquiries — or create a free account and publish your professional portfolio in minutes.",
+      },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
   component: Auth,
 });
 
