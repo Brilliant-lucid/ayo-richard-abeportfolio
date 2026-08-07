@@ -712,6 +712,138 @@ export type Database = {
         }
         Relationships: []
       }
+      service_inquiries: {
+        Row: {
+          created_at: string
+          details: Json
+          email: string
+          id: string
+          kind: string
+          message: string | null
+          name: string
+          portfolio_id: string
+          read: boolean
+          service_id: string | null
+          subject: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          details?: Json
+          email: string
+          id?: string
+          kind?: string
+          message?: string | null
+          name: string
+          portfolio_id: string
+          read?: boolean
+          service_id?: string | null
+          subject?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          details?: Json
+          email?: string
+          id?: string
+          kind?: string
+          message?: string | null
+          name?: string
+          portfolio_id?: string
+          read?: boolean
+          service_id?: string | null
+          subject?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_inquiries_portfolio_id_fkey"
+            columns: ["portfolio_id"]
+            isOneToOne: false
+            referencedRelation: "portfolios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_inquiries_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      services: {
+        Row: {
+          accepting_requests: boolean
+          action_label: string | null
+          availability: string | null
+          category: Database["public"]["Enums"]["service_category"]
+          cover_image_url: string | null
+          created_at: string
+          currency: string
+          delivery_time: string | null
+          detailed_description: string | null
+          display_order: number
+          duration: string | null
+          featured: boolean
+          id: string
+          location: Database["public"]["Enums"]["service_location"]
+          name: string
+          owner_id: string
+          pricing_type: Database["public"]["Enums"]["service_pricing_type"]
+          short_description: string | null
+          starting_price: number | null
+          status: Database["public"]["Enums"]["service_status"]
+          updated_at: string
+        }
+        Insert: {
+          accepting_requests?: boolean
+          action_label?: string | null
+          availability?: string | null
+          category?: Database["public"]["Enums"]["service_category"]
+          cover_image_url?: string | null
+          created_at?: string
+          currency?: string
+          delivery_time?: string | null
+          detailed_description?: string | null
+          display_order?: number
+          duration?: string | null
+          featured?: boolean
+          id?: string
+          location?: Database["public"]["Enums"]["service_location"]
+          name: string
+          owner_id: string
+          pricing_type?: Database["public"]["Enums"]["service_pricing_type"]
+          short_description?: string | null
+          starting_price?: number | null
+          status?: Database["public"]["Enums"]["service_status"]
+          updated_at?: string
+        }
+        Update: {
+          accepting_requests?: boolean
+          action_label?: string | null
+          availability?: string | null
+          category?: Database["public"]["Enums"]["service_category"]
+          cover_image_url?: string | null
+          created_at?: string
+          currency?: string
+          delivery_time?: string | null
+          detailed_description?: string | null
+          display_order?: number
+          duration?: string | null
+          featured?: boolean
+          id?: string
+          location?: Database["public"]["Enums"]["service_location"]
+          name?: string
+          owner_id?: string
+          pricing_type?: Database["public"]["Enums"]["service_pricing_type"]
+          short_description?: string | null
+          starting_price?: number | null
+          status?: Database["public"]["Enums"]["service_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       site_settings: {
         Row: {
           default_seo_description: string | null
@@ -908,6 +1040,21 @@ export type Database = {
     Enums: {
       app_role: "admin"
       content_status: "draft" | "published" | "unlisted" | "archived"
+      service_category:
+        | "consultation"
+        | "freelance"
+        | "coaching"
+        | "mentorship"
+        | "training"
+        | "workshop"
+        | "speaking"
+        | "audit"
+        | "creative"
+        | "technical"
+        | "custom"
+      service_location: "online" | "onsite" | "hybrid"
+      service_pricing_type: "fixed" | "starting_from" | "custom_quote" | "free"
+      service_status: "active" | "disabled" | "archived"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1037,6 +1184,22 @@ export const Constants = {
     Enums: {
       app_role: ["admin"],
       content_status: ["draft", "published", "unlisted", "archived"],
+      service_category: [
+        "consultation",
+        "freelance",
+        "coaching",
+        "mentorship",
+        "training",
+        "workshop",
+        "speaking",
+        "audit",
+        "creative",
+        "technical",
+        "custom",
+      ],
+      service_location: ["online", "onsite", "hybrid"],
+      service_pricing_type: ["fixed", "starting_from", "custom_quote", "free"],
+      service_status: ["active", "disabled", "archived"],
     },
   },
 } as const
