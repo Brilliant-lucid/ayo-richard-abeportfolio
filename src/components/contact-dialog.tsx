@@ -24,6 +24,7 @@ export function ContactDialog({ username }: { username?: string } = {}) {
   const user = username || DEFAULT_USERNAME;
   const [open, setOpen] = useState(false);
   const [target, setTarget] = useState<Target | null>(null);
+  const [pendingServiceId, setPendingServiceId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const submit = useServerFn(submitServiceInquiry);
@@ -37,7 +38,7 @@ export function ContactDialog({ username }: { username?: string } = {}) {
     () =>
       subscribeContactDialog((serviceId) => {
         setDone(false);
-        setTarget(serviceId ? undefined ?? null : null);
+        setTarget(null);
         setPendingServiceId(serviceId ?? null);
         setOpen(true);
       }),
@@ -45,7 +46,6 @@ export function ContactDialog({ username }: { username?: string } = {}) {
   );
 
   // A service id can arrive before the services list has loaded.
-  const [pendingServiceId, setPendingServiceId] = useState<string | null>(null);
   useEffect(() => {
     if (!pendingServiceId) return;
     const svc = services.find((s) => s.id === pendingServiceId);
