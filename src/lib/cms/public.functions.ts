@@ -380,3 +380,145 @@ export const notifyPortfolioVisit = createServerFn({ method: "POST" })
     }
     return { ok: true };
   });
+// ===== Services (public) =====
+export const listPublicServices = createServerFn({ method: "GET" })
+  .inputValidator((d: unknown) => usernameOnly.parse(d ?? {}))
+  .handler(async ({ data }) => {
+    const p = await resolvePortfolio(data.username);
+    if (!p) return [];
+    const sb = await admin();
+    const { data: rows } = await sb
+      .from("services")
+      .select("*")
+      .eq("owner_id", p.owner_id)
+      .eq("status", "active")
+      .order("featured", { ascending: false })
+      .order("display_order");
+    return rows ?? [];
+  });
+
+const inquirySchema = z.object({
+  username: z.string().optional(),
+  serviceId: z.string().uuid().nullable().optional(),
+  kind: z.string().min(1).max(40),
+  name: z.string().min(1).max(120),
+  email: z.string().email(),
+  subject: z.string().max(200).optional().default(""),
+  message: z.string().max(5000).optional().default(""),
+  details: z.record(z.string(), z.string()).optional().default({}),
+});
+
+export const submitServiceInquiry = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => inquirySchema.parse(d))
+  .handler(async ({ data }) => {
+    const sb = await admin();
+    const { data: portfolio } = await sb
+      .from("portfolios")
+      .select("id, owner_id, username")
+      .eq("username", data.username || DEFAULT_USERNAME)
+      .maybeSingle();
+    if (!portfolio) throw new Error("Portfolio not found");
+
+    let serviceName: string | null = null;
+    if (data.serviceId) {
+      const { data: svc } = await sb
+        .from("services")
+        .select("name, owner_id")
+        .eq("id", data.serviceId)
+        .maybeSingle();
+      if (!svc || svc.owner_id !== portfolio.owner_id) throw new Error("Service not found");
+      serviceName = svc.name;
+    }
+
+    const { error } = await sb.from("service_inquiries").insert({
+      portfolio_id: portfolio.id,
+      service_id: data.serviceId ?? null,
+      kind: data.kind,
+      name: data.name,
+      email: data.email,
+      subject: data.subject || serviceName || null,
+      message: data.message || null,
+      details: data.details ?? {},
+    });
+    if (error) throw new Error(error.message);
+
+    // Mirror into the classic inbox so existing Messages view stays useful.
+    const summary = Object.entries(data.details ?? {})
+      .filter(([, v]) => v)
+      .map(([k, v]) => `${k.replace(/_/g, " ")}: ${v}`)
+      .join("\n");
+    await sb.from("contact_messages").insert({
+      portfolio_id: portfolio.id,
+      name: data.name,
+      email: data.email,
+      subject: serviceName ? `${data.kind} — ${serviceName}` : data.subject || data.kind,
+      message: [data.message, summary].filter(Boolean).join("\n\n") || "(no message)",
+    });
+
+    try {
+      const { data: userRes } = await sb.auth.admin.getUserById(portfolio.owner_id);
+      const toEmail = userRes?.user?.email;
+      if (toEmail) {
+        await sendInquiryEmail(toEmail, {
+          kind: data.kind,
+          serviceName,
+          name: data.name,
+          email: data.email,
+          message: data.message,
+          summary,
+        });
+      }
+    } catch (e) {
+      console.error("Inquiry notification failed:", e);
+    }
+
+    return { ok: true };
+  });
+
+async function sendInquiryEmail(
+  to: string,
+  d: { kind: string; serviceName: string | null; name: string; email: string; message?: string; summary: string },
+) {
+  const lovableKey = process.env.LOVABLE_API_KEY;
+  const gmailKey = process.env.GOOGLE_MAIL_API_KEY;
+  if (!lovableKey || !gmailKey) return;
+
+  const subjectLine = `New ${d.kind} request${d.serviceName ? `: ${d.serviceName}` : ""}`;
+  const body = [
+    `You have a new request from your portfolio.`,
+    ``,
+    `Type: ${d.kind}`,
+    d.serviceName ? `Service: ${d.serviceName}` : "",
+    `From: ${d.name} <${d.email}>`,
+    ``,
+    d.summary,
+    d.message ? `\n${d.message}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  const raw = [
+    `To: ${to}`,
+    `Reply-To: ${d.email}`,
+    `Subject: ${subjectLine}`,
+    `Content-Type: text/plain; charset="UTF-8"`,
+    ``,
+    body,
+  ].join("\r\n");
+
+  const encoded = Buffer.from(raw, "utf-8")
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+
+  await fetch("https://connector-gateway.lovable.dev/google_mail/gmail/v1/users/me/messages/send", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${lovableKey}`,
+      "X-Connection-Api-Key": gmailKey,
+    },
+    body: JSON.stringify({ raw: encoded }),
+  });
+}

@@ -30,6 +30,7 @@ import { Route as UUsernameIndexRouteImport } from './routes/u.$username.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as UUsernameAboutRouteImport } from './routes/u.$username.about'
 import { Route as AuthenticatedAdminSiteSettingsRouteImport } from './routes/_authenticated/admin.site-settings'
+import { Route as AuthenticatedAdminServicesRouteImport } from './routes/_authenticated/admin.services'
 import { Route as AuthenticatedAdminProfileRouteImport } from './routes/_authenticated/admin.profile'
 import { Route as AuthenticatedAdminMessagesRouteImport } from './routes/_authenticated/admin.messages'
 import { Route as AuthenticatedAdminHeroRouteImport } from './routes/_authenticated/admin.hero'
@@ -154,6 +155,12 @@ const AuthenticatedAdminSiteSettingsRoute =
     path: '/site-settings',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminServicesRoute =
+  AuthenticatedAdminServicesRouteImport.update({
+    id: '/services',
+    path: '/services',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminProfileRoute =
   AuthenticatedAdminProfileRouteImport.update({
     id: '/profile',
@@ -268,6 +275,7 @@ export interface FileRoutesByFullPath {
   '/admin/hero': typeof AuthenticatedAdminHeroRoute
   '/admin/messages': typeof AuthenticatedAdminMessagesRoute
   '/admin/profile': typeof AuthenticatedAdminProfileRoute
+  '/admin/services': typeof AuthenticatedAdminServicesRoute
   '/admin/site-settings': typeof AuthenticatedAdminSiteSettingsRoute
   '/u/$username/about': typeof UUsernameAboutRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -304,6 +312,7 @@ export interface FileRoutesByTo {
   '/admin/hero': typeof AuthenticatedAdminHeroRoute
   '/admin/messages': typeof AuthenticatedAdminMessagesRoute
   '/admin/profile': typeof AuthenticatedAdminProfileRoute
+  '/admin/services': typeof AuthenticatedAdminServicesRoute
   '/admin/site-settings': typeof AuthenticatedAdminSiteSettingsRoute
   '/u/$username/about': typeof UUsernameAboutRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -344,6 +353,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/hero': typeof AuthenticatedAdminHeroRoute
   '/_authenticated/admin/messages': typeof AuthenticatedAdminMessagesRoute
   '/_authenticated/admin/profile': typeof AuthenticatedAdminProfileRoute
+  '/_authenticated/admin/services': typeof AuthenticatedAdminServicesRoute
   '/_authenticated/admin/site-settings': typeof AuthenticatedAdminSiteSettingsRoute
   '/u/$username/about': typeof UUsernameAboutRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -384,6 +394,7 @@ export interface FileRouteTypes {
     | '/admin/hero'
     | '/admin/messages'
     | '/admin/profile'
+    | '/admin/services'
     | '/admin/site-settings'
     | '/u/$username/about'
     | '/admin/'
@@ -420,6 +431,7 @@ export interface FileRouteTypes {
     | '/admin/hero'
     | '/admin/messages'
     | '/admin/profile'
+    | '/admin/services'
     | '/admin/site-settings'
     | '/u/$username/about'
     | '/admin'
@@ -459,6 +471,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/hero'
     | '/_authenticated/admin/messages'
     | '/_authenticated/admin/profile'
+    | '/_authenticated/admin/services'
     | '/_authenticated/admin/site-settings'
     | '/u/$username/about'
     | '/_authenticated/admin/'
@@ -645,6 +658,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSiteSettingsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/services': {
+      id: '/_authenticated/admin/services'
+      path: '/services'
+      fullPath: '/admin/services'
+      preLoaderRoute: typeof AuthenticatedAdminServicesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/profile': {
       id: '/_authenticated/admin/profile'
       path: '/profile'
@@ -765,6 +785,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminHeroRoute: typeof AuthenticatedAdminHeroRoute
   AuthenticatedAdminMessagesRoute: typeof AuthenticatedAdminMessagesRoute
   AuthenticatedAdminProfileRoute: typeof AuthenticatedAdminProfileRoute
+  AuthenticatedAdminServicesRoute: typeof AuthenticatedAdminServicesRoute
   AuthenticatedAdminSiteSettingsRoute: typeof AuthenticatedAdminSiteSettingsRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminBlogIdRoute: typeof AuthenticatedAdminBlogIdRoute
@@ -778,6 +799,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminHeroRoute: AuthenticatedAdminHeroRoute,
   AuthenticatedAdminMessagesRoute: AuthenticatedAdminMessagesRoute,
   AuthenticatedAdminProfileRoute: AuthenticatedAdminProfileRoute,
+  AuthenticatedAdminServicesRoute: AuthenticatedAdminServicesRoute,
   AuthenticatedAdminSiteSettingsRoute: AuthenticatedAdminSiteSettingsRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedAdminBlogIdRoute: AuthenticatedAdminBlogIdRoute,

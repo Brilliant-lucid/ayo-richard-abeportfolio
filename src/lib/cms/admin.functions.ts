@@ -424,3 +424,123 @@ export const getMySiteSettings = createServerFn({ method: "GET" })
     const { data } = await sb.from("site_settings").select("*").eq("owner_id", context.userId).maybeSingle();
     return data;
   });
+
+// ===== Services =====
+const serviceSchema = z.object({
+  id: z.string().uuid().optional(),
+  name: z.string().min(1).max(160),
+  category: z.enum([
+    "consultation",
+    "freelance",
+    "coaching",
+    "mentorship",
+    "training",
+    "workshop",
+    "speaking",
+    "audit",
+    "creative",
+    "technical",
+    "custom",
+  ]),
+  short_description: z.string().max(300).nullable().optional(),
+  detailed_description: z.string().nullable().optional(),
+  cover_image_url: z.string().nullable().optional(),
+  starting_price: z.number().nullable().optional(),
+  currency: z.string().max(8).default("USD"),
+  pricing_type: z.enum(["fixed", "starting_from", "custom_quote", "free"]).default("custom_quote"),
+  duration: z.string().nullable().optional(),
+  delivery_time: z.string().nullable().optional(),
+  location: z.enum(["online", "onsite", "hybrid"]).default("online"),
+  availability: z.string().nullable().optional(),
+  featured: z.boolean().default(false),
+  accepting_requests: z.boolean().default(true),
+  action_label: z.string().max(60).nullable().optional(),
+  status: z.enum(["active", "disabled", "archived"]).default("active"),
+  display_order: z.number().int().default(0),
+});
+
+export const listMyServices = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const sb = await adminClient();
+    const { data } = await sb
+      .from("services")
+      .select("*")
+      .eq("owner_id", context.userId)
+      .order("display_order");
+    const services = data ?? [];
+    if (services.length === 0) return [];
+    const { data: inquiries } = await sb
+      .from("service_inquiries")
+      .select("service_id")
+      .in("service_id", services.map((s) => s.id));
+    const counts = new Map<string, number>();
+    for (const i of inquiries ?? []) {
+      if (i.service_id) counts.set(i.service_id, (counts.get(i.service_id) ?? 0) + 1);
+    }
+    return services.map((s) => ({ ...s, inquiry_count: counts.get(s.id) ?? 0 }));
+  });
+
+export const upsertService = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => serviceSchema.parse(d))
+  .handler(async ({ data, context }) => {
+    const sb = await adminClient();
+    const { id, ...rest } = data;
+    if (id) {
+      const { error } = await sb.from("services").update(rest).eq("id", id).eq("owner_id", context.userId);
+      if (error) throw new Error(error.message);
+      return { id };
+    }
+    const { data: inserted, error } = await sb
+      .from("services")
+      .insert({ ...rest, owner_id: context.userId })
+      .select("id")
+      .single();
+    if (error) throw new Error(error.message);
+    return { id: inserted.id };
+  });
+
+export const deleteService = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const sb = await adminClient();
+    const { error } = await sb.from("services").delete().eq("id", data.id).eq("owner_id", context.userId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const patchService = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        status: z.enum(["active", "disabled", "archived"]).optional(),
+        featured: z.boolean().optional(),
+        accepting_requests: z.boolean().optional(),
+        display_order: z.number().int().optional(),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const sb = await adminClient();
+    const { id, ...patch } = data;
+    const { error } = await sb.from("services").update(patch).eq("id", id).eq("owner_id", context.userId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const reorderServices = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ ids: z.array(z.string().uuid()) }).parse(d))
+  .handler(async ({ data, context }) => {
+    const sb = await adminClient();
+    await Promise.all(
+      data.ids.map((id, i) =>
+        sb.from("services").update({ display_order: i }).eq("id", id).eq("owner_id", context.userId),
+      ),
+    );
+    return { ok: true };
+  });

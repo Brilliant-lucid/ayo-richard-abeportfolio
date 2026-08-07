@@ -1,4 +1,4 @@
-export const SITE_URL = "https://ayo-richard-abe-portfolio-platform.lovable.app";
+export const SITE_URL = "https://portfolio-platform.lovable.app";
 
 /** Default portfolio used by legacy (non-namespaced) URLs. */
 export const DEFAULT_USERNAME = "richard";
