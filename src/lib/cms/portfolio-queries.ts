@@ -9,6 +9,7 @@ import {
   getProjectBySlug,
   getCaseStudyBySlug,
   getBlogPostBySlug,
+  listPublicServices,
 } from "@/lib/cms/public.functions";
 
 export const siteQO = (username: string) =>
@@ -64,4 +65,11 @@ export const blogPostQO = (username: string, slug: string) =>
   queryOptions({
     queryKey: ["u", username, "post", slug],
     queryFn: () => getBlogPostBySlug({ data: { username, slug } }),
+  });
+
+export const servicesQO = (username: string) =>
+  queryOptions({
+    queryKey: ["u", username, "services"],
+    queryFn: () => listPublicServices({ data: { username } }),
+    staleTime: 60_000,
   });
