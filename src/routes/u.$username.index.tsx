@@ -8,11 +8,14 @@ import {
   caseStudiesQO,
   testimonialsQO,
   profileQO,
+  servicesQO,
 } from "@/lib/cms/portfolio-queries";
 import { openContactDialog } from "@/lib/contact-dialog-store";
 import { absoluteUrl, absoluteImage } from "@/lib/site-url";
 import { ShareButton } from "@/components/portfolio/share-button";
 import { Reveal } from "@/components/landing/reveal";
+import { ServicesSection } from "@/components/portfolio/services-section";
+import { actionLabel, type ServiceRow } from "@/lib/services-config";
 import {
   Section,
   Pill,
@@ -34,6 +37,7 @@ export const Route = createFileRoute("/u/$username/")({
       context.queryClient.ensureQueryData(blogQO(u)),
       context.queryClient.ensureQueryData(testimonialsQO(u)),
       context.queryClient.ensureQueryData(profileQO(u)),
+      context.queryClient.ensureQueryData(servicesQO(u)),
     ]);
     return {
       name: site.portfolio?.display_name ?? u,
@@ -87,6 +91,14 @@ function PortfolioHome() {
   const { data: posts } = useSuspenseQuery(blogQO(username));
   const { data: testimonials } = useSuspenseQuery(testimonialsQO(username));
   const { data: profile } = useSuspenseQuery(profileQO(username));
+  const { data: services } = useSuspenseQuery(servicesQO(username)) as { data: ServiceRow[] };
+  const bookable = services.filter((s) => s.status === "active" && s.accepting_requests);
+  const primaryCta =
+    bookable.length === 1
+      ? actionLabel(bookable[0])
+      : bookable.length > 1
+        ? "Work with me"
+        : null;
 
   const hero = site.hero;
   const settings = site.settings;
@@ -156,7 +168,7 @@ function PortfolioHome() {
               onClick={() => openContactDialog()}
               className="inline-flex min-h-11 items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-cloud transition-transform hover:scale-[1.02]"
             >
-              {hero?.cta_primary_label || "Hire me"} <ArrowUpRight size={14} />
+              {primaryCta || hero?.cta_primary_label || "Hire me"} <ArrowUpRight size={14} />
             </button>
             {projects.length > 0 && (
               <Link
@@ -194,6 +206,8 @@ function PortfolioHome() {
           ))}
         </section>
       )}
+
+      <ServicesSection services={services} />
 
       {/* 2. About */}
       {hasAbout && (
