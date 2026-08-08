@@ -599,6 +599,13 @@ function EditProject() {
                 <option value="private">Private</option>
               </select>
             </Field>
+            <Field label="Publish as" hint="Case studies are managed here — one entry can appear in both places.">
+              <select value={form.publish_as} onChange={(e) => update("publish_as", e.target.value as Form["publish_as"])} className={inputCls}>
+                <option value="project">Project only</option>
+                <option value="case_study">Case study only</option>
+                <option value="both">Project + Case study</option>
+              </select>
+            </Field>
             <Field label="Publish date">
               <input type="datetime-local" value={form.publish_date ? form.publish_date.slice(0, 16) : ""}
                 onChange={(e) => update("publish_date", e.target.value ? new Date(e.target.value).toISOString() : "")}
