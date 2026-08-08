@@ -65,6 +65,7 @@ const projectSchema = z.object({
   social_image_url: z.string().nullable().optional(),
   canonical_url: z.string().nullable().optional(),
   index_allowed: z.boolean().optional().default(true),
+  publish_as: z.enum(["project", "case_study", "both"]).optional().default("project"),
 });
 
 export const listAllProjects = createServerFn({ method: "GET" })
