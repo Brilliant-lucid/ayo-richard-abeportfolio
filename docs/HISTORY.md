@@ -4,16 +4,16 @@ See `DEVELOPMENT_HISTORY.md` for the milestone index. Historical milestones are 
 
 ## Historical milestones
 
-- Initial portfolio presentation and content surfaces
-- Admin/content management foundation
-- Authentication evolution
-- AI Assist and MCP integration
-- Public portfolio publishing
-- Project/public presentation evolution
-- Services
-- Documentation baseline
-- AI code-review workflow
-- Admin content architecture refactor
+- Initial portfolio presentation and content surfaces — Issue #25
+- Admin/content management foundation — Issue #25
+- Authentication evolution — Issue #26
+- AI Assist and Model Context Protocol (MCP) integration — Issue #27
+- Public portfolio publishing — Issue #28
+- Project/public presentation evolution — Issue #29
+- Services — Issue #30
+- Documentation baseline — Issue #31
+- AI code-review workflow — Issue #32
+- Admin content architecture refactor — Issue #33
 
 ## Current work
 
