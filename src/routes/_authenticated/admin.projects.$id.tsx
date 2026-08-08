@@ -69,6 +69,7 @@ type Form = {
 
   status: Status;
   visibility: Visibility;
+  publish_as: "project" | "case_study" | "both";
   featured: boolean;
   publish_date: string;
   display_order: number;
@@ -92,7 +93,7 @@ const emptyForm: Form = {
   live_link: "", case_study_link: "", additional_links: [],
   overview: "", challenge: "", goals: "", constraints: "",
   process: "", solution: "", results: "", learnings: "", metrics: [],
-  status: "draft", visibility: "public", featured: false,
+  status: "draft", visibility: "public", publish_as: "project", featured: false,
   publish_date: "", display_order: 0, bento_size: "small",
   seo_title: "", seo_description: "", social_image_url: "", canonical_url: "", index_allowed: true,
 };
@@ -196,6 +197,7 @@ function EditProject() {
           metrics: Array.isArray(p.metrics) ? p.metrics : [],
           status: (p.status as Status) ?? "draft",
           visibility: (p.visibility as Visibility) ?? "public",
+          publish_as: (p.publish_as as Form["publish_as"]) ?? "project",
           featured: !!p.featured,
           publish_date: p.publish_date ?? "",
           display_order: p.display_order ?? 0,
@@ -280,6 +282,7 @@ function EditProject() {
           bento_size: payload.bento_size,
           status: nextStatus,
           visibility: payload.visibility,
+          publish_as: payload.publish_as,
           start_date: payload.start_date || null,
           end_date: payload.ongoing ? null : (payload.end_date || null),
           ongoing: payload.ongoing,
