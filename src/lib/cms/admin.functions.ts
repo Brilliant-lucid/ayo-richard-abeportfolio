@@ -190,9 +190,20 @@ const heroSchema = z.object({
   cta_secondary_href: z.string().nullable().optional(),
 });
 
+const heroExtrasSchema = heroSchema.extend({
+  headline: z.string().nullable().optional(),
+  availability: z.string().nullable().optional(),
+  location: z.string().nullable().optional(),
+  years_experience: z.number().int().nullable().optional(),
+  industries: z.array(z.string()).nullable().optional(),
+  expertise: z.array(z.string()).nullable().optional(),
+  mission: z.string().nullable().optional(),
+  bio: z.string().nullable().optional(),
+});
+
 export const updateHero = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => heroSchema.parse(d))
+  .inputValidator((d: unknown) => heroExtrasSchema.parse(d))
   .handler(async ({ data, context }) => {
     const sb = await adminClient();
     const { id: _ignore, ...rest } = data;
