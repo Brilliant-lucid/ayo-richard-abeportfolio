@@ -1,27 +1,37 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState, useEffect } from "react";
 import { getMyPortfolio, updateMyPortfolio } from "@/lib/cms/portfolio.functions";
-import { uploadMedia } from "@/lib/cms/admin.functions";
+import { uploadMedia, getMyHero, updateHero } from "@/lib/cms/admin.functions";
+import { ChipInput } from "@/components/editor/ChipInput";
 import { toast } from "sonner";
 import { Upload, ExternalLink, Copy } from "lucide-react";
-import { Link } from "@tanstack/react-router";
 
 const portfolioQO = queryOptions({ queryKey: ["my-portfolio"], queryFn: () => getMyPortfolio() });
+const heroQO = queryOptions({ queryKey: ["my-hero"], queryFn: () => getMyHero() });
 
 export const Route = createFileRoute("/_authenticated/admin/profile")({
-  loader: ({ context }) => context.queryClient.ensureQueryData(portfolioQO),
-  head: () => ({ meta: [{ title: "Profile — Admin" }] }),
+  loader: async ({ context }) => {
+    await Promise.all([
+      context.queryClient.ensureQueryData(portfolioQO),
+      context.queryClient.ensureQueryData(heroQO),
+    ]);
+  },
+  head: () => ({ meta: [{ title: "Profile & Hero — Admin" }] }),
   component: ProfilePage,
   errorComponent: ({ error }) => <div className="text-destructive">{error.message}</div>,
   notFoundComponent: () => <div>Not found</div>,
 });
 
+type Hero = Record<string, any>;
+
 function ProfilePage() {
   const { data: portfolio } = useSuspenseQuery(portfolioQO);
+  const { data: heroRow } = useSuspenseQuery(heroQO);
   const qc = useQueryClient();
   const update = useServerFn(updateMyPortfolio);
+  const saveHero = useServerFn(updateHero);
   const upload = useServerFn(uploadMedia);
 
   const [username, setUsername] = useState(portfolio?.username ?? "");
@@ -29,6 +39,7 @@ function ProfilePage() {
   const [tagline, setTagline] = useState(portfolio?.tagline ?? "");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(portfolio?.avatar_url ?? null);
   const [isPublished, setIsPublished] = useState(!!portfolio?.is_published);
+  const [hero, setHero] = useState<Hero>(heroRow ?? { heading: portfolio?.display_name ?? "" });
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
 
@@ -42,20 +53,22 @@ function ProfilePage() {
     }
   }, [portfolio]);
 
+  useEffect(() => {
+    if (heroRow) setHero(heroRow as Hero);
+  }, [heroRow]);
+
   const shareUrl = portfolio
     ? `${typeof window !== "undefined" ? window.location.origin : ""}/u/${portfolio.username}`
     : "";
 
-  async function onAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  async function uploadTo(file: File, set: (url: string) => void) {
     setUploading(true);
     try {
       const fd = new FormData();
       fd.append("file", file);
       const res = await upload({ data: fd as never });
-      setAvatarUrl(res.url);
-      toast.success("Avatar uploaded");
+      set(res.url);
+      toast.success("Image uploaded");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Upload failed");
     } finally {
@@ -65,6 +78,10 @@ function ProfilePage() {
 
   async function onSave(e: React.FormEvent) {
     e.preventDefault();
+    if (!String(hero["heading"] ?? "").trim()) {
+      toast.error("Hero heading is required");
+      return;
+    }
     setSaving(true);
     try {
       const payload: Record<string, unknown> = {
@@ -75,8 +92,31 @@ function ProfilePage() {
       };
       if (username && username !== portfolio?.username) payload.username = username.trim().toLowerCase();
       await update({ data: payload as never });
-      await qc.invalidateQueries({ queryKey: ["my-portfolio"] });
-      toast.success("Profile saved");
+      await saveHero({
+        data: {
+          eyebrow: hero["eyebrow"] || null,
+          heading: String(hero["heading"]),
+          headline: hero["headline"] || null,
+          intro: hero["intro"] || null,
+          bio: hero["bio"] || null,
+          mission: hero["mission"] || null,
+          availability: hero["availability"] || null,
+          location: hero["location"] || null,
+          years_experience: hero["years_experience"] ? Number(hero["years_experience"]) : null,
+          expertise: Array.isArray(hero["expertise"]) ? hero["expertise"] : [],
+          industries: Array.isArray(hero["industries"]) ? hero["industries"] : [],
+          profile_image_url: hero["profile_image_url"] || null,
+          cta_primary_label: hero["cta_primary_label"] || null,
+          cta_primary_href: hero["cta_primary_href"] || null,
+          cta_secondary_label: hero["cta_secondary_label"] || null,
+          cta_secondary_href: hero["cta_secondary_href"] || null,
+        } as never,
+      });
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ["my-portfolio"] }),
+        qc.invalidateQueries({ queryKey: ["my-hero"] }),
+      ]);
+      toast.success("Profile & hero saved");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Save failed");
     } finally {
@@ -89,15 +129,35 @@ function ProfilePage() {
     toast.success("Link copied");
   }
 
-  if (!portfolio) {
-    return <div className="text-sm text-ink-soft">No portfolio yet.</div>;
-  }
+  if (!portfolio) return <div className="text-sm text-ink-soft">No portfolio yet.</div>;
+
+  const H = (key: string, label: string, opts: { multi?: boolean; placeholder?: string } = {}) => (
+    <div>
+      <label className="text-xs uppercase tracking-wider text-muted-ink">{label}</label>
+      {opts.multi ? (
+        <textarea
+          rows={3}
+          value={hero[key] ?? ""}
+          placeholder={opts.placeholder}
+          onChange={(e) => setHero({ ...hero, [key]: e.target.value })}
+          className="mt-1 w-full rounded-md border border-line bg-cloud px-3 py-2 text-sm focus:border-electric focus:outline-none"
+        />
+      ) : (
+        <input
+          value={hero[key] ?? ""}
+          placeholder={opts.placeholder}
+          onChange={(e) => setHero({ ...hero, [key]: e.target.value })}
+          className="mt-1 w-full rounded-md border border-line bg-cloud px-3 py-2 text-sm focus:border-electric focus:outline-none"
+        />
+      )}
+    </div>
+  );
 
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="font-display text-4xl">Profile</h1>
-        <p className="mt-2 text-ink-soft">Manage your account, username, and how your portfolio appears.</p>
+        <h1 className="font-display text-4xl">Profile & Hero</h1>
+        <p className="mt-2 text-ink-soft">Your identity and the first impression visitors get — managed together.</p>
       </div>
 
       <section className="rounded-2xl border border-line bg-cloud p-6">
@@ -118,64 +178,113 @@ function ProfilePage() {
         </div>
       </section>
 
-      <form onSubmit={onSave} className="space-y-6 rounded-2xl border border-line bg-cloud p-6">
-        <div className="flex items-start gap-6">
-          <div className="shrink-0">
-            {avatarUrl ? (
-              <img src={avatarUrl} alt="" className="h-24 w-24 rounded-2xl object-cover ring-1 ring-line" />
-            ) : (
-              <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-surface font-display text-3xl text-ink-soft">
-                {(displayName || username).charAt(0).toUpperCase()}
-              </div>
-            )}
+      <form onSubmit={onSave} className="space-y-8">
+        <section className="space-y-6 rounded-2xl border border-line bg-cloud p-6">
+          <h2 className="font-display text-2xl">Identity</h2>
+          <div className="flex items-start gap-6">
+            <div className="shrink-0">
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="" className="h-24 w-24 rounded-2xl object-cover ring-1 ring-line" />
+              ) : (
+                <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-surface font-display text-3xl text-ink-soft">
+                  {(displayName || username).charAt(0).toUpperCase()}
+                </div>
+              )}
+            </div>
+            <div>
+              <label className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-line px-3 py-1.5 text-xs hover:bg-surface">
+                <Upload size={12} /> {uploading ? "Uploading…" : "Upload avatar"}
+                <input type="file" accept="image/*" className="hidden" disabled={uploading}
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadTo(f, setAvatarUrl); }} />
+              </label>
+              {avatarUrl && (
+                <button type="button" onClick={() => setAvatarUrl(null)} className="ml-2 text-xs text-muted-ink hover:text-ink">Remove</button>
+              )}
+            </div>
           </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <Field label="Username" hint="Lowercase letters, numbers and dashes. Changing this changes your link.">
+              <input
+                value={username}
+                onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
+                className="mt-1 w-full rounded-md border border-line bg-cloud px-3 py-2 text-sm focus:border-electric focus:outline-none"
+              />
+            </Field>
+            <Field label="Display name">
+              <input value={displayName} onChange={(e) => setDisplayName(e.target.value)}
+                className="mt-1 w-full rounded-md border border-line bg-cloud px-3 py-2 text-sm focus:border-electric focus:outline-none" />
+            </Field>
+          </div>
+
+          <Field label="Tagline" hint="A short line that describes what you do.">
+            <input value={tagline} onChange={(e) => setTagline(e.target.value)} maxLength={160}
+              className="mt-1 w-full rounded-md border border-line bg-cloud px-3 py-2 text-sm focus:border-electric focus:outline-none" />
+          </Field>
+
+          <label className="flex items-center gap-3 rounded-md border border-line bg-surface/40 px-4 py-3">
+            <input type="checkbox" checked={isPublished} onChange={(e) => setIsPublished(e.target.checked)} />
+            <span className="text-sm">
+              <span className="font-medium text-ink">Publish my portfolio</span>
+              <span className="ml-2 text-xs text-muted-ink">Anyone with your link can view it.</span>
+            </span>
+          </label>
+        </section>
+
+        <section className="space-y-4 rounded-2xl border border-line bg-cloud p-6">
+          <h2 className="font-display text-2xl">Hero</h2>
+          <div className="grid gap-4 md:grid-cols-2">
+            {H("eyebrow", "Eyebrow", { placeholder: "Product Manager · Lagos" })}
+            {H("availability", "Availability", { placeholder: "Open to work" })}
+            {H("location", "Location", { placeholder: "Lagos, Nigeria" })}
+            <div>
+              <label className="text-xs uppercase tracking-wider text-muted-ink">Years of experience</label>
+              <input type="number" value={hero["years_experience"] ?? ""}
+                onChange={(e) => setHero({ ...hero, years_experience: e.target.value })}
+                className="mt-1 w-full rounded-md border border-line bg-cloud px-3 py-2 text-sm focus:border-electric focus:outline-none" />
+            </div>
+          </div>
+          {H("heading", "Heading", { multi: true })}
+          {H("headline", "Headline", { placeholder: "One-line positioning statement" })}
+          {H("intro", "Intro", { multi: true })}
+          {H("bio", "Bio", { multi: true })}
+          {H("mission", "Mission", { multi: true })}
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <label className="text-xs uppercase tracking-wider text-muted-ink">Expertise</label>
+              <div className="mt-1"><ChipInput values={Array.isArray(hero["expertise"]) ? hero["expertise"] : []} onChange={(v) => setHero({ ...hero, expertise: v })} placeholder="Add and press Enter" /></div>
+            </div>
+            <div>
+              <label className="text-xs uppercase tracking-wider text-muted-ink">Industries</label>
+              <div className="mt-1"><ChipInput values={Array.isArray(hero["industries"]) ? hero["industries"] : []} onChange={(v) => setHero({ ...hero, industries: v })} placeholder="Add and press Enter" /></div>
+            </div>
+          </div>
+
           <div>
-            <label className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-line px-3 py-1.5 text-xs hover:bg-surface">
-              <Upload size={12} /> {uploading ? "Uploading…" : "Upload avatar"}
-              <input type="file" accept="image/*" onChange={onAvatarChange} className="hidden" disabled={uploading} />
-            </label>
-            {avatarUrl && (
-              <button type="button" onClick={() => setAvatarUrl(null)} className="ml-2 text-xs text-muted-ink hover:text-ink">Remove</button>
-            )}
+            <label className="text-xs uppercase tracking-wider text-muted-ink">Hero image</label>
+            {hero["profile_image_url"] && <img src={hero["profile_image_url"]} alt="" className="mt-2 h-24 w-24 rounded-md object-cover" />}
+            <div className="mt-2 flex gap-2">
+              <input value={hero["profile_image_url"] ?? ""} onChange={(e) => setHero({ ...hero, profile_image_url: e.target.value })}
+                className="flex-1 rounded-md border border-line bg-cloud px-3 py-2 text-sm" />
+              <label className="cursor-pointer rounded-md border border-line px-3 py-2 text-xs">
+                Upload
+                <input type="file" accept="image/*" hidden
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadTo(f, (url) => setHero((h) => ({ ...h, profile_image_url: url }))); }} />
+              </label>
+            </div>
           </div>
-        </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
-          <Field label="Username" hint="Lowercase letters, numbers and dashes. Changing this changes your link.">
-            <input
-              value={username}
-              onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
-              className="mt-1 w-full rounded-md border border-line bg-cloud px-3 py-2 text-sm focus:border-electric focus:outline-none"
-            />
-          </Field>
-          <Field label="Display name">
-            <input
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              className="mt-1 w-full rounded-md border border-line bg-cloud px-3 py-2 text-sm focus:border-electric focus:outline-none"
-            />
-          </Field>
-        </div>
-
-        <Field label="Tagline" hint="A short line that describes what you do.">
-          <input
-            value={tagline}
-            onChange={(e) => setTagline(e.target.value)}
-            maxLength={160}
-            className="mt-1 w-full rounded-md border border-line bg-cloud px-3 py-2 text-sm focus:border-electric focus:outline-none"
-          />
-        </Field>
-
-        <label className="flex items-center gap-3 rounded-md border border-line bg-surface/40 px-4 py-3">
-          <input type="checkbox" checked={isPublished} onChange={(e) => setIsPublished(e.target.checked)} />
-          <span className="text-sm">
-            <span className="font-medium text-ink">Publish my portfolio</span>
-            <span className="ml-2 text-xs text-muted-ink">Anyone with your link can view it.</span>
-          </span>
-        </label>
+          <div className="grid gap-4 md:grid-cols-2">
+            {H("cta_primary_label", "Primary CTA label")}
+            {H("cta_primary_href", "Primary CTA link")}
+            {H("cta_secondary_label", "Secondary CTA label")}
+            {H("cta_secondary_href", "Secondary CTA link")}
+          </div>
+        </section>
 
         <div className="flex justify-end">
-          <button disabled={saving} className="rounded-full bg-ink px-5 py-2 text-sm font-medium text-cloud disabled:opacity-50">
+          <button disabled={saving} className="rounded-full bg-ink px-6 py-2.5 text-sm font-medium text-cloud disabled:opacity-50">
             {saving ? "Saving…" : "Save changes"}
           </button>
         </div>

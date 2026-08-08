@@ -31,9 +31,11 @@ import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authentic
 import { Route as UUsernameAboutRouteImport } from './routes/u.$username.about'
 import { Route as AuthenticatedAdminSiteSettingsRouteImport } from './routes/_authenticated/admin.site-settings'
 import { Route as AuthenticatedAdminServicesRouteImport } from './routes/_authenticated/admin.services'
+import { Route as AuthenticatedAdminRecognitionRouteImport } from './routes/_authenticated/admin.recognition'
 import { Route as AuthenticatedAdminProfileRouteImport } from './routes/_authenticated/admin.profile'
 import { Route as AuthenticatedAdminMessagesRouteImport } from './routes/_authenticated/admin.messages'
 import { Route as AuthenticatedAdminHeroRouteImport } from './routes/_authenticated/admin.hero'
+import { Route as AuthenticatedAdminCredentialsRouteImport } from './routes/_authenticated/admin.credentials'
 import { Route as AuthenticatedAdminCaseStudiesRouteImport } from './routes/_authenticated/admin.case-studies'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
@@ -161,6 +163,12 @@ const AuthenticatedAdminServicesRoute =
     path: '/services',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminRecognitionRoute =
+  AuthenticatedAdminRecognitionRouteImport.update({
+    id: '/recognition',
+    path: '/recognition',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminProfileRoute =
   AuthenticatedAdminProfileRouteImport.update({
     id: '/profile',
@@ -178,6 +186,12 @@ const AuthenticatedAdminHeroRoute = AuthenticatedAdminHeroRouteImport.update({
   path: '/hero',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminCredentialsRoute =
+  AuthenticatedAdminCredentialsRouteImport.update({
+    id: '/credentials',
+    path: '/credentials',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminCaseStudiesRoute =
   AuthenticatedAdminCaseStudiesRouteImport.update({
     id: '/case-studies',
@@ -272,9 +286,11 @@ export interface FileRoutesByFullPath {
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/admin/case-studies': typeof AuthenticatedAdminCaseStudiesRoute
+  '/admin/credentials': typeof AuthenticatedAdminCredentialsRoute
   '/admin/hero': typeof AuthenticatedAdminHeroRoute
   '/admin/messages': typeof AuthenticatedAdminMessagesRoute
   '/admin/profile': typeof AuthenticatedAdminProfileRoute
+  '/admin/recognition': typeof AuthenticatedAdminRecognitionRoute
   '/admin/services': typeof AuthenticatedAdminServicesRoute
   '/admin/site-settings': typeof AuthenticatedAdminSiteSettingsRoute
   '/u/$username/about': typeof UUsernameAboutRoute
@@ -309,9 +325,11 @@ export interface FileRoutesByTo {
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/admin/case-studies': typeof AuthenticatedAdminCaseStudiesRoute
+  '/admin/credentials': typeof AuthenticatedAdminCredentialsRoute
   '/admin/hero': typeof AuthenticatedAdminHeroRoute
   '/admin/messages': typeof AuthenticatedAdminMessagesRoute
   '/admin/profile': typeof AuthenticatedAdminProfileRoute
+  '/admin/recognition': typeof AuthenticatedAdminRecognitionRoute
   '/admin/services': typeof AuthenticatedAdminServicesRoute
   '/admin/site-settings': typeof AuthenticatedAdminSiteSettingsRoute
   '/u/$username/about': typeof UUsernameAboutRoute
@@ -350,9 +368,11 @@ export interface FileRoutesById {
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/_authenticated/admin/case-studies': typeof AuthenticatedAdminCaseStudiesRoute
+  '/_authenticated/admin/credentials': typeof AuthenticatedAdminCredentialsRoute
   '/_authenticated/admin/hero': typeof AuthenticatedAdminHeroRoute
   '/_authenticated/admin/messages': typeof AuthenticatedAdminMessagesRoute
   '/_authenticated/admin/profile': typeof AuthenticatedAdminProfileRoute
+  '/_authenticated/admin/recognition': typeof AuthenticatedAdminRecognitionRoute
   '/_authenticated/admin/services': typeof AuthenticatedAdminServicesRoute
   '/_authenticated/admin/site-settings': typeof AuthenticatedAdminSiteSettingsRoute
   '/u/$username/about': typeof UUsernameAboutRoute
@@ -391,9 +411,11 @@ export interface FileRouteTypes {
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/admin/case-studies'
+    | '/admin/credentials'
     | '/admin/hero'
     | '/admin/messages'
     | '/admin/profile'
+    | '/admin/recognition'
     | '/admin/services'
     | '/admin/site-settings'
     | '/u/$username/about'
@@ -428,9 +450,11 @@ export interface FileRouteTypes {
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/admin/case-studies'
+    | '/admin/credentials'
     | '/admin/hero'
     | '/admin/messages'
     | '/admin/profile'
+    | '/admin/recognition'
     | '/admin/services'
     | '/admin/site-settings'
     | '/u/$username/about'
@@ -468,9 +492,11 @@ export interface FileRouteTypes {
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/_authenticated/admin/case-studies'
+    | '/_authenticated/admin/credentials'
     | '/_authenticated/admin/hero'
     | '/_authenticated/admin/messages'
     | '/_authenticated/admin/profile'
+    | '/_authenticated/admin/recognition'
     | '/_authenticated/admin/services'
     | '/_authenticated/admin/site-settings'
     | '/u/$username/about'
@@ -665,6 +691,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminServicesRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/recognition': {
+      id: '/_authenticated/admin/recognition'
+      path: '/recognition'
+      fullPath: '/admin/recognition'
+      preLoaderRoute: typeof AuthenticatedAdminRecognitionRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/profile': {
       id: '/_authenticated/admin/profile'
       path: '/profile'
@@ -684,6 +717,13 @@ declare module '@tanstack/react-router' {
       path: '/hero'
       fullPath: '/admin/hero'
       preLoaderRoute: typeof AuthenticatedAdminHeroRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/credentials': {
+      id: '/_authenticated/admin/credentials'
+      path: '/credentials'
+      fullPath: '/admin/credentials'
+      preLoaderRoute: typeof AuthenticatedAdminCredentialsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/case-studies': {
@@ -782,9 +822,11 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminCaseStudiesRoute: typeof AuthenticatedAdminCaseStudiesRoute
+  AuthenticatedAdminCredentialsRoute: typeof AuthenticatedAdminCredentialsRoute
   AuthenticatedAdminHeroRoute: typeof AuthenticatedAdminHeroRoute
   AuthenticatedAdminMessagesRoute: typeof AuthenticatedAdminMessagesRoute
   AuthenticatedAdminProfileRoute: typeof AuthenticatedAdminProfileRoute
+  AuthenticatedAdminRecognitionRoute: typeof AuthenticatedAdminRecognitionRoute
   AuthenticatedAdminServicesRoute: typeof AuthenticatedAdminServicesRoute
   AuthenticatedAdminSiteSettingsRoute: typeof AuthenticatedAdminSiteSettingsRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
@@ -796,9 +838,11 @@ interface AuthenticatedAdminRouteChildren {
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminCaseStudiesRoute: AuthenticatedAdminCaseStudiesRoute,
+  AuthenticatedAdminCredentialsRoute: AuthenticatedAdminCredentialsRoute,
   AuthenticatedAdminHeroRoute: AuthenticatedAdminHeroRoute,
   AuthenticatedAdminMessagesRoute: AuthenticatedAdminMessagesRoute,
   AuthenticatedAdminProfileRoute: AuthenticatedAdminProfileRoute,
+  AuthenticatedAdminRecognitionRoute: AuthenticatedAdminRecognitionRoute,
   AuthenticatedAdminServicesRoute: AuthenticatedAdminServicesRoute,
   AuthenticatedAdminSiteSettingsRoute: AuthenticatedAdminSiteSettingsRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,

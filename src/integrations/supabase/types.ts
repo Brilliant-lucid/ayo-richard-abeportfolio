@@ -490,33 +490,45 @@ export type Database = {
       portfolios: {
         Row: {
           avatar_url: string | null
+          career_profile: string | null
           created_at: string
           display_name: string
           id: string
           is_published: boolean
+          onboarded_at: string | null
           owner_id: string
+          profession: string | null
+          section_order: string[] | null
           tagline: string | null
           updated_at: string
           username: string
         }
         Insert: {
           avatar_url?: string | null
+          career_profile?: string | null
           created_at?: string
           display_name: string
           id?: string
           is_published?: boolean
+          onboarded_at?: string | null
           owner_id: string
+          profession?: string | null
+          section_order?: string[] | null
           tagline?: string | null
           updated_at?: string
           username: string
         }
         Update: {
           avatar_url?: string | null
+          career_profile?: string | null
           created_at?: string
           display_name?: string
           id?: string
           is_published?: boolean
+          onboarded_at?: string | null
           owner_id?: string
+          profession?: string | null
+          section_order?: string[] | null
           tagline?: string | null
           updated_at?: string
           username?: string
@@ -553,6 +565,7 @@ export type Database = {
           owner_id: string
           problem: string | null
           process: string | null
+          publish_as: string
           publish_date: string | null
           related_projects: string[] | null
           results: string | null
@@ -600,6 +613,7 @@ export type Database = {
           owner_id: string
           problem?: string | null
           process?: string | null
+          publish_as?: string
           publish_date?: string | null
           related_projects?: string[] | null
           results?: string | null
@@ -647,6 +661,7 @@ export type Database = {
           owner_id?: string
           problem?: string | null
           process?: string | null
+          publish_as?: string
           publish_date?: string | null
           related_projects?: string[] | null
           results?: string | null
