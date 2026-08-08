@@ -4,16 +4,16 @@ This document is a verified milestone index for the repository. Detailed histori
 
 ## Milestones
 
-1. **Initial portfolio presentation** — hero image, blog section, project presentation, project cards, navigation and detail-page UX.
-2. **Content management** — admin blog CRUD (Create, Read, Update, Delete), project media previews, and content-management improvements.
-3. **Authentication** — password reset, signup/sign-in refinements, and Google Single Sign-On (SSO).
-4. **AI-assisted administration** — AI Assist panel followed by Model Context Protocol (MCP) integrations and OAuth support.
-5. **Public portfolio publishing** — public portfolio flow, navigation/link fixes, domain prerequisite work, and visual refinements.
-6. **Project presentation evolution** — public project-page redesign, portfolio overview redesign, grid/image improvements.
-7. **Services and adaptive UI** — services capability and responsive/adaptive presentation.
-8. **Documentation baseline** — verified README, changelog, architecture, feature inventory, setup, workflow, and security/technical-debt documentation.
-9. **AI code-review workflow** — merged AI code-review agent pull request.
-10. **Admin content architecture refactor** — unified Profile & Hero, Projects & Case Studies, Experience & Credentials, Publications & Testimonials, plus related portfolio schema fields and reusable collection management.
+1. **Initial portfolio presentation** — hero image, blog section, project presentation, project cards, navigation and detail-page UX. See historical Issue #25.
+2. **Content management** — admin blog CRUD (Create, Read, Update, Delete), project media previews, and content-management improvements. See historical Issue #25.
+3. **Authentication** — password reset, signup/sign-in refinements, and Google Single Sign-On (SSO). See historical Issue #26.
+4. **AI-assisted administration** — AI Assist panel followed by Model Context Protocol (MCP) integrations and OAuth support. See historical Issue #27.
+5. **Public portfolio publishing** — public portfolio flow, navigation/link fixes, domain prerequisite work, and visual refinements. See historical Issue #28.
+6. **Project presentation evolution** — public project-page redesign, portfolio overview redesign, grid/image improvements. See historical Issue #29.
+7. **Services and adaptive UI** — services capability and responsive/adaptive presentation. See historical Issue #30.
+8. **Documentation baseline** — verified README, changelog, architecture, feature inventory, setup, workflow, and security/technical-debt documentation. See historical Issue #31.
+9. **AI code-review workflow** — merged AI code-review agent pull request. See historical Issue #32.
+10. **Admin content architecture refactor** — unified Profile & Hero, Projects & Case Studies, Experience & Credentials, Publications & Testimonials, plus related portfolio schema fields and reusable collection management. See historical Issue #33.
 
 ## Current open work
 
