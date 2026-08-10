@@ -67,20 +67,18 @@ export const getSiteData = createServerFn({ method: "GET" })
   .inputValidator((d: unknown) => usernameOnly.parse(d ?? {}))
   .handler(async ({ data }) => {
     const p = await resolvePortfolio(data.username);
-    if (!p) return { portfolio: null, settings: null, nav: [], hero: null, stats: [] };
+    if (!p) return { portfolio: null, settings: null, nav: [], hero: null };
     const sb = await admin();
-    const [settings, nav, hero, stats] = await Promise.all([
+    const [settings, nav, hero] = await Promise.all([
       sb.from("site_settings").select("*").eq("owner_id", p.owner_id).limit(1).maybeSingle(),
       sb.from("nav_links").select("*").eq("owner_id", p.owner_id).eq("visible", true).order("display_order"),
       sb.from("hero").select("*").eq("owner_id", p.owner_id).limit(1).maybeSingle(),
-      sb.from("stats").select("*").eq("owner_id", p.owner_id).order("display_order"),
     ]);
     return {
       portfolio: p,
       settings: settings.data,
       nav: nav.data ?? [],
       hero: hero.data,
-      stats: stats.data ?? [],
     };
   });
 
