@@ -5,13 +5,18 @@
 
 ## Completed artifacts
 
+- `docs/STAGE_4_INDEX.md`
 - `docs/AUDIT_STAGE_4_TECHNICAL_ARCHITECTURE_AND_DATA.md`
 - `docs/DATA_DICTIONARY_STAGE_4.md`
 - `docs/STAGE_4_ARCHITECTURE_DECISIONS.md`
 - `docs/STAGE_4_DATA_FLOW_MAP.md`
 - `docs/TRACEABILITY_STAGE_4.md`
-- `docs/TECHNICAL_SOURCE_OF_TRUTH_STAGE_4.md`
 - `docs/STAGE_4_ISSUE_IMPACT_MATRIX.md`
+- `docs/TECHNICAL_SOURCE_OF_TRUTH_STAGE_4.md`
+- `docs/STAGE_4_REPOSITORY_EVIDENCE_LOG.md`
+- `docs/STAGE_4_TECHNICAL_GAPS.md`
+- `docs/STAGE_4_SCOPE_GUARD.md`
+- `docs/STAGE_4_COMPLETION_RECORD.md`
 
 ## Stage outcome
 
@@ -42,6 +47,7 @@ The baseline covers:
 - Runtime verification requirements.
 - Technical requirements emerging from the architecture.
 - Traceability to the existing GitHub issue program.
+- Explicit evidence gaps and scope guardrails.
 
 ## Important evidence limitation
 
