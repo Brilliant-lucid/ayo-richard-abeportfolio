@@ -2,6 +2,11 @@
 
 Stage 4 establishes the technical source of truth for the portfolio platform.
 
+## Quick reference
+
+- `STAGE_4_README.md` — short technical summary.
+- `STAGE_4_VERIFICATION_CHECKLIST.md` — completed Stage 4 verification checklist.
+
 ## Core document
 
 - `AUDIT_STAGE_4_TECHNICAL_ARCHITECTURE_AND_DATA.md` — full technical architecture and data baseline.
@@ -15,6 +20,8 @@ Stage 4 establishes the technical source of truth for the portfolio platform.
 - `STAGE_4_ISSUE_IMPACT_MATRIX.md` — technical impact of current GitHub issues.
 - `TECHNICAL_SOURCE_OF_TRUTH_STAGE_4.md` — authority hierarchy for technical facts.
 - `STAGE_4_REPOSITORY_EVIDENCE_LOG.md` — evidence inspected and limitations.
+- `STAGE_4_TECHNICAL_GAPS.md` — explicit evidence gaps carried into later stages.
+- `STAGE_4_SCOPE_GUARD.md` — guardrail separating current, transitional, and future architecture.
 - `STAGE_4_COMPLETION_RECORD.md` — stage completion and readiness implications.
 
 ## Relationship to previous stages
