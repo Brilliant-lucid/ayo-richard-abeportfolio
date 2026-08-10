@@ -11,6 +11,7 @@
 - `docs/STAGE_4_DATA_FLOW_MAP.md`
 - `docs/TRACEABILITY_STAGE_4.md`
 - `docs/TECHNICAL_SOURCE_OF_TRUTH_STAGE_4.md`
+- `docs/STAGE_4_ISSUE_IMPACT_MATRIX.md`
 
 ## Stage outcome
 
@@ -40,6 +41,7 @@ The baseline covers:
 - Architectural debt.
 - Runtime verification requirements.
 - Technical requirements emerging from the architecture.
+- Traceability to the existing GitHub issue program.
 
 ## Important evidence limitation
 
