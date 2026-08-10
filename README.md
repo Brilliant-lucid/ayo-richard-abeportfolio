@@ -72,6 +72,7 @@ docs/
 ├── ARCHITECTURE.md
 ├── DEVELOPMENT.md
 ├── FEATURES.md
+├── IMPLEMENTATION_ROADMAP.md
 └── SETUP.md
 ```
 
@@ -122,6 +123,7 @@ The repository is configured around TanStack Start and Nitro through the Lovable
 
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — system structure and data flow
 - [`docs/FEATURES.md`](docs/FEATURES.md) — verified feature inventory and status
+- [`docs/IMPLEMENTATION_ROADMAP.md`](docs/IMPLEMENTATION_ROADMAP.md) — implementation order, dependencies, migration gates, and release sequence
 - [`docs/SETUP.md`](docs/SETUP.md) — local setup and environment configuration
 - [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md) — development workflow and conventions
 - [`CHANGELOG.md`](CHANGELOG.md) — observable project history
@@ -129,6 +131,10 @@ The repository is configured around TanStack Start and Nitro through the Lovable
 ## Current status
 
 **Active development / working baseline.** The repository contains a functioning portfolio platform with public portfolio rendering, authenticated management routes, Supabase-backed persistence, service inquiries, and MCP tooling. The codebase also contains legacy compatibility fields and generated integration files, so some areas need further cleanup and verification before being treated as a stable production architecture.
+
+## Implementation roadmap
+
+For the current remediation and refinement work, follow [`docs/IMPLEMENTATION_ROADMAP.md`](docs/IMPLEMENTATION_ROADMAP.md) before selecting implementation order. The roadmap coordinates the relevant GitHub Issues, identifies dependencies, and requires migration/data-safety work before admin and public presentation changes.
 
 ## Known limitations and audit notes
 
