@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { ArrowUpRight, ArrowRight, MapPin, Github, Linkedin, Twitter, Mail } from "lucide-react";
+import { useRef, useEffect } from "react";
 import {
   siteQO,
   projectsQO,
@@ -83,6 +84,32 @@ export const Route = createFileRoute("/u/$username/")({
   component: PortfolioHome,
 });
 
+function ProfessionalHighlights({ hero }: { hero: any }) {
+  const items: { key: string; label: string; value?: any }[] = [];
+  if (hero?.years_experience) items.push({ key: "years", label: "Years experience", value: `${hero.years_experience}+` });
+  if (hero?.industries?.length) items.push({ key: "industries", label: "Industries", value: hero.industries.join(" • ") });
+  if (hero?.expertise?.length) items.push({ key: "expertise", label: "Expertise", value: hero.expertise.join(" • ") });
+  if (hero?.availability) items.push({ key: "availability", label: "Availability", value: hero.availability });
+
+  if (items.length === 0) return null;
+
+  return (
+    <section aria-labelledby="highlights" className="mt-8">
+      <h2 id="highlights" className="sr-only">
+        Professional highlights
+      </h2>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {items.map((it) => (
+          <div key={it.key} className="rounded-2xl border border-line bg-cloud p-4">
+            <div className="text-xs uppercase tracking-[0.18em] text-muted-ink">{it.label}</div>
+            <div className="mt-2 font-display text-lg text-ink">{it.value}</div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function PortfolioHome() {
   const { username } = Route.useParams();
   const { data: site } = useSuspenseQuery(siteQO(username));
@@ -97,12 +124,11 @@ function PortfolioHome() {
     bookable.length === 1
       ? actionLabel(bookable[0])
       : bookable.length > 1
-        ? "Work with me"
-        : null;
+      ? "Work with me"
+      : null;
 
   const hero = site.hero;
   const settings = site.settings;
-  const stats = site.stats;
   const featured = projects.filter((p) => p.featured);
   const shownProjects = featured.length > 0 ? featured : projects.slice(0, 4);
   const featuredPosts = posts.slice(0, 3);
@@ -120,6 +146,28 @@ function PortfolioHome() {
   const hasAbout = Boolean(
     aboutBody || hero?.expertise?.length || hero?.industries?.length || hero?.years_experience || hero?.mission,
   );
+
+  // CTA labels and urls from hero/profile where available
+  const primaryLabel = hero?.cta_primary_label || primaryCta || "Hire me";
+  const primaryUrl = hero?.cta_primary_url || null;
+  const secondaryLabel = hero?.cta_secondary_label || (projects.length > 0 ? "View Projects" : null);
+  const secondaryUrl = hero?.cta_secondary_url || null;
+
+  // Ref + keyboard handlers for mobile horizontal projects
+  const projectsRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const el = projectsRef.current;
+    if (!el) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") {
+        el.scrollBy({ left: el.clientWidth * 0.8, behavior: "smooth" });
+      } else if (e.key === "ArrowLeft") {
+        el.scrollBy({ left: -el.clientWidth * 0.8, behavior: "smooth" });
+      }
+    };
+    el.addEventListener("keydown", onKey as any);
+    return () => el.removeEventListener("keydown", onKey as any);
+  }, []);
 
   return (
     <div className="space-y-24">
@@ -163,21 +211,40 @@ function PortfolioHome() {
           </div>
 
           <div className="mt-8 flex flex-wrap gap-3">
-            <button
-              type="button"
-              onClick={() => openContactDialog()}
-              className="inline-flex min-h-11 items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-cloud transition-transform hover:scale-[1.02]"
-            >
-              {primaryCta || hero?.cta_primary_label || "Hire me"} <ArrowUpRight size={14} />
-            </button>
-            {projects.length > 0 && (
-              <Link
-                to="/u/$username/projects"
-                params={{ username }}
+            {primaryUrl ? (
+              <a
+                href={primaryUrl}
+                className="inline-flex min-h-11 items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-cloud transition-transform hover:scale-[1.02]"
+              >
+                {primaryLabel} <ArrowUpRight size={14} />
+              </a>
+            ) : (
+              <button
+                type="button"
+                onClick={() => openContactDialog()}
+                className="inline-flex min-h-11 items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-cloud transition-transform hover:scale-[1.02]"
+              >
+                {primaryLabel} <ArrowUpRight size={14} />
+              </button>
+            )}
+
+            {secondaryUrl ? (
+              <a
+                href={secondaryUrl}
                 className="inline-flex min-h-11 items-center gap-2 rounded-full border border-line bg-cloud px-5 py-2.5 text-sm font-medium text-ink transition-colors hover:bg-surface"
               >
-                View Projects <ArrowUpRight size={14} />
-              </Link>
+                {secondaryLabel} <ArrowUpRight size={14} />
+              </a>
+            ) : (
+              projects.length > 0 && (
+                <Link
+                  to="/u/$username/projects"
+                  params={{ username }}
+                  className="inline-flex min-h-11 items-center gap-2 rounded-full border border-line bg-cloud px-5 py-2.5 text-sm font-medium text-ink transition-colors hover:bg-surface"
+                >
+                  {secondaryLabel || "View Projects"} <ArrowUpRight size={14} />
+                </Link>
+              )
             )}
             <ShareButton title={name} />
           </div>
@@ -194,18 +261,12 @@ function PortfolioHome() {
             </div>
           </Reveal>
         )}
-      </section>
 
-      {stats.length > 0 && (
-        <section className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line md:grid-cols-4">
-          {stats.map((s) => (
-            <div key={s.id} className="bg-cloud p-6">
-              <div className="font-display text-3xl text-ink">{s.value}</div>
-              <div className="mt-1 text-xs uppercase tracking-wider text-muted-ink">{s.label}</div>
-            </div>
-          ))}
-        </section>
-      )}
+        {/* Professional highlights - replaces large numeric metric block */}
+        <div className="md:col-span-full">
+          <ProfessionalHighlights hero={hero} />
+        </div>
+      </section>
 
       <ServicesSection services={services} />
 
@@ -243,7 +304,7 @@ function PortfolioHome() {
                 <div className="rounded-2xl border border-line bg-cloud p-6">
                   <div className="text-xs uppercase tracking-[0.18em] text-muted-ink">Areas of expertise</div>
                   <div className="mt-3 flex flex-wrap gap-2">
-                    {hero.expertise.map((e) => (
+                    {hero.expertise.map((e: string) => (
                       <Pill key={e}>{e}</Pill>
                     ))}
                   </div>
@@ -253,7 +314,7 @@ function PortfolioHome() {
                 <div className="rounded-2xl border border-line bg-cloud p-6">
                   <div className="text-xs uppercase tracking-[0.18em] text-muted-ink">Industries</div>
                   <div className="mt-3 flex flex-wrap gap-2">
-                    {hero.industries.map((e) => (
+                    {hero.industries.map((e: string) => (
                       <Pill key={e}>{e}</Pill>
                     ))}
                   </div>
@@ -306,40 +367,49 @@ function PortfolioHome() {
             </Link>
           }
         >
-          <div className="grid gap-6 md:grid-cols-2">
-            {shownProjects.map((p) => (
-              <Link
-                key={p.id}
-                to="/u/$username/projects/$slug"
-                params={{ username, slug: p.slug }}
-                className="group flex flex-col gap-3 rounded-[28px] bg-ink p-3 text-cloud shadow-xl shadow-ink/10 transition-all hover:-translate-y-1 hover:shadow-2xl"
-              >
-                {p.featured_image_url ? (
-                  <div className="relative aspect-[4/3] overflow-hidden rounded-[20px]">
-                    <img src={p.featured_image_url} alt={p.name} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                  </div>
-                ) : (
-                  <div className="aspect-[4/3] rounded-[20px] bg-cloud/10" />
-                )}
-                <div className="px-3 pt-2">
-                  <div className="text-[10px] uppercase tracking-[0.22em] text-cloud/50">{p.category ?? "Project"}</div>
-                  <div className="mt-2 font-display text-2xl">{p.name}</div>
-                  {p.summary && <p className="mt-2 line-clamp-3 text-sm text-cloud/70">{p.summary}</p>}
-                  {p.tools?.length ? (
-                    <div className="mt-3 flex flex-wrap gap-1.5">
-                      {p.tools.slice(0, 4).map((t) => (
-                        <span key={t} className="rounded-full border border-cloud/20 px-2 py-0.5 text-[10px] text-cloud/70">
-                          {t}
-                        </span>
-                      ))}
+          {/* Mobile: horizontal scroll with partial next card. Desktop: grid */}
+          <div className="md:block">
+            <div
+              ref={projectsRef}
+              tabIndex={0}
+              className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-4 scroll-smooth snap-x snap-mandatory md:mx-0 md:grid md:grid-cols-2 md:gap-6 md:overflow-visible md:px-0 md:pb-0"
+              aria-label="Projects"
+            >
+              {shownProjects.map((p) => (
+                <div key={p.id} className="min-w-[80%] snap-start md:min-w-0 md:contents">
+                  <Link
+                    to="/u/$username/projects/$slug"
+                    params={{ username, slug: p.slug }}
+                    className="group flex flex-col gap-3 rounded-[28px] bg-ink p-3 text-cloud shadow-xl shadow-ink/10 transition-all hover:-translate-y-1 hover:shadow-2xl"
+                  >
+                    {p.featured_image_url ? (
+                      <div className="relative aspect-[4/3] overflow-hidden rounded-[20px]">
+                        <img src={p.featured_image_url} alt={p.name} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                      </div>
+                    ) : (
+                      <div className="aspect-[4/3] rounded-[20px] bg-cloud/10" />
+                    )}
+                    <div className="px-3 pt-2">
+                      <div className="text-[10px] uppercase tracking-[0.22em] text-cloud/50">{p.category ?? "Project"}</div>
+                      <div className="mt-2 font-display text-2xl">{p.name}</div>
+                      {p.summary && <p className="mt-2 line-clamp-3 text-sm text-cloud/70">{p.summary}</p>}
+                      {p.tools?.length ? (
+                        <div className="mt-3 flex flex-wrap gap-1.5">
+                          {p.tools.slice(0, 4).map((t: string) => (
+                            <span key={t} className="rounded-full border border-cloud/20 px-2 py-0.5 text-[10px] text-cloud/70">
+                              {t}
+                            </span>
+                          ))}
+                        </div>
+                      ) : null}
                     </div>
-                  ) : null}
+                    <div className="mt-3 flex items-center justify-center rounded-full bg-cloud px-5 py-3 text-sm font-medium text-ink transition-colors group-hover:bg-electric group-hover:text-ink">
+                      View project
+                    </div>
+                  </Link>
                 </div>
-                <div className="mt-3 flex items-center justify-center rounded-full bg-cloud px-5 py-3 text-sm font-medium text-ink transition-colors group-hover:bg-electric group-hover:text-ink">
-                  View project
-                </div>
-              </Link>
-            ))}
+              ))}
+            </div>
           </div>
         </Section>
       )}
