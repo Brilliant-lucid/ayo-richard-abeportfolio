@@ -6,9 +6,9 @@
 
 ## Program purpose
 
-This program documents and verifies the platform from repository baseline through production launch and post-launch governance.
+This program documents, verifies, hardens, and governs the platform from repository baseline through production launch and post-launch operations.
 
-## Ten-stage model
+## Eleven-stage model
 
 | Stage | Area | Outcome |
 |---|---|---|
@@ -21,7 +21,8 @@ This program documents and verifies the platform from repository baseline throug
 | 7 | Production Infrastructure & Deployment | Establish controlled production path |
 | 8 | Product Operations, Support, Analytics & Growth | Establish operating model |
 | 9 | Legal, Compliance, Privacy & Trust | Establish legal/trust readiness |
-| 10 | Final Production Readiness, Launch & Governance | Make evidence-based launch decision |
+| 10 | Final Production Readiness, Launch & Governance | Define evidence-based launch decision |
+| **11** | **Master Production Hardening & Verification** | **Exercise and prove the production controls** |
 
 ## Stage 8
 
@@ -35,31 +36,78 @@ This program documents and verifies the platform from repository baseline throug
 
 `docs/AUDIT_STAGE_10_FINAL_PRODUCTION_READINESS_AND_LAUNCH_GOVERNANCE.md`
 
+## Stage 11 — Master Production Hardening & Verification
+
+`docs/STAGE_11_MASTER_PRODUCTION_HARDENING_INDEX.md`
+
+### Stage 11A — Production Data Migration & Cleanup
+
+`docs/STAGE_11A_PRODUCTION_DATA_MIGRATION_AND_CLEANUP.md`
+
+### Stage 11B — Security & Abuse Verification
+
+`docs/STAGE_11B_SECURITY_AND_ABUSE_VERIFICATION.md`
+
+### Stage 11C — Disaster Recovery & Restore Drill
+
+`docs/STAGE_11C_DISASTER_RECOVERY_AND_RESTORE_DRILL.md`
+
+### Stage 11D — Performance & Load Validation
+
+`docs/STAGE_11D_PERFORMANCE_AND_LOAD_VALIDATION.md`
+
+### Stage 11E — Email, SEO & Domain Verification
+
+`docs/STAGE_11E_EMAIL_SEO_DOMAIN_VERIFICATION.md`
+
+### Stage 11F — Dependency & Supply-Chain Audit
+
+`docs/STAGE_11F_DEPENDENCY_AND_SUPPLY_CHAIN_AUDIT.md`
+
+### Stage 11G — Cost, Capacity & Scaling Validation
+
+`docs/STAGE_11G_COST_CAPACITY_AND_SCALING_VALIDATION.md`
+
+### Stage 11H — Final Production Cutover
+
+`docs/STAGE_11H_FINAL_PRODUCTION_CUTOVER_RUNBOOK.md`
+
 ## Combined completion record
 
 `docs/STAGES_8_9_10_COMPLETION_RECORD.md`
 
 ## Important interpretation
 
-The ten-stage program is a **readiness framework**, not a claim that every checklist item is already implemented.
+The eleven-stage program is a **readiness and verification framework**, not a claim that every checklist item is already implemented.
 
-The repository may contain documentation for a required capability while the capability remains an open implementation or verification task.
+Stages 1–10 establish the architecture, requirements, controls, and decision framework. Stage 11 is the evidence layer that exercises those controls before launch.
 
-The final production decision must therefore use evidence from:
+The repository may therefore contain documentation for a required capability while the capability remains an open implementation or verification task.
+
+## Evidence rule
+
+Stage completion must be distinguished from documentation completion.
+
+Where appropriate, final verification should reference:
 
 - Code.
 - Database policies/migrations.
 - Automated test results.
-- Preview/production verification.
-- Infrastructure configuration.
-- Operational procedures.
+- Security test results.
+- Migration/cleanup reports.
+- Restore drill results.
+- Performance/load results.
+- Provider configuration evidence.
+- Infrastructure logs.
+- Cost/capacity calculations.
+- Production cutover records.
 - Legal/privacy review.
 - Risk acceptance records.
 
 ## Final decision
 
-The program culminates in Stage 10's:
+**Stage 10 remains the formal GO / CONDITIONAL GO / NO-GO decision stage.**
 
-**GO / CONDITIONAL GO / NO-GO** decision.
+Stage 11 supplies the final hardening evidence used by that decision.
 
-That decision should be recorded against a specific release candidate commit/tag and should never be inferred solely from issue/documentation completion.
+The final decision must be recorded against a specific release candidate commit/tag and should never be inferred solely from issue or documentation completion.
