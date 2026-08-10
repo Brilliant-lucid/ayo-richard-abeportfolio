@@ -86,7 +86,7 @@ export const Route = createFileRoute("/u/$username/")({
 
 function ProfessionalHighlights({ hero }: { hero: any }) {
   const items: { key: string; label: string; value?: any }[] = [];
-  if (hero?.years_experience) items.push({ key: "years", label: "Years experience", value: `${hero.years_experience}+` });
+  if (hero?.years_experience) items.push({ key: "years", label: "Years", value: `${hero.years_experience}+` });
   if (hero?.industries?.length) items.push({ key: "industries", label: "Industries", value: hero.industries.join(" • ") });
   if (hero?.expertise?.length) items.push({ key: "expertise", label: "Expertise", value: hero.expertise.join(" • ") });
   if (hero?.availability) items.push({ key: "availability", label: "Availability", value: hero.availability });
@@ -98,11 +98,16 @@ function ProfessionalHighlights({ hero }: { hero: any }) {
       <h2 id="highlights" className="sr-only">
         Professional highlights
       </h2>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="flex flex-wrap items-center gap-3">
         {items.map((it) => (
-          <div key={it.key} className="rounded-2xl border border-line bg-cloud p-4">
+          <div
+            key={it.key}
+            className="inline-flex items-center gap-3 rounded-full border border-line bg-cloud/5 px-3 py-2 text-sm"
+            role="article"
+            aria-label={`Highlight: ${it.label}`}
+          >
             <div className="text-xs uppercase tracking-[0.18em] text-muted-ink">{it.label}</div>
-            <div className="mt-2 font-display text-lg text-ink">{it.value}</div>
+            <div className="font-medium text-ink">{it.value}</div>
           </div>
         ))}
       </div>
@@ -270,60 +275,7 @@ function PortfolioHome() {
 
       <ServicesSection services={services} />
 
-      {/* 2. About */}
-      {hasAbout && (
-        <Section
-          id="about"
-          eyebrow="About"
-          title={`Who ${name.split(" ")[0]} is`}
-          action={
-            <Link
-              to="/u/$username/about"
-              params={{ username }}
-              className="hidden shrink-0 items-center gap-1 text-sm text-ink-soft hover:text-electric sm:inline-flex"
-            >
-              Full bio <ArrowRight size={14} />
-            </Link>
-          }
-        >
-          <div className="grid gap-6 md:grid-cols-[1.4fr_1fr]">
-            <Reveal className="rounded-2xl border border-line bg-cloud p-6">
-              {aboutBody && <p className="whitespace-pre-wrap text-base leading-relaxed text-ink-soft">{aboutBody}</p>}
-              {hero?.mission && (
-                <p className="mt-5 border-l-2 border-electric pl-4 text-base italic text-ink">{hero.mission}</p>
-              )}
-            </Reveal>
-            <Reveal delay={80} className="space-y-4">
-              {hero?.years_experience ? (
-                <div className="rounded-2xl border border-line bg-cloud p-6">
-                  <div className="font-display text-4xl text-ink">{hero.years_experience}+</div>
-                  <div className="mt-1 text-xs uppercase tracking-wider text-muted-ink">Years of experience</div>
-                </div>
-              ) : null}
-              {hero?.expertise?.length ? (
-                <div className="rounded-2xl border border-line bg-cloud p-6">
-                  <div className="text-xs uppercase tracking-[0.18em] text-muted-ink">Areas of expertise</div>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {hero.expertise.map((e: string) => (
-                      <Pill key={e}>{e}</Pill>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
-              {hero?.industries?.length ? (
-                <div className="rounded-2xl border border-line bg-cloud p-6">
-                  <div className="text-xs uppercase tracking-[0.18em] text-muted-ink">Industries</div>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {hero.industries.map((e: string) => (
-                      <Pill key={e}>{e}</Pill>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
-            </Reveal>
-          </div>
-        </Section>
-      )}
+      {/* NOTE: About section intentionally removed from homepage per UX-001. Full About content lives on /u/:username/about */}
 
       {/* 3. Experience & Certifications */}
       {(profile.experience.length > 0 || profile.certifications.length > 0) && (
@@ -372,7 +324,7 @@ function PortfolioHome() {
             <div
               ref={projectsRef}
               tabIndex={0}
-              className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-4 scroll-smooth snap-x snap-mandatory md:mx-0 md:grid md:grid-cols-2 md:gap-6 md:overflow-visible md:px-0 md:pb-0"
+              className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-4 scroll-smooth snap-x snap-mandatory md:mx-0 md:grid md:grid-cols-2 md:gap-6 md:overflow-visible md:px-0 md:pb-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-electric/50"
               aria-label="Projects"
             >
               {shownProjects.map((p) => (
